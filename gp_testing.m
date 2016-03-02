@@ -45,17 +45,16 @@ mesh(xq,yq,vq);
 hold on
 plot3(x_raw(:,1), x_raw(:,2), y_raw, 'b.', 'MarkerSize', 40);
 
-% Diagnostics from Sen, on outputs of project_to_convex that aren't
-% currently being returned.
-% h= figure(1)
-% plot(cumsum(time_vec),sq_sse/n)
-% title('Time versus Training SSE/n')     % SSE = sum of squared errors
-% 
-% h= figure(2)
-% plot(cumsum(time_vec),prim_feas)
-% title('Time versus Primal Feasibility/n')
 
+    % Diagnostics from Sen, on outputs of project_to_convex that aren't
+    % currently being returned.
+    % h= figure(1)
+    % plot(cumsum(time_vec),sq_sse/n)
+    % title('Time versus Training SSE/n')     % SSE = sum of squared errors
+    % 
+    % h= figure(2)
+    % plot(cumsum(time_vec),prim_feas)
+    % title('Time versus Primal Feasibility/n')
 
-6.7329
 
 

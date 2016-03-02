@@ -1,16 +1,25 @@
-function [xt1, xt2, z] = run_gp(x, y)
-%   Run gp.
+function [xt1, xt2, z] = run_gp(x, y, ls_factor, color)
+% Run gpstuff.
 
 % GP REGRESSION ON TRAINING DATA ------------------------------------------
 % Goal: Make GP regression data, finish with vectors x, y.
 
+% Establish boundary of data.
+x_min = min(min(x)); x_max = max(max(x)); y_min = min(y); y_max = max(y);
+x_range = x_max - x_min;
+
 % Step 1. Train the GP.
-lik = lik_gaussian('sigma2', 0.2^2);
-gpcf = gpcf_sexp('lengthScale', [1.1 1.2], 'magnSigma2', 0.2^2)
+length_scale = [x_range*ls_factor, x_range*ls_factor];  % Scaled according to range.
+mag_sig2 = (x_range*0.01)^2;
+
+lik = lik_gaussian('sigma2', mag_sig2);
+gpcf = gpcf_sexp('lengthScale', length_scale, 'magnSigma2', mag_sig2);
+
 pn=prior_logunif();
 lik = lik_gaussian(lik, 'sigma2_prior', pn);
 pl = prior_unif();
 pm = prior_sqrtunif();
+
 gpcf = gpcf_sexp(gpcf, 'lengthScale_prior', pl, 'magnSigma2_prior', pm);
 gp = gp_set('lik', lik, 'cf', gpcf);
 
@@ -29,7 +38,8 @@ disp(s), disp(exp(w))
 %gp_rec = thin(gp_rec, 21, 2);
 
 % Step 3. Create surface grid.
-[xt1,xt2]=meshgrid(-10.0:0.2:10.0,-10.0:0.2:10.0);
+x_grid = x_min*1.1:x_range/100:x_max*1.1;
+[xt1,xt2]=meshgrid(x_grid,x_grid);  %Scaled according to range.
 xt=[xt1(:) xt2(:)];
 
 % Step 4. Produce surface prediction, MAP version.
@@ -41,6 +51,11 @@ z = reshape(Eft_map, size(xt1));
 
 % Step 4. Plot the surface, with the training data.
 surf(xt1, xt2, z, 'FaceColor','interp', 'EdgeColor','flat', 'FaceLighting','gouraud');
+if color=='winter'
+    colormap winter;
+else
+    colormap summer;
+end
 axis tight; hold on;
 plot3(x(:,1), x(:,2), y, 'r.', 'MarkerSize', 40);
 

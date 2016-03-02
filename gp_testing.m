@@ -5,16 +5,15 @@
 %   A Computational Framework for Multivariate Convex Regression and its Variants.
 %   Available at: http://www.stat.columbia.edu/~bodhi/Bodhi/Publications.html
 
-% IMPORT GPSTUFF AND SET PATHS --------------------------------------------
-
+% IMPORT GPSTUFF AND SET PATHS
 cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/GPstuff-4.6/
 matlab_install
 addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/')
 addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Programs')
+addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Functions')
 cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/
 
-% SET CONSTANTS -----------------------------------------------------------
-
+% SET CONSTANTS
 tol_thres = 0;
 eps1 = 10^-5;     %These 2 epsilons are used for convergence of the algo
 eps2 = 10^-5;

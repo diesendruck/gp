@@ -1,4 +1,4 @@
-function [xt1, xt2, z] = run_gp(x, y, ls_factor, color)
+function [xt, Eft_map] = run_gp(x, y, ls_factor, color)
 % Run gpstuff.
 
 % GP REGRESSION ON TRAINING DATA ------------------------------------------
@@ -38,7 +38,7 @@ disp(s), disp(exp(w))
 %gp_rec = thin(gp_rec, 21, 2);
 
 % Step 3. Create surface grid.
-x_grid = x_min*1.1:x_range/100:x_max*1.1;
+x_grid = x_min*1.1:x_range/20:x_max*1.1;
 [xt1,xt2]=meshgrid(x_grid,x_grid);  %Scaled according to range.
 xt=[xt1(:) xt2(:)];
 

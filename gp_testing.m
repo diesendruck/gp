@@ -24,25 +24,26 @@ sig = 7.0;        % Error variance
 
 % SIMULATE RAW DATA (CONVEX + NOISE)
 %[x, y] = make_noisy_convex(n, d, sig, 'trough');
-[x, y] = make_noisy_convex(n, d, sig, 'paraboloid');
+[x_raw, y_raw] = make_noisy_convex(n, d, sig, 'paraboloid');
 %scatter3(x(:, 1), x(:, 2), y);
 
 % RUN GP ON RAW DATA.
 figure;
 subplot(1, 2, 1)
-run_gp(x, y, 0.08, 'winter');  % Plots Gaussian Process surface.
+[xt_gp, y_gp] = run_gp(x_raw, y_raw, 0.08, 'winter');  % Plots Gaussian Process surface.
 
 % GET CONVEX PROJECTION
-convex_y = project_to_convex(n, d, x, y, eps1, eps2, Max_Iter, rho);
+n_gp = length(xt_gp);
+convex_y = project_to_convex(n_gp, d, xt_gp, y_gp, eps1, eps2, Max_Iter, rho);
 %y-convex_y
 
 % PLOT CONVEX OVER ORIGINAL GP
 [xq, yq] = meshgrid(-10:.2:10);
-vq = griddata(x(:,1), x(:,2), convex_y, xq, yq);
+vq = griddata(xt_gp(:,1), xt_gp(:,2), convex_y, xq, yq);
 subplot(1,2,2)
 mesh(xq,yq,vq);
 hold on
-plot3(x(:,1), x(:,2), convex_y, 'b.', 'MarkerSize', 40);
+plot3(x_raw(:,1), x_raw(:,2), y_raw, 'b.', 'MarkerSize', 40);
 
 % Diagnostics from Sen, on outputs of project_to_convex that aren't
 % currently being returned.
@@ -55,6 +56,6 @@ plot3(x(:,1), x(:,2), convex_y, 'b.', 'MarkerSize', 40);
 % title('Time versus Primal Feasibility/n')
 
 
-
+6.7329
 
 

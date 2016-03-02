@@ -4,10 +4,10 @@ function [th_trans] = project_to_convex(n, d, x, y, eps1, eps2, Max_Iter, rho)
 % Standardize variables x and y.
 X = zeros(n,d);
 for ii=1:d
-    X(:,ii) = x(:,ii) - mean(x(:,ii));
-    X(:,ii) = X(:,ii)/norm(X(:,ii));
+    X(:,ii) = x(:,ii) - mean(x(:,ii));  % Mean-center.
+    X(:,ii) = X(:,ii)/norm(X(:,ii));    % Normalize x.
 end
-Y = y/norm(y);
+Y = y/norm(y);                          % Normalize y.
 %[XT1, XT2, Z] = run_gp(X, Y, 0.1);
 %scatter3(X(:,1), X(:,2), Y);
 
@@ -15,7 +15,7 @@ Y = y/norm(y);
 Max_Iter = 2000;
 rho0 = 1/n;	 rho = rho0;
 
-% Find the standardized convex regression function.
+% Find the standardized convex regression function using Sen's algorithm.
 [th,xi,sq_sse, prim_feas, time_vec] = FUNCvxVanilla(X,Y,eps1,eps2, Max_Iter, rho);
 
 % Final estimate of convex regression function at the data points.

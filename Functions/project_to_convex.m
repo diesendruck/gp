@@ -1,4 +1,4 @@
-function [th_trans] = project_to_convex(n, d, x, y, eps1, eps2, Max_Iter, rho)
+function [th_trans] = project_to_convex(n, d, x, y, eps1, eps2)
 % Project x, y onto convex function.
 
 % Standardize variables x and y.

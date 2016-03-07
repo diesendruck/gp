@@ -40,7 +40,7 @@ subplot(1, 3, 2)
 title('MCMC');
 % GET CONVEX PROJECTION.
 n_gp = length(xt_gp);
-convex_y = project_to_convex(n_gp, d, xt_gp, y_gp, eps1, eps2, Max_Iter, rho);
+convex_y = project_to_convex(n_gp, d, xt_gp, y_gp, eps1, eps2);
 y_gp-convex_y
 
 % Sample MCMC's, each with a projection. Average MCMC's, and average

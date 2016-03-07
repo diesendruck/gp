@@ -1,10 +1,15 @@
 function [xt, Eft] = run_gp(x, y, ls_factor, mcmc_or_map)
-% Run gpstuff to produce GP posterior surface.
+% Run gpstuff, then produce and plot GP posterior surface.
+%
 % Inputs:
 %   x: n x d matrix of data values.
 %   y: n x 1 matrix of response values.
 %   ls_factor: Prior value for lengthscale hyperparameter.
 %   color: Colormap selection, e.g. "winter" or "summer".
+%
+% Returns:
+%   xt: Matrix of grid points to evaluate over.
+%   Eft_s: Samples from GP posterior.
 
 % STEP 0. Establish boundary of data, to make grid for surface.
 grid_granularity = 20;
@@ -44,15 +49,24 @@ if strcmp(mcmc_or_map, 'MAP')
 
 % STEP 2. Optimize GP and get params, MCMC version.
 elseif strcmp(mcmc_or_map, 'MCMC')
-    [gp_rec, g, opt] = gp_mc(gp, x, y, 'nsamples', 120);
-    gp_rec = thin(gp_rec, 21, 2);
+    [rfull, g, opt] = gp_mc(gp, x, y, 'nsamples', 120);
+    gp_rec = thin(rfull, 21, 2);
     
     % STEP 3. Produce surface prediction.
-    % [Eft_s, Varft_s] = gpmc_preds(rfull, x, y, xt);  % TODO: What is rfull?
-    [Eft_mc, Varft_mc] = gp_pred(gp_rec, x, y, xt);
-    z = reshape(Eft_mc, size(xt1));
-    Eft = Eft_mc;
+    [Eft_s, Varft_s] = gpmc_preds(gp_rec, x, y, xt);  % Produce MCMC predictions.
+    num_samples = size(Eft_s, 2);
+    Eft_smp = Eft_s(:, randi(num_samples));
+    % [Eft_mc, Varft_mc] = gp_pred(gp_rec, x, y, xt);  % Averages thinned samples.
+    
+    z = reshape(Eft_smp, size(xt1));
+    Eft = Eft_smp;
 
+% STEP 2. Optimize GP and get params, GRID INTEGRATION version.
+elseif strcmp(mcmc_or_map, 'GRIDINT')
+    [gp_array, P_TH, th, Eft_ia, Varft_ia, fx_ia, x_ia] = gp_ia(gp, x, ...
+        y, xt, 'int_method', 'grid');
+    Eft = Eft_ia;
+    
 else
     error('Select either "MCMC" or "MAP" inference')
 

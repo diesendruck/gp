@@ -20,7 +20,7 @@ tol_thres = 0;
 eps1 = 10^-5;      % These 2 epsilons are used for convergence of the algo.
 eps2 = 10^-5;
 iter = 0;          % Counter for iterations
-n = 10;            % Sample size
+n = 50;            % Sample size
 d = 2;             % Dimension d
 sig = 10.0;         % Error variance
 ls_factor = 0.06;  % Lengthscale factor (proportion of x-range)
@@ -34,12 +34,27 @@ ls_factor = 0.06;  % Lengthscale factor (proportion of x-range)
 figure;
 subplot(1, 3, 1)
 [xt_gp, y_gp] = run_gp(x_raw, y_raw, ls_factor, 'MAP');
+title('MAP');
 subplot(1, 3, 2)
 [xt_gp, y_gp] = run_gp(x_raw, y_raw, ls_factor, 'MCMC');
+title('MCMC');
 % GET CONVEX PROJECTION.
 n_gp = length(xt_gp);
 convex_y = project_to_convex(n_gp, d, xt_gp, y_gp, eps1, eps2, Max_Iter, rho);
-%y-convex_y
+y_gp-convex_y
+
+% Sample MCMC's, each with a projection. Average MCMC's, and average
+% Projections. Then compare average_MCMC and average_convproj to true f(x),
+% which is convex. Compare by M=1000... 1/M * sum(norm(avg_mcmc)^2).
+% For MSE, can use 100 randomly sampled point. For visualization, plot the
+% average surface over the whole grid.
+% 
+% Try to get actual parameter values out of gpstuff, for traceplots.
+%
+% Try one-dim, plot true, avg_gp_mcmc, avg_gp_mcmc_cp
+%
+%
+
 
 % PLOT CONVEX OVER ORIGINAL GP.
 [xq, yq] = meshgrid(-10:.2:10);
@@ -47,9 +62,11 @@ vq = griddata(xt_gp(:,1), xt_gp(:,2), convex_y, xq, yq);
 subplot(1, 3, 3)
 mesh(xq,yq,vq);
 hold on
-plot3(x_raw(:,1), x_raw(:,2), y_raw, 'b.', 'MarkerSize', 40);
+plot3(x_raw(:,1), x_raw(:,2), y_raw, 'r.', 'MarkerSize', 40);
+title('Convex Projection of MCMC');
 
 
+%--------------------------------------------------------------------------
 % DIAGNOSTICS FROM SEN, on outputs of project_to_convex that aren't
 % currently being returned.
 % h= figure(1)

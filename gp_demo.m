@@ -20,9 +20,9 @@ tol_thres = 0;
 eps1 = 10^-5;      % These 2 epsilons are used for convergence of the algo.
 eps2 = 10^-5;
 iter = 0;          % Counter for iterations
-n = 25;            % Sample size
+n = 40;            % Sample size
 d = 2;             % Dimension d
-sig = 5.0;         % Error variance
+sig = 10.0;         % Error variance
 ls_factor = 0.06;  % Lengthscale factor (proportion of x-range)
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
@@ -42,17 +42,6 @@ title('GP MAP');
 subplot(2, 2, 3)
 [xt_gp, y_gp] = run_gp(x_nsy, y_nsy, ls_factor, 'MCMC');
 title('GP MCMC');
-
-%% GET 1000 SAMPLES FROM GP POSTERIOR, PROJECT EACH TO CONVEX, AND STORE.
-% [xt_gp, Eft_s] = run_gpmc(x_nsy, y_nsy, ls_factor);
-% n_entries = 10;
-% result = zeros(nEntries,1);
-% for index = 1:nEntries
-%     result(index) = foo(index);
-% end
-% 
-% num_samples = size(Eft_s, 2);
-% Eft_smp = Eft_s(:, randi(num_samples));
 
 %% GET CONVEX PROJECTION.
 n_gp = length(xt_gp);

@@ -22,7 +22,7 @@ eps2 = 10^-5;
 iter = 0;          % Counter for iterations
 n = 40;            % Sample size
 d = 2;             % Dimension d
-sig = 10.0;         % Error variance
+sig = 10.0;        % Error variance
 ls_factor = 0.06;  % Lengthscale factor (proportion of x-range)
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
@@ -55,18 +55,3 @@ mesh(xq,yq,vq);
 hold on
 plot3(x_nsy(:,1), x_nsy(:,2), y_nsy, 'r.', 'MarkerSize', 40);
 title('Convex Projection of GP MCMC');
-
-
-%% EXTRAS.
-% DIAGNOSTICS FROM SEN, on outputs of project_to_convex that aren't
-% currently being returned.
-% h= figure(1)
-% plot(cumsum(time_vec),sq_sse/n)
-% title('Time versus Training SSE/n')     % SSE = sum of squared errors
-% 
-% h= figure(2)
-% plot(cumsum(time_vec),prim_feas)
-% title('Time versus Primal Feasibility/n')
-
-
-

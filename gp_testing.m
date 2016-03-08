@@ -5,68 +5,70 @@
 %   A Computational Framework for Multivariate Convex Regression and its Variants.
 %   Available at: http://www.stat.columbia.edu/~bodhi/Bodhi/Publications.html
 
-% IMPORT GPSTUFF AND SET PATHS.
+%% IMPORT GPSTUFF AND SET PATHS.
 if 0
     cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/GPstuff-4.6/
     matlab_install
+    cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/')
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Programs')
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Functions')
-    cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/
 end
 
-% SET CONSTANTS.
+%% SET CONSTANTS.
 tol_thres = 0;
 eps1 = 10^-5;      % These 2 epsilons are used for convergence of the algo.
 eps2 = 10^-5;
 iter = 0;          % Counter for iterations
-n = 50;            % Sample size
+n = 25;            % Sample size
 d = 2;             % Dimension d
-sig = 10.0;         % Error variance
+sig = 5.0;         % Error variance
 ls_factor = 0.06;  % Lengthscale factor (proportion of x-range)
 
-% SIMULATE RAW DATA (CONVEX + NOISE).
-%[x, y] = make_noisy_convex(n, d, sig, 'trough');
-[x_raw, y_raw] = make_noisy_convex(n, d, sig, 'paraboloid');
-%scatter3(x(:, 1), x(:, 2), y);
+%% SIMULATE RAW DATA (CONVEX + NOISE).
+[x_nsy, y_nsy, x_true, y_true] = make_noisy_convex(n, d, sig, 'paraboloid');
 
-% RUN GP ON RAW DATA.
-figure;
-subplot(1, 3, 1)
-[xt_gp, y_gp] = run_gp(x_raw, y_raw, ls_factor, 'MAP');
-title('MAP');
-subplot(1, 3, 2)
-[xt_gp, y_gp] = run_gp(x_raw, y_raw, ls_factor, 'MCMC');
-title('MCMC');
-% GET CONVEX PROJECTION.
+% Plot true function and noisy data.
+figure; subplot(2, 2, 1)
+plot3(x_true(:, 1), x_true(:, 2), y_true, 'b.', 'MarkerSize', 10);
+hold on;
+plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 40);
+title('True Convex + Noisy Data');
+
+%% RUN GP ON RAW DATA.
+subplot(2, 2, 2)
+[xt_gp, y_gp] = run_gp(x_nsy, y_nsy, ls_factor, 'MAP');
+title('GP MAP');
+subplot(2, 2, 3)
+[xt_gp, y_gp] = run_gp(x_nsy, y_nsy, ls_factor, 'MCMC');
+title('GP MCMC');
+
+%% GET 1000 SAMPLES FROM GP POSTERIOR, PROJECT EACH TO CONVEX, AND STORE.
+% [xt_gp, Eft_s] = run_gpmc(x_nsy, y_nsy, ls_factor);
+% n_entries = 10;
+% result = zeros(nEntries,1);
+% for index = 1:nEntries
+%     result(index) = foo(index);
+% end
+% 
+% num_samples = size(Eft_s, 2);
+% Eft_smp = Eft_s(:, randi(num_samples));
+
+%% GET CONVEX PROJECTION.
 n_gp = length(xt_gp);
 convex_y = project_to_convex(n_gp, d, xt_gp, y_gp, eps1, eps2);
-y_gp-convex_y
 
-% Sample MCMC's, each with a projection. Average MCMC's, and average
-% Projections. Then compare average_MCMC and average_convproj to true f(x),
-% which is convex. Compare by M=1000... 1/M * sum(norm(avg_mcmc)^2).
-% For MSE, can use 100 randomly sampled point. For visualization, plot the
-% average surface over the whole grid.
-% 
-% Try to get actual parameter values out of gpstuff, for traceplots.
-%
-% Try one-dim, plot true, avg_gp_mcmc, avg_gp_mcmc_cp
-%
-%
-
-
-% PLOT CONVEX OVER ORIGINAL GP.
+%% PLOT CONVEX OVER ORIGINAL GP.
 [xq, yq] = meshgrid(-10:.2:10);
 vq = griddata(xt_gp(:,1), xt_gp(:,2), convex_y, xq, yq);
-subplot(1, 3, 3)
+subplot(2, 2, 4)
 mesh(xq,yq,vq);
 hold on
-plot3(x_raw(:,1), x_raw(:,2), y_raw, 'r.', 'MarkerSize', 40);
-title('Convex Projection of MCMC');
+plot3(x_nsy(:,1), x_nsy(:,2), y_nsy, 'r.', 'MarkerSize', 40);
+title('Convex Projection of GP MCMC');
 
 
-%--------------------------------------------------------------------------
+%% EXTRAS.
 % DIAGNOSTICS FROM SEN, on outputs of project_to_convex that aren't
 % currently being returned.
 % h= figure(1)

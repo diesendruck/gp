@@ -5,11 +5,11 @@ function [xt, Eft] = run_gp(x, y, ls_factor, mcmc_or_map)
 %   x: n x d matrix of data values.
 %   y: n x 1 matrix of response values.
 %   ls_factor: Prior value for lengthscale hyperparameter.
-%   color: Colormap selection, e.g. "winter" or "summer".
+%   mcmc_or_map: String "MCMC" or "MAP" to indicate which posterior to use.
 %
 % Returns:
 %   xt: Matrix of grid points to evaluate over.
-%   Eft_s: Samples from GP posterior.
+%   Eft: Sample from GP posterior.
 
 % STEP 0. Establish boundary of data, to make grid for surface.
 grid_granularity = 20;

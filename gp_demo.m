@@ -17,22 +17,26 @@ end
 
 %% SET CONSTANTS.
 tol_thres = 0;
-eps1 = 10^-5;      % These 2 epsilons are used for convergence of the algo.
+eps1 = 10^-5;          % These 2 epsilons are used for convergence of the algo.
 eps2 = 10^-5;
-iter = 0;          % Counter for iterations
-n = 40;            % Sample size
-d = 2;             % Dimension d
-sig = 10.0;        % Error variance
-ls_factor = 0.06;  % Lengthscale factor (proportion of x-range)
+iter = 0;              % Counter for iterations
+sig = 10.0;            % Error variance
+ls_factor = 0.06;      % Lengthscale factor (proportion of x-range)
+n = 40;                % Sample size
+shape = 'paraboloid';    % 'paraboloid' or 'trough' or 'func3'
+d = get_shape_dimension(shape);
+
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
-[x_nsy, y_nsy, x_true, y_true] = make_noisy_convex(n, d, sig, 'paraboloid');
+[x_nsy, y_nsy, x_true, y_true] = make_noisy_convex(n, d, sig, shape);
 
 % Plot true function and noisy data.
 figure; subplot(2, 2, 1);
-plot3(x_true(:, 1), x_true(:, 2), y_true, 'b.', 'MarkerSize', 5);
-hold on;
-plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+if d == 2
+    plot3(x_true(:, 1), x_true(:, 2), y_true, 'b.', 'MarkerSize', 5);
+    hold on;
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+end
 title('True Convex + Noisy Data');
 
 %% RUN GP ON RAW DATA.

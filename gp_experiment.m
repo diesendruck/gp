@@ -33,9 +33,9 @@ tol_thres = 0;
 eps1 = 10^-5;          % These 2 epsilons are used for convergence of the algo.
 eps2 = 10^-5;
 iter = 0;              % Counter for iterations.
-n = 20;                % Sample size.
+n = 40;                % Sample size.
 d = 2;                 % Dimension d.
-sig = 5.0;             % Error variance.
+sig = 10.0;             % Error variance.
 ls_factor = 0.03;      % Lengthscale factor (proportion of x-range).
 shape = 'paraboloid';  % Shape of true convex function.
 

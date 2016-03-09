@@ -10,7 +10,7 @@ noise = sig*randn(n, 1);
 x_true = [x_true1(:) x_true2(:)];
 y_true = zeros(size(x_true, 1), 1);
 
-if strcmp('trough', shape)  % Convex wrt first dim of x. Other variable is random depth.
+if strcmp(shape, 'trough')  % Convex wrt first dim of x. Other variable is random depth.
     % Evaluate noisy y response over each data point.
     for i = 1:n
         f(i) = x_nsy(i, 1)^2;            
@@ -21,7 +21,7 @@ if strcmp('trough', shape)  % Convex wrt first dim of x. Other variable is rando
         y_true(j) = x_true(j, 1)^2;
     end
     
-elseif strcmp('paraboloid', shape)
+elseif strcmp(shape, 'paraboloid')
     % Evaluate noisy y response over each data point.
     for i = 1:n,
         f(i) = norm(x_nsy(i,:))^2;

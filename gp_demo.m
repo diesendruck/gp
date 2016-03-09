@@ -29,7 +29,7 @@ ls_factor = 0.06;  % Lengthscale factor (proportion of x-range)
 [x_nsy, y_nsy, x_true, y_true] = make_noisy_convex(n, d, sig, 'paraboloid');
 
 % Plot true function and noisy data.
-figure; subplot(2, 2, 1)
+figure; subplot(2, 2, 1);
 plot3(x_true(:, 1), x_true(:, 2), y_true, 'b.', 'MarkerSize', 10);
 hold on;
 plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 40);

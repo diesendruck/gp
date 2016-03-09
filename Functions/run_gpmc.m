@@ -1,4 +1,5 @@
-function [xt, Eft_s] = run_gpmc(x, y, ls_factor)
+function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x, y, ...
+    ls_factor)
 % Run gp mcmc and return samples of posterior.
 %
 % Inputs:
@@ -10,31 +11,42 @@ function [xt, Eft_s] = run_gpmc(x, y, ls_factor)
 %   xt: Matrix of grid points to evaluate over.
 %   Eft_s: Samples from GP posterior.
 
-% STEP 0. Establish boundary of data, to make grid for surface.
-[xt, x_range] = compute_meshgrid_matrix(x);
+%% STEP 0. Establish boundary of data, to make grid for surface.
+[x_range, xt1, xt2, xt] = compute_meshgrid_matrix(x);
 
-% STEP 1. Train the GP.
+%% STEP 1. Set up the GP.
 noise_var_factor = 0.01;
 length_scale = [x_range*ls_factor, x_range*ls_factor];  % Scaled according to range.
 mag_sig2 = (x_range*noise_var_factor)^2;  % Scaled according to range.
 
+% Set up likelihood and covariance functions.
 lik = lik_gaussian('sigma2', mag_sig2);
 gpcf = gpcf_sexp('lengthScale', length_scale, 'magnSigma2', mag_sig2);
 
-pn=prior_logunif();  % All parameters get uniform prior.
+% Set up priors. Here, all parameters get uniform prior.
+pn=prior_logunif();
 lik = lik_gaussian(lik, 'sigma2_prior', pn);
 pl = prior_unif();
 pm = prior_sqrtunif();
 
-gpcf = gpcf_sexp(gpcf, 'lengthScale_prior', pl, 'magnSigma2_prior', pm);  % Assemble covariance function.
-gp = gp_set('lik', lik, 'cf', gpcf);  % Assemble gaussian process.
+% Assemble covariance function with priors, and assemple gaussian process.
+gpcf = gpcf_sexp(gpcf, 'lengthScale_prior', pl, 'magnSigma2_prior', pm);
+gp = gp_set('lik', lik, 'cf', gpcf);
 
-% STEP 2. Optimize GP and get params.
-[rfull, g, opt] = gp_mc(gp, x, y, 'nsamples', 120);
-gp_rec = thin(rfull, 21, 2);
-    
-% STEP 3. Produce surface prediction.
+%% STEP 2. Optimize GP and get params.
+num_samples =  520;
+burned = 21;
+thinned = 2;
+[rfull, g, opt] = gp_mc(gp, x, y, 'nsamples', num_samples);
+gp_rec = thin(rfull, burned, thinned);
+
+%% STEP 3. Produce surface prediction.
 [Eft_s, Varft_s] = gpmc_preds(gp_rec, x, y, xt);  % Produce MCMC predictions.
+
+% Print summary of results to console.
+posterior_sample_count = size(Eft_s, 2);
+sprintf('Took %d samples, burned %d, thinned by %d: so %d remain.', ...
+    [num_samples, burned, thinned, posterior_sample_count])
 
 end
 

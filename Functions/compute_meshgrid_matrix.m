@@ -1,4 +1,4 @@
-function [xt, x_range] = compute_meshgrid_matrix(x)
+function [x_range, xt1, xt2, xt] = compute_meshgrid_matrix(x)
 % Takes x matrix, and produces meshgrid matrix for surf, and boundary.
 %
 % Args:

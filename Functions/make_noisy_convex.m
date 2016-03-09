@@ -12,26 +12,26 @@ y_true = zeros(size(x_true, 1), 1);
 
 if strcmp(shape, 'trough')  % Convex wrt first dim of x. Other variable is random depth.
     % Evaluate noisy y response over each data point.
-    for i = 1:n
-        f(i) = x_nsy(i, 1)^2;            
+    for ii = 1:n
+        f(ii) = 0.25 * x_nsy(ii, 1)^2;            
     end
     
     % Evaluate true y response over grid.
-    for j = 1:size(x_true, 1)
-        y_true(j) = x_true(j, 1)^2;
+    for jj = 1:size(x_true, 1)
+        y_true(jj) = 0.25 * x_true(jj, 1)^2;
     end
     
 elseif strcmp(shape, 'paraboloid')
     % Evaluate noisy y response over each data point.
-    for i = 1:n,
-        f(i) = norm(x_nsy(i,:))^2;
-        y_true = norm(x_true(i, :))^2;
+    for ii = 1:n,
+        f(ii) = norm(x_nsy(ii,:))^2;
     end
     
     % Evaluate true y response over grid.
-    for j = 1:size(x_true, 1)
-        y_true(j) = norm(x_true(j, :))^2;
+    for jj = 1:size(x_true, 1)
+        y_true(jj) = norm(x_true(jj, :))^2;
     end
+
 else
     error('Shape should be either trough or paraboloid.')
 end

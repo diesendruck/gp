@@ -34,7 +34,7 @@ gpcf = gpcf_sexp(gpcf, 'lengthScale_prior', pl, 'magnSigma2_prior', pm);
 gp = gp_set('lik', lik, 'cf', gpcf);
 
 %% STEP 2. Optimize GP and get params.
-num_samples =  520;
+num_samples =  220;
 burned = 21;
 thinned = 2;
 [rfull, g, opt] = gp_mc(gp, x, y, 'nsamples', num_samples);
@@ -45,7 +45,7 @@ gp_rec = thin(rfull, burned, thinned);
 
 % Print summary of results to console.
 posterior_sample_count = size(Eft_s, 2);
-sprintf('Took %d samples, burned %d, thinned by %d: so %d remain.', ...
+sprintf('Of %d posterior samples, burned %d, thinned by %d: so %d remain.', ...
     [num_samples, burned, thinned, posterior_sample_count])
 
 end

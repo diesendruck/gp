@@ -36,9 +36,8 @@ iter = 0;              % Counter for iterations.
 n = 20;                % Sample size.
 d = 2;                 % Dimension d.
 sig = 5.0;             % Error variance.
-ls_factor = 0.06;      % Lengthscale factor (proportion of x-range).
+ls_factor = 0.03;      % Lengthscale factor (proportion of x-range).
 shape = 'paraboloid';  % Shape of true convex function.
-format shortg          % For rounding numbers using sig figs.
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
 [x_nsy, y_nsy, x_true, y_true] = make_noisy_convex(n, d, sig, shape);
@@ -50,7 +49,7 @@ vq = griddata(x_true(:,1), x_true(:,2), y_true, xq, yq);
 mesh(xq,yq,vq);
 hold on
 plot3(x_nsy(:,1), x_nsy(:,2), y_nsy, 'r.', 'MarkerSize', 30);
-title('True Convex + Noisy Data');
+title('True Convex');
 
 %% GET SAMPLES FROM GP POSTERIOR MCMC, PROJECT EACH TO CONVEX, AND STORE.
 [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy, y_nsy, ...
@@ -59,12 +58,13 @@ n_gp = length(xt);
 gp_dim = [length(xt1) length(xt1)];
 
 % Declare how many posterior samples to use.
-desired = 3;
+desired = 10;
 n_entries = min(desired, posterior_sample_count); 
 mcmcs = zeros(n_gp, n_entries);
 projs = zeros(n_gp, n_entries);
 
 for index = 1:n_entries
+    disp(sprintf('Sampling and projecting convex version of sample %d.', index))
     % Sample once from posterior, and store it as a column in mcmcs.
     y_smp = Eft_s(:, randi(posterior_sample_count));
     mcmcs(:, index) = y_smp;
@@ -89,7 +89,7 @@ subplot(1, 3, 2);
 mesh(xq,yq,vq);
 hold on
 plot3(x_nsy(:,1), x_nsy(:,2), y_nsy, 'r.', 'MarkerSize', 30);
-title(sprintf('Avg MCMC + Noisy Data (MSE = %d)', round(mcmc_mse, 0)));
+title(sprintf('Avg MCMC (MSE = %d)', mcmc_mse));
 
 %% PLOT AVG PROJ OVER ORIGINAL DATA.
 [xq, yq] = meshgrid(-10:.2:10);
@@ -98,18 +98,8 @@ subplot(1, 3, 3);
 mesh(xq,yq,vq);
 hold on
 plot3(x_nsy(:,1), x_nsy(:,2), y_nsy, 'r.', 'MarkerSize', 30);
-title(sprintf('Avg PROJ + Noisy Data (MSE = %d)', round(proj_mse, 0)));
+title(sprintf('Avg PROJ (MSE = %d)', proj_mse));
 
-%% EXTRAS.
-% DIAGNOSTICS FROM SEN, on outputs of project_to_convex that aren't
-% currently being returned.
-% h= figure(1)
-% plot(cumsum(time_vec),sq_sse/n)
-% title('Time versus Training SSE/n')     % SSE = sum of squared errors
-% 
-% h= figure(2)
-% plot(cumsum(time_vec),prim_feas)
-% title('Time versus Primal Feasibility/n')
 
 
 

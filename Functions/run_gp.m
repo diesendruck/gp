@@ -68,7 +68,7 @@ end
 surf(xt1, xt2, z, 'FaceColor','interp', 'EdgeColor', 'flat', ...
     'FaceLighting','gouraud');
 axis tight; hold on;
-plot3(x(:,1), x(:,2), y, 'r.', 'MarkerSize', 40);
+plot3(x(:,1), x(:,2), y, 'r.', 'MarkerSize', 30);
 
 end
 

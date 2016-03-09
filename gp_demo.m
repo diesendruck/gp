@@ -30,9 +30,9 @@ ls_factor = 0.06;  % Lengthscale factor (proportion of x-range)
 
 % Plot true function and noisy data.
 figure; subplot(2, 2, 1);
-plot3(x_true(:, 1), x_true(:, 2), y_true, 'b.', 'MarkerSize', 10);
+plot3(x_true(:, 1), x_true(:, 2), y_true, 'b.', 'MarkerSize', 5);
 hold on;
-plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 40);
+plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
 title('True Convex + Noisy Data');
 
 %% RUN GP ON RAW DATA.
@@ -53,5 +53,5 @@ vq = griddata(xt_gp(:,1), xt_gp(:,2), convex_y, xq, yq);
 subplot(2, 2, 4)
 mesh(xq,yq,vq);
 hold on
-plot3(x_nsy(:,1), x_nsy(:,2), y_nsy, 'r.', 'MarkerSize', 40);
+plot3(x_nsy(:,1), x_nsy(:,2), y_nsy, 'r.', 'MarkerSize', 30);
 title('Convex Projection of GP MCMC');

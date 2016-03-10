@@ -13,12 +13,12 @@ function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x, y, ...
 %   Eft_s: Samples from GP posterior.
 
 %% STEP 0. Establish boundary of data, to make grid for surface.
-[x_range, xt1, xt2, xt] = compute_meshgrid_matrix(x);
+[x1_l, x1_h, x2_l, x2_h, x1_range, x2_range, xt1, xt2, xt] = compute_mesh_info(x);
 
 %% STEP 1. Set up the GP.
 noise_var_factor = 0.01;
-length_scale = [x_range*ls_factor, x_range*ls_factor];  % Scaled according to range.
-mag_sig2 = (x_range*noise_var_factor)^2;  % Scaled according to range.
+length_scale = [x1_range*ls_factor, x2_range*ls_factor];  % Scaled according to range.
+mag_sig2 = (min(x1_range, x2_range)*noise_var_factor)^2;  % Scaled according to range. % TODO: What should the sigma scaling be? MAX or MIN?
 
 % Set up likelihood and covariance functions.
 lik = lik_gaussian('sigma2', mag_sig2);

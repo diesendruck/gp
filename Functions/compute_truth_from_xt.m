@@ -23,10 +23,10 @@ elseif strcmp(shape, 'paraboloid')
         ytruth_on_mcmcgrid(ii) = 0.05*sum(x1^2 + x2^2);
     end
     
-elseif strcmp(shape, 'wave')
+elseif strcmp(shape, 'hand')
     for ii = 1:n
         x1 = xt(ii, 1); x2 = xt(ii, 2);
-        ytruth_on_mcmcgrid(ii) = 0.1*x1^2 - log(x2);
+        ytruth_on_mcmcgrid(ii) = 0.1*x1^2 - log(x2) + 10;
     end
     
 elseif strcmp(shape, 'parabolic_cylinder')
@@ -35,16 +35,22 @@ elseif strcmp(shape, 'parabolic_cylinder')
         ytruth_on_mcmcgrid(ii) = -2*x1 + x2 + x1^2 - 2*x1*x2 + x2^2;
     end
     
-elseif strcmp(shape, 'product')
+elseif strcmp(shape, 'wolverine')
     for ii = 1:n
         x1 = xt(ii, 1); x2 = xt(ii, 2);
-        ytruth_on_mcmcgrid(ii) = 0.05*x1*x2;
+        ytruth_on_mcmcgrid(ii) = 0.1 * (2*x1^2/x2 + exp(x2));
     end
     
 elseif strcmp(shape, 'exponential')
     for ii = 1:n
         x1 = xt(ii, 1); x2 = xt(ii, 2);
         ytruth_on_mcmcgrid(ii) = exp(x1) + x2;
+    end
+
+elseif strcmp(shape, 'chair')
+    for ii = 1:n
+        x1 = xt(ii, 1); x2 = xt(ii, 2);
+        ytruth_on_mcmcgrid(ii) = 0.5e-3 * (exp(x1) + x2^4);
     end
     
 else

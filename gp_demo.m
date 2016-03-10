@@ -23,7 +23,7 @@ iter = 0;              % Counter for iterations
 ls_factor = 0.03;      % Lengthscale factor (proportion of x-range)
 mesh_gran = 100;       % Number of ticks on mesh for plotting.
 n = 40;                % Sample size
-shape = 'exponential';  % Shape of underlying convex function.
+shape = 'wolverine';  % Shape of underlying convex function.
 d = get_shape_dimension(shape);
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).

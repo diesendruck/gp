@@ -39,16 +39,16 @@ elseif strcmp(shape, 'paraboloid')
         f(ii) = 0.05*sum(x1^2 + x2^2);
     end
 
-elseif strcmp(shape, 'wave')
+elseif strcmp(shape, 'hand')
     x_nsy(:, 1) = unifrnd(0, 10, n, 1);
-    x_nsy(:, 2) = unifrnd(0.01, 100, n, 1);
+    x_nsy(:, 2) = unifrnd(1, 10000, n, 1);
     sig = 1.0;
     noise = sig*randn(n, 1);
 
     % Compute function value.
     for ii = 1:n
         x1 = x_nsy(ii, 1); x2 = x_nsy(ii, 2);
-        f(ii) = 0.1*x1^2 - log(x2);
+        f(ii) = 0.1*x1^2 - log(x2) + 10;
     end
 
 elseif strcmp(shape, 'parabolic_cylinder');
@@ -62,15 +62,16 @@ elseif strcmp(shape, 'parabolic_cylinder');
         f(ii) = -2*x1 + x2 + x1^2 - 2*x1*x2 + x2^2;
     end
     
-elseif strcmp(shape, 'product');
-    x_nsy = unifrnd(0, 10, n, d);
+elseif strcmp(shape, 'wolverine');
+    x_nsy(:, 1) = unifrnd(-10, 10, n, 1);
+    x_nsy(:, 2) = unifrnd(1, 5, n, 1);
     sig = 1.0;
     noise = sig*randn(n, 1);
 
     % Compute function value.
     for ii = 1:n
         x1 = x_nsy(ii, 1); x2 = x_nsy(ii, 2);
-        f(ii) = 0.05*x1*x2;
+        f(ii) = 0.1 * (2*x1^2/x2 + exp(x2));
     end
     
 elseif strcmp(shape, 'exponential');
@@ -85,15 +86,24 @@ elseif strcmp(shape, 'exponential');
         f(ii) = exp(x1) + x2;
     end
         
+elseif strcmp(shape, 'chair');
+    x_nsy(:, 1) = unifrnd(0, 10, n, 1);
+    x_nsy(:, 2) = unifrnd(-10, 10, n, 1);
+    sig = 1.0;
+    noise = sig*randn(n, 1);
+
+    % Compute function value.
+    for ii = 1:n
+        x1 = x_nsy(ii, 1); x2 = x_nsy(ii, 2);
+        f(ii) = 0.5e-3 * (exp(x1) + x2^4);
+    end
+    
     
 else
     error('Shape should be either trough or paraboloid.')
 end
 
-% Get data boundaries.
-x1_l = min(x_nsy(:, 1)); x1_h = max(x_nsy(:, 1));
-x2_l = min(x_nsy(:, 2)); x2_h = max(x_nsy(:, 2));
-x1_range = x1_h - x1_l; x2_range = x2_h - x2_l;
+[x1_l, x1_h, x2_l, x2_h, x1_range, x2_range, xt1, xt2, xt] = compute_mesh_info(x_nsy);
 
 % Response values = convex + noise.
 y_nsy = f + noise;

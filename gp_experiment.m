@@ -34,11 +34,12 @@ eps1 = 10^-5;          % These 2 epsilons are used for convergence of the
 eps2 = 10^-5;          %   convex projection algorithm.
 iter = 0;              % Counter for iterations.
 n = 40;                % Data sample size.
+d = 2                  % Dimension of data points.
 ls_factor = 0.03;      % Lengthscale factor (proportion of x-range).
 mesh_gran = 100;       % Number of ticks on mesh for plotting.
 num_posteriors = 120;  % Number of posterior samples to generate.
 desired = 3;           % Number of posterior samples to use.
-d = 2                  % Dimension of data points.
+
 
 %% CONDUCT EXPERIMENT ON EACH SHAPE.
 % List of shapes to run.

@@ -1,11 +1,12 @@
 function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x, y, ...
-    ls_factor)
+    ls_factor, num_posteriors)
 % Run gp mcmc and return samples of posterior.
 %
-% Inputs:
+% Args:
 %   x: n x d matrix of data values.
 %   y: n x 1 matrix of response values.
 %   ls_factor: Prior value for lengthscale hyperparameter.
+%   num_posteriors: Number of posterior samples to generate.
 %
 % Returns:
 %   xt: Matrix of grid points to evaluate over.
@@ -34,10 +35,9 @@ gpcf = gpcf_sexp(gpcf, 'lengthScale_prior', pl, 'magnSigma2_prior', pm);
 gp = gp_set('lik', lik, 'cf', gpcf);
 
 %% STEP 2. Optimize GP and get params.
-num_samples =  220;
 burned = 21;
 thinned = 2;
-[rfull, g, opt] = gp_mc(gp, x, y, 'nsamples', num_samples);
+[rfull, g, opt] = gp_mc(gp, x, y, 'nsamples', num_posteriors);
 gp_rec = thin(rfull, burned, thinned);
 
 %% STEP 3. Produce surface prediction.
@@ -46,7 +46,7 @@ gp_rec = thin(rfull, burned, thinned);
 % Print summary of results to console.
 posterior_sample_count = size(Eft_s, 2);
 sprintf('Of %d posterior samples, burned %d, thinned by %d: so %d remain.', ...
-    [num_samples, burned, thinned, posterior_sample_count])
+    [num_posteriors, burned, thinned, posterior_sample_count])
 
 end
 

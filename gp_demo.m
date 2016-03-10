@@ -20,30 +20,21 @@ tol_thres = 0;
 eps1 = 10^-5;          % These 2 epsilons are used for convergence of the algo.
 eps2 = 10^-5;
 iter = 0;              % Counter for iterations
-sig = 10.0;            % Error variance
-ls_factor = 0.06;      % Lengthscale factor (proportion of x-range)
+ls_factor = 0.03;      % Lengthscale factor (proportion of x-range)
+mesh_gran = 100;       % Number of ticks on mesh for plotting.
 n = 40;                % Sample size
-shape = 'paraboloid';    % 'paraboloid' or 'trough' or 'func3'
+shape = 'exponential';  % Shape of underlying convex function.
 d = get_shape_dimension(shape);
 
-
 %% SIMULATE RAW DATA (CONVEX + NOISE).
-[x_nsy, y_nsy, x_true, y_true] = make_noisy_convex(n, d, sig, shape);
-
-% Plot true function and noisy data.
-figure; subplot(2, 2, 1);
-if d == 2
-    plot3(x_true(:, 1), x_true(:, 2), y_true, 'b.', 'MarkerSize', 5);
-    hold on;
-    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-end
-title('True Convex + Noisy Data');
+[x_nsy, y_nsy, x1_l, x1_h, x2_l, x2_h, x1_range, x2_range] = make_noisy_convex(...
+    n, d, shape);
 
 %% RUN GP ON RAW DATA.
-subplot(2, 2, 2)
+figure; subplot(2, 2, 2);
 [xt_gp, y_gp] = run_gp(x_nsy, y_nsy, ls_factor, 'MAP');
 title('GP MAP');
-subplot(2, 2, 3)
+subplot(2, 2, 3);
 [xt_gp, y_gp] = run_gp(x_nsy, y_nsy, ls_factor, 'MCMC');
 title('GP MCMC');
 
@@ -51,11 +42,21 @@ title('GP MCMC');
 n_gp = length(xt_gp);
 convex_y = project_to_convex(n_gp, d, xt_gp, y_gp, eps1, eps2);
 
+%% PLOT TRUE CONVEX OVER ORIGINAL DATA.
+subplot(2, 2, 1);
+[xq, yq] = meshgrid(x1_l:x1_range/mesh_gran:x1_h, x2_l:x2_range/mesh_gran:x2_h);
+ytruth_on_mcmcgrid = compute_truth_from_xt(xt_gp, shape);
+vq = griddata(xt_gp(:, 1), xt_gp(:, 2), ytruth_on_mcmcgrid, xq, yq);
+mesh(xq, yq, vq);
+hold on;
+plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+title('True Convex');
+
 %% PLOT CONVEX OVER ORIGINAL GP.
-[xq, yq] = meshgrid(-10:.2:10);
-vq = griddata(xt_gp(:,1), xt_gp(:,2), convex_y, xq, yq);
+[xq, yq] = meshgrid(x1_l:x1_range/mesh_gran:x1_h, x2_l:x2_range/mesh_gran:x2_h);
+vq = griddata(xt_gp(:, 1), xt_gp(:, 2), convex_y, xq, yq);
 subplot(2, 2, 4)
-mesh(xq,yq,vq);
-hold on
-plot3(x_nsy(:,1), x_nsy(:,2), y_nsy, 'r.', 'MarkerSize', 30);
+mesh(xq, yq, vq);
+hold on;
+plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
 title('Convex Projection of GP MCMC');

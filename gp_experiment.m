@@ -5,6 +5,8 @@
 %   A Computational Framework for Multivariate Convex Regression and its Variants.
 %   Available at: http://www.stat.columbia.edu/~bodhi/Bodhi/Publications.html
 
+tic
+
 %% IMPORT GPSTUFF AND SET PATHS.
 if 0  % Mac version.
     cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/GPstuff-4.6/
@@ -37,8 +39,8 @@ n = 40;                % Data sample size.
 d = 2                  % Dimension of data points.
 ls_factor = 0.03;      % Lengthscale factor (proportion of x-range).
 mesh_gran = 100;       % Number of ticks on mesh for plotting.
-num_posteriors = 120;  % Number of posterior samples to generate.
-desired = 3;           % Number of posterior samples to use.
+num_posteriors = 2020;  % Number of posterior samples to generate.
+desired = 200;           % Number of posterior samples to use.
 
 
 %% CONDUCT EXPERIMENT ON EACH SHAPE.
@@ -52,8 +54,26 @@ for shape = shapes
         mesh_gran, num_posteriors, desired, d, shape{1});
 end
     
+myaddress = 'eltegog@gmail.com';
+mypassword = 'T0g.eltegog';
+setpref('Internet','E_mail',myaddress);
+setpref('Internet','SMTP_Server','smtp.gmail.com');
+setpref('Internet','SMTP_Username',myaddress);
+setpref('Internet','SMTP_Password',mypassword);
+props = java.lang.System.getProperties;
+props.setProperty('mail.smtp.auth','true');
+props.setProperty('mail.smtp.socketFactory.class', ...
+    'javax.net.ssl.SSLSocketFactory');
+props.setProperty('mail.smtp.socketFactory.port','465');
+sendmail('momod@utexas.edu', 'RESULTS', '', ...
+    {'/home/momod/Documents/gp/trough.fig', ...
+    '/home/momod/Documents/gp/paraboloid.fig', ...
+    '/home/momod/Documents/gp/hand.fig', ...
+    '/home/momod/Documents/gp/parabolic_cylinder.fig', ...
+    '/home/momod/Documents/gp/wolverine.fig', ...
+    '/home/momod/Documents/gp/exponential.fig', ...
+    '/home/momod/Documents/gp/chair.fig'});
     
     
-    
-    
+ toc
     

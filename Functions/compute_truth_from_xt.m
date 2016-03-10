@@ -20,7 +20,7 @@ if strcmp(shape, 'trough')  % Convex wrt first dim of x. Other variable is rando
 elseif strcmp(shape, 'paraboloid')
     for ii = 1:n
         x1 = xt(ii, 1); x2 = xt(ii, 2);
-        ytruth_on_mcmcgrid(ii) = 0.05*sum(x1^2 + x2^2);
+        ytruth_on_mcmcgrid(ii) = 0.05 * (x1^2 + x2^2);
     end
     
 elseif strcmp(shape, 'hand')

@@ -36,7 +36,7 @@ elseif strcmp(shape, 'paraboloid')
     % Compute function value.
     for ii = 1:n
         x1 = x_nsy(ii, 1); x2 = x_nsy(ii, 2);
-        f(ii) = 0.05*sum(x1^2 + x2^2);
+        f(ii) = 0.05 * (x1^2 + x2^2);
     end
 
 elseif strcmp(shape, 'hand')

@@ -87,7 +87,7 @@ plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
 title(sprintf('Avg PROJ (MSE = %d)', proj_mse));
 
 %% SAVE FIGURE.
-savefig(sprintf('%s%s.fig', [shape, datestr(clock, 0)]));
+savefig(sprintf('%s.fig', shape));
 
 end
 

@@ -1,5 +1,5 @@
-function [xq_p, yq_p, vq_p] = gp_experiment_run_shape(tol_thres, eps1, ...
-    eps2, iter, n, ls_factor, mesh_gran, num_posteriors, desired, d, shape)
+function [xq, yq, zq_proj] = gp_experiment_run_shape(tol_thres, eps1, ...
+    eps2, iter, n, ls_factor, mesh_gran, num_posteriors, desired, d, shape, fid)
 % Run gp experiment* for a particular shape.
 %
 % *One experiment draws many samples from the Gaussian Process posterior,
@@ -19,11 +19,12 @@ function [xq_p, yq_p, vq_p] = gp_experiment_run_shape(tol_thres, eps1, ...
 %   desired: Number of posterior samples to use.
 %   d: Dimension of data points.
 %   shape: String, describing original convex function.
+%   fid: File ID, used to store mses for average mcmc and projection.
 %
 % Returns:
-%   xq_p: x-component of projection meshgrid.
-%   yq_p: y-component of projection meshgrid.
-%   vq_p: Response value component of projection meshgrid.
+%   xq: x-component of meshgrid for querying the surface.
+%   yq: y-component of meshgrid for querying the surface.
+%   zq_proj: Response value component of meshgrid for projection surface.
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
 [x_nsy, y_nsy, x1_l, x1_h, x2_l, x2_h, x1_range, x2_range] = make_noisy_convex(...
@@ -57,36 +58,39 @@ avg_projs = mean(projs, 2);
 ytruth_on_mcmcgrid = compute_truth_from_xt(xt, shape);
 mcmc_mse = 1/n_gp * norm(avg_mcmcs - ytruth_on_mcmcgrid)^2;
 proj_mse = 1/n_gp * norm(avg_projs - ytruth_on_mcmcgrid)^2;
+relative_change = (proj_mse - mcmc_mse)/mcmc_mse;
+mses = [mcmc_mse proj_mse relative_change];
 
 %% PLOT TRUE CONVEX OVER ORIGINAL DATA.
-figure;
-subplot(1, 3, 1);
-[xq_p, yq_p] = meshgrid(x1_l:x1_range/mesh_gran:x1_h, x2_l:x2_range/mesh_gran:x2_h);
-vq_p = griddata(xt(:, 1), xt(:, 2), ytruth_on_mcmcgrid, xq_p, yq_p);
-mesh(xq_p, yq_p, vq_p);
-hold on
+% Compute meshgrid given data. Use this in all graphs.
+[xq, yq] = meshgrid(x1_l:x1_range/mesh_gran:x1_h, x2_l:x2_range/mesh_gran:x2_h);
+zq_conv = griddata(xt(:, 1), xt(:, 2), ytruth_on_mcmcgrid, xq, yq);
+figure; subplot(1, 3, 1);
+mesh(xq, yq, zq_conv); hold on;
 plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
 title('True Convex');
 
 %% PLOT AVG MCMC OVER ORIGINAL DATA.
-[xq_p, yq_p] = meshgrid(x1_l:x1_range/mesh_gran:x1_h, x2_l:x2_range/mesh_gran:x2_h);
-vq_p = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, xq_p, yq_p);
+zq_mcmc = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, xq, yq);
 subplot(1, 3, 2);
-mesh(xq_p, yq_p, vq_p);
-hold on
+mesh(xq, yq, zq_mcmc); hold on;
 plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
 title(sprintf('Avg MCMC (MSE = %d)', mcmc_mse));
 
 %% PLOT AVG PROJ OVER ORIGINAL DATA.
-[xq_p, yq_p] = meshgrid(x1_l:x1_range/mesh_gran:x1_h, x2_l:x2_range/mesh_gran:x2_h);
-vq_p = griddata(xt(:, 1), xt(:, 2), avg_projs, xq_p, yq_p);
+zq_proj = griddata(xt(:, 1), xt(:, 2), avg_projs, xq, yq);
 subplot(1, 3, 3);
-mesh(xq_p, yq_p, vq_p);
-hold on
+mesh(xq, yq, zq_proj); hold on;
 plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
 title(sprintf('Avg PROJ (MSE = %d)', proj_mse));
 
-%% SAVE FIGURE.
+%% SAVE FILE DATA AND FIGURE.
+fprintf(fid, '%d,%d,%d\n', mses);
+csvwrite(sprintf('%s_x_nsy.csv', shape), x_nsy);
+csvwrite(sprintf('%s_y_nsy.csv', shape), y_nsy);
+csvwrite(sprintf('%s_xq.csv', shape), xq);
+csvwrite(sprintf('%s_yq.csv', shape), yq);
+csvwrite(sprintf('%s_zq_proj.csv', shape), zq_proj);
 savefig(sprintf('%s.fig', shape));
 
 end

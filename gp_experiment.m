@@ -19,7 +19,7 @@ if 0  % Mac version.
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Functions')
 end
 
-if 0  % Linux version.
+if 1  % Linux version.
     cd ~/Documents/gp/GPstuff-4.6/
     matlab_install
     cd ~/Documents/gp/Programs/
@@ -35,12 +35,12 @@ tol_thres = 0;
 eps1 = 10^-5;          % These 2 epsilons are used for convergence of the
 eps2 = 10^-5;          %   convex projection algorithm.
 iter = 0;              % Counter for iterations.
-n = 35;                % Data sample size.
+n = 30;                % Data sample size.
 d = 2                  % Dimension of data points.
 ls_factor = 0.03;      % Lengthscale factor (proportion of x-range).
-mesh_gran = 50;       % Number of ticks on mesh for plotting.
-num_posteriors = 2020;  % Number of posterior samples to generate.
-desired = 200;           % Number of posterior samples to use.
+mesh_gran = 30;       % Number of ticks on mesh for plotting.
+num_posteriors = 1020;  % Number of posterior samples to generate.
+desired = 100;           % Number of posterior samples to use.
 
 %% SETUP EMAIL PARAMS.
 myaddress = 'eltegog@gmail.com';

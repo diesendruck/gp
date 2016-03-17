@@ -1,8 +1,8 @@
 function [x_nsy, y_nsy, x_l, x_h, x_range, x_grid, y_grid_true] = make_noisy_convex(...
     n, shape)
 % Make convex data, with option to normalize.
-%
-% Note: Each function gets a unique error variance, sig.
+% NOTE1: Functions appear in BOTH this file and compute_truth_from_xt_1d.m.
+% NOTE2: Each function gets a unique error variance, sig.
 %
 % Args:
 %   n: Number of data points.
@@ -39,7 +39,7 @@ if strcmp(shape, 'parabola');
     [x_l, x_h, x_range, x_grid] = compute_mesh_info_1d(x_nsy);
     y_grid_true = zeros(length(x_grid), 1);
     for i = 1:length(y_grid_true),
-        y_grid_true(i) = 1e-3 * (x_grid(i))^4;
+        y_grid_true(i) = 1e-3 * x_grid(i)^4;
     end
     
 else

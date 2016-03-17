@@ -1,8 +1,8 @@
 function [x_nsy, y_nsy, x1_l, x1_h, x2_l, x2_h, x1_range, x2_range] = make_noisy_convex(...
     n, d, shape)
 % Make convex data, with option to normalize.
-%
-% Note: Each function gets a unique error variance, sig.
+% NOTE1: Functions appear in BOTH this file and compute_truth_from_xt.m.
+% NOTE2: Each function gets a unique error variance, sig.
 %
 % Args:
 %   n: Number of data points.

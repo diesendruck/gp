@@ -1,4 +1,4 @@
-function [xq, yq, zq_proj] = gp_experiment_run_shape(tol_thres, eps1, ...
+function [x_grid, y_proj] = gp_experiment_run_shape_1d(tol_thres, eps1, ...
     eps2, iter, n, ls_factor, mesh_gran, num_posteriors, desired, d, ...
     shape, fid)
 % Run gp experiment* for a particular shape.
@@ -23,18 +23,17 @@ function [xq, yq, zq_proj] = gp_experiment_run_shape(tol_thres, eps1, ...
 %   fid: File ID, used to store mses for average mcmc and projection.
 %
 % Returns:
-%   xq: x-component of meshgrid for querying the surface.
-%   yq: y-component of meshgrid for querying the surface.
-%   zq_proj: Response value component of meshgrid for projection surface.
+%   x_grid: x-grid for querying the surface.
+%   y_proj: Projected y value for each x in x_grid.
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
-[x_nsy, y_nsy, x1_l, x1_h, x2_l, x2_h, x1_range, x2_range] = make_noisy_convex(...
-    n, d, shape);
+[x_nsy, y_nsy, x_l, x_h, x_range, x_grid, y_grid_true] = make_noisy_convex_1d(...
+    n, shape);
 
 %% GET SAMPLES FROM GP POSTERIOR MCMC, PROJECT EACH TO CONVEX, AND STORE.
-[xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy, y_nsy, ...
-    ls_factor, num_posteriors);
-n_gp = length(xt);
+[x_grid, Eft_s, posterior_sample_count] = run_gpmc_1d(x_nsy, ...
+    y_nsy, ls_factor, num_posteriors);
+n_gp = length(x_grid);
 
 n_entries = min(desired, posterior_sample_count); 
 mcmcs = zeros(n_gp, n_entries);
@@ -47,7 +46,7 @@ for index = 1:n_entries
     y_smp = Eft_s(:, randi(posterior_sample_count));
     mcmcs(:, index) = y_smp;
     % Get convex projection of sample, and store it as a column in projs.
-    y_smp_convex = project_to_convex(n_gp, d, xt, y_smp, eps1, eps2);
+    y_smp_convex = project_to_convex(n_gp, d, x_grid, y_smp, eps1, eps2);
     projs(:, index) = y_smp_convex;
 end
 
@@ -56,43 +55,38 @@ avg_mcmcs = mean(mcmcs, 2);  % Row means.
 avg_projs = mean(projs, 2);
 
 %% COMPUTE MSE BETWEEN TRUTH AND EACH AVERAGE.
-ytruth_on_mcmcgrid = compute_truth_from_xt(xt, shape);
+ytruth_on_mcmcgrid = compute_truth_from_xt_1d(x_grid, shape);
 mcmc_mse = 1/n_gp * norm(avg_mcmcs - ytruth_on_mcmcgrid)^2;
 proj_mse = 1/n_gp * norm(avg_projs - ytruth_on_mcmcgrid)^2;
 relative_change = (proj_mse - mcmc_mse)/mcmc_mse;
 mses = [mcmc_mse proj_mse relative_change];
 
 %% PLOT TRUE CONVEX OVER ORIGINAL DATA.
-% Compute meshgrid given data. Use this in all graphs.
-[xq, yq] = meshgrid(x1_l:x1_range/mesh_gran:x1_h, x2_l:x2_range/mesh_gran:x2_h);
-zq_conv = griddata(xt(:, 1), xt(:, 2), ytruth_on_mcmcgrid, xq, yq);
+% Compute new query grid given data. Use this in all graphs.
 figure; subplot(1, 3, 1);
-mesh(xq, yq, zq_conv); hold on;
-plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+plot(x_grid, ytruth_on_mcmcgrid, 'k-.'); hold on;
+plot(x_nsy, y_nsy, 'r.', 'Markers', 20);
 title('True Convex');
 
 %% PLOT AVG MCMC OVER ORIGINAL DATA.
-zq_mcmc = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, xq, yq);
 subplot(1, 3, 2);
-mesh(xq, yq, zq_mcmc); hold on;
-plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+plot(x_grid, avg_mcmcs, 'b-.'); hold on;
+plot(x_nsy, y_nsy, 'r.', 'Markers', 20);
 title(sprintf('Avg MCMC (MSE = %d)', mcmc_mse));
 
 %% PLOT AVG PROJ OVER ORIGINAL DATA.
-zq_proj = griddata(xt(:, 1), xt(:, 2), avg_projs, xq, yq);
 subplot(1, 3, 3);
-mesh(xq, yq, zq_proj); hold on;
-plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+plot(x_grid, avg_projs, 'b-.'); hold on;
+plot(x_nsy, y_nsy, 'r.', 'MarkerSize', 20);
 title(sprintf('Avg PROJ (MSE = %d)', proj_mse));
 
 %% SAVE FILE DATA AND FIGURE.
 fprintf(fid, '%d,%d,%d\n', mses);
-csvwrite(sprintf('%s_x_nsy.csv', shape), x_nsy);
-csvwrite(sprintf('%s_y_nsy.csv', shape), y_nsy);
-csvwrite(sprintf('%s_xq.csv', shape), xq);
-csvwrite(sprintf('%s_yq.csv', shape), yq);
-csvwrite(sprintf('%s_zq_proj.csv', shape), zq_proj);
-savefig(sprintf('%s.fig', shape));
+csvwrite(sprintf('Results_1d/%s_x_nsy.csv', shape), x_nsy);
+csvwrite(sprintf('Results_1d/%s_y_nsy.csv', shape), y_nsy);
+csvwrite(sprintf('Results_1d/%s_x_grid.csv', shape), x_grid);
+csvwrite(sprintf('Results_1d/%s_avg_projs.csv', shape), avg_projs);
+savefig(sprintf('Results_1d/%s.fig', shape));
 
 end
 

@@ -6,6 +6,7 @@ function [Eft] = run_gp_1d(x_nsy, y_nsy, ls_factor, MCMC_or_MAP, x_grid)
 %   y_nsy: n x 1 matrix of response values.
 %   ls_factor: Prior value for lengthscale hyperparameter.
 %   MCMC_or_MAP: String "MCMC" or "MAP" to indicate which posterior to use.
+%   x_grid: Grid values over which to evaluate GP.
 %
 % Returns:
 %   Eft: Sample from GP posterior.
@@ -41,6 +42,7 @@ if strcmp(MCMC_or_MAP, 'MAP')
 
     % STEP 3. Produce surface prediction.
     [Eft_map, Varft_map] = gp_pred(gp, x_nsy, y_nsy, x_grid);
+    
     Eft = Eft_map;
 
 % STEP 2. Optimize GP and get params, MCMC version.
@@ -53,7 +55,7 @@ elseif strcmp(MCMC_or_MAP, 'MCMC')
     % Sample one from GP MCMC posterior.
     num_samples = size(Eft_s, 2);
     Eft_smp = Eft_s(:, randi(num_samples));
-    % Reshape output to enable graphing.
+
     Eft = Eft_smp;
 
 else

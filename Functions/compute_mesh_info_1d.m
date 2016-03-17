@@ -5,10 +5,10 @@ function [x_l, x_h, x_range, x_grid] = compute_mesh_info(x)
 %   x: Array of inputs.
 %
 % Returns:
-%   x1_l: Min of x.
-%   x1_h: Max of x.
-%   x1_range: Integer of spread of x.
-%   x1_grid: Mesh for x.
+%   x_l: Min of x.
+%   x_h: Max of x.
+%   x_range: Integer of spread of x.
+%   x_grid: Mesh for x.
 
 % Get data boundaries.
 x_l = min(x); 

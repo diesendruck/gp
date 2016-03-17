@@ -54,4 +54,5 @@ plot(x_grid, convex_y, 'b-.', 'Markers', 10);
 hold on
 plot(x_nsy, y_nsy, 'r.', 'Markers', 20);
 xlim([min(x_grid) max(x_grid)]);
+ylim([min(y_nsy)*1.1 max(y_nsy)*1.1]);
 title('Convex Projection of GP MCMC');

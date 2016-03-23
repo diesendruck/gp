@@ -1,6 +1,6 @@
-function [x_grid, y_proj] = gp_experiment_run_shape_1d(tol_thres, eps1, ...
-    eps2, iter, n, ls_factor, mesh_gran, num_posteriors, desired, d, ...
-    shape, fid)
+function [x_grid, avg_projs, mcmc_mse, proj_mse, relative_change] = ...
+    gp_experiment_run_shape_1d(tol_thres, eps1, eps2, iter, n, ls_factor, ...
+    mesh_gran, num_posteriors, desired, d, shape, fid)
 % Run gp experiment* for a particular shape.
 %
 % *One experiment draws many samples from the Gaussian Process posterior,
@@ -24,11 +24,14 @@ function [x_grid, y_proj] = gp_experiment_run_shape_1d(tol_thres, eps1, ...
 %
 % Returns:
 %   x_grid: x-grid for querying the surface.
-%   y_proj: Projected y value for each x in x_grid.
+%   avg_projs: Average of projected y values for each x in x_grid.
+%   mcmc_mse: MCMC mse.
+%   proj_mse: Projection mse.
+%   relative_change: Relative change of mse between mcmc_mse and proj_mse.
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
-[x_nsy, y_nsy, x_l, x_h, x_range, x_grid, y_grid_true] = make_noisy_convex_1d(...
-    n, shape);
+[x_nsy, y_nsy, x_l, x_h, x_range, x_grid, y_grid_true] = ...
+    make_noisy_convex_1d(n, shape);
 
 %% GET SAMPLES FROM GP POSTERIOR MCMC, PROJECT EACH TO CONVEX, AND STORE.
 [x_grid, Eft_s, posterior_sample_count] = run_gpmc_1d(x_nsy, ...
@@ -81,12 +84,14 @@ plot(x_nsy, y_nsy, 'r.', 'MarkerSize', 20);
 title(sprintf('Avg PROJ (MSE = %d)', proj_mse));
 
 %% SAVE FILE DATA AND FIGURE.
-fprintf(fid, '%d,%d,%d\n', mses);
-csvwrite(sprintf('Results_1d/%s_x_nsy.csv', shape), x_nsy);
-csvwrite(sprintf('Results_1d/%s_y_nsy.csv', shape), y_nsy);
-csvwrite(sprintf('Results_1d/%s_x_grid.csv', shape), x_grid);
-csvwrite(sprintf('Results_1d/%s_avg_projs.csv', shape), avg_projs);
-savefig(sprintf('Results_1d/%s.fig', shape));
+fprintf(fid, strcat(num2str(mcmc_mse, '%0.7f'), ',', ...
+                    num2str(proj_mse, '%0.7f'), ',', shape, ',', ...
+                    num2str(relative_change, '%0.7f'), '\n'));
+%csvwrite(sprintf('Results_1d/%s_x_nsy.csv', shape), x_nsy);
+%csvwrite(sprintf('Results_1d/%s_y_nsy.csv', shape), y_nsy);
+%csvwrite(sprintf('Results_1d/%s_x_grid.csv', shape), x_grid);
+%csvwrite(sprintf('Results_1d/%s_avg_projs.csv', shape), avg_projs);
+%savefig(sprintf('Results_1d/%s.fig', shape));
 
 end
 

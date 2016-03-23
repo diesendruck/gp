@@ -16,6 +16,17 @@ if strcmp(shape, 'parabola')
     for ii = 1:n
         ytruth_on_mcmcgrid(ii) = 1e-3 * x_grid(ii)^4;            
     end
+
+elseif strcmp(shape, 'exponential')
+    for ii = 1:n
+        %ytruth_on_mcmcgrid(ii) = exp(x_grid(ii)) + 0.5*x_grid(ii)^2;            
+        ytruth_on_mcmcgrid(ii) = exp(x_grid(ii));
+    end
+    
+elseif strcmp(shape, 'negative_entropy')
+    for ii = 1:n
+        ytruth_on_mcmcgrid(ii) = x_grid(ii) * log(x_grid(ii));            
+    end
     
 else
     error('Shape should be either "parabola" or "parabola".')

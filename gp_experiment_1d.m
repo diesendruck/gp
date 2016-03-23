@@ -39,8 +39,8 @@ n = 20;                % Data sample size.
 d = 1;                  % Dimension of data points.
 ls_factor = 0.01;      % Lengthscale factor (proportion of x-range).
 mesh_gran = 30;       % Number of ticks on mesh for plotting.
-num_posteriors = 1020;  % Number of posterior samples to generate.
-desired = 100;           % Number of posterior samples to use.
+num_posteriors = 2020;  % Number of posterior samples to generate.
+desired = 200;           % Number of posterior samples to use.
 
 %% SETUP EMAIL PARAMS.
 myaddress = 'eltegog@gmail.com';
@@ -57,30 +57,44 @@ props.setProperty('mail.smtp.socketFactory.port','465');
 
 %% SAVE MSE RESULTS TO FILE.
 fid = fopen('Results_1d/mses.csv', 'wt');
-fprintf(fid, 'avg_mcmc_mse,avg_proj_mse,relative_change\n');
+fprintf(fid, 'avg_mcmc_mse,avg_proj_mse,shape,relative_change\n');
 
 %% CONDUCT EXPERIMENT ON EACH SHAPE.
 % List of shapes to run.
-shapes = {'parabola'};
+shapes = {'parabola', 'exponential', 'negative_entropy'};
 
-% Run experiment for each shape.
-for shape = shapes
-    gp_experiment_run_shape_1d(tol_thres, eps1, eps2, iter, n, ls_factor, ...
-        mesh_gran, num_posteriors, desired, d, shape{1}, fid);
-    sendmail('momod@utexas.edu', 'UPDATES', sprintf('Finished %s', shape{1}));
+% Do several global runs.
+for ii = 1:50
+    % Run experiment for each shape.
+    for shape = shapes
+        [~, ~, mcmc_mse, proj_mse, relative_change] = ...
+            gp_experiment_run_shape_1d(tol_thres, eps1, eps2, iter, n, ...
+            ls_factor, mesh_gran, num_posteriors, desired, d, shape{1}, ...
+            fid);
+        sendmail('momod@utexas.edu', 'UPDATES_1D', ...
+            sprintf('Global Iter: %s \nFinished: %s \nMcmc_mse: %s \nProj_mse: %s \nRelative_change: %s', ... 
+                    num2str(ii), shape{1}, num2str(mcmc_mse), ...
+                    num2str(proj_mse), num2str(relative_change)));
+    end
 end
 
 fclose(fid);
 
 toc
 
-sendmail('momod@utexas.edu', 'RESULTS_1D', '', ...
-    {'/home/momod/Documents/gp/Results_1d/mses.csv', ...
-    '/home/momod/Documents/gp/Results_1d/parabola.fig', ...
-    '/home/momod/Documents/gp/Results_1d/parabola_x_grid.csv', ...
-    '/home/momod/Documents/gp/Results_1d/parabola_avg_proj.csv', ...  
-});
-    
+% Linux file path.
+if 0
+    sendmail('momod@utexas.edu', 'RESULTS_1D', '', ...
+             {'/home/momod/Documents/gp/Results_1d/mses.csv'});
+end
+
+% Mac file path.
+if 1
+    sendmail('momod@utexas.edu', 'RESULTS_1D', '', ...
+    {strcat('/Users/mauricediesendruck/Google Drive/0-LIZHEN RESEARCH', ...
+            '/gp/Results_1d/mses.csv')});
+end
+
 
 
 

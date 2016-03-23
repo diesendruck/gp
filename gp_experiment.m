@@ -45,11 +45,11 @@ desired = 200;           % Number of posterior samples to use.
 
 %% SETUP EMAIL PARAMS.
 myaddress = 'eltegog@gmail.com';
-mypassword = 'T0g.eltegog';
+myp = 'T0g.eltegog';
 setpref('Internet','E_mail',myaddress);
 setpref('Internet','SMTP_Server','smtp.gmail.com');
 setpref('Internet','SMTP_Username',myaddress);
-setpref('Internet','SMTP_Password',mypassword);
+setpref('Internet','SMTP_Password',myp);
 props = java.lang.System.getProperties;
 props.setProperty('mail.smtp.auth','true');
 props.setProperty('mail.smtp.socketFactory.class', ...

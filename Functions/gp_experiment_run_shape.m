@@ -1,5 +1,6 @@
-function [xq, yq, zq_proj] = gp_experiment_run_shape(tol_thres, eps1, ...
-    eps2, iter, n, ls_factor, mesh_gran, num_posteriors, desired, d, shape, fid)
+function [xq, yq, zq_proj, mcmc_mse, proj_mse] = ...
+    gp_experiment_run_shape(tol_thres, eps1, eps2, iter, n, ls_factor, ...
+    mesh_gran, num_posteriors, desired, d, shape, fid)
 % Run gp experiment* for a particular shape.
 %
 % *One experiment draws many samples from the Gaussian Process posterior,
@@ -25,10 +26,12 @@ function [xq, yq, zq_proj] = gp_experiment_run_shape(tol_thres, eps1, ...
 %   xq: x-component of meshgrid for querying the surface.
 %   yq: y-component of meshgrid for querying the surface.
 %   zq_proj: Response value component of meshgrid for projection surface.
+%   mcmc_mse: MSE of average of MCMC runs.
+%   proj_mse: MSE of average of projections.
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
-[x_nsy, y_nsy, x1_l, x1_h, x2_l, x2_h, x1_range, x2_range] = make_noisy_convex(...
-    n, d, shape);
+[x_nsy, y_nsy, x1_l, x1_h, x2_l, x2_h, x1_range, x2_range] = ...
+    make_noisy_convex(n, d, shape);
 
 %% GET SAMPLES FROM GP POSTERIOR MCMC, PROJECT EACH TO CONVEX, AND STORE.
 [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy, y_nsy, ...
@@ -85,7 +88,8 @@ plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
 title(sprintf('Avg PROJ (MSE = %d)', proj_mse));
 
 %% SAVE FILE DATA AND FIGURE.
-fprintf(fid, '%d,%d,%d\n', mses);
+fprintf(fid, '%s\n', strcat(num2str(mcmc_mse, '%0.7f'), ',', ...
+                            num2str(proj_mse, '%0.7f'), ',', shape));
 csvwrite(sprintf('%s_x_nsy.csv', shape), x_nsy);
 csvwrite(sprintf('%s_y_nsy.csv', shape), y_nsy);
 csvwrite(sprintf('%s_xq.csv', shape), xq);

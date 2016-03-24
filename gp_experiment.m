@@ -44,7 +44,7 @@ ls_factor = 0.01;      % Lengthscale factor (proportion of x-range).
 mesh_gran = 20;        % Number of ticks on mesh for plotting.
 num_posteriors = 120; % Number of posterior mcmc samples to generate.
 desired = 200;         % Number of posterior mcmc samples to use.
-num_global_iters = 25; % Number of MSEs to produce per shape.
+num_global_iters = 2; % Number of MSEs to produce per shape.
 surface = 'kernel';    % Surface to fit points, before projection. 
                        % Choose 'kernel', 'map', or 'mcmc'.
 
@@ -96,7 +96,7 @@ end
 
 fclose(fid);
    
-sendmail('momod@utexas.edu', 'RESULTS', '', ...
+sendmail('momod@utexas.edu', strcat('RESULTS: ', surface), '', ...
     {'/home/momod/Documents/gp/Results_2d/mses.csv'});
 
 toc

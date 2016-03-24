@@ -43,9 +43,9 @@ d = 2                  % Dimension of data points.
 ls_factor = 0.01;      % Lengthscale factor (proportion of x-range).
 mesh_gran = 20;        % Number of ticks on mesh for plotting.
 num_posteriors = 120; % Number of posterior mcmc samples to generate.
-desired = 2;         % Number of posterior mcmc samples to use.
-num_global_iters = 1; % Number of MSEs to produce per shape.
-surface = 'mcmc';    % Surface to fit points, before projection. 
+desired = 200;         % Number of posterior mcmc samples to use.
+num_global_iters = 25; % Number of MSEs to produce per shape.
+surface = 'kernel';    % Surface to fit points, before projection. 
                        % Choose 'kernel', 'map', or 'mcmc'.
 
 %% SETUP EMAIL PARAMS.
@@ -66,7 +66,7 @@ fid = fopen('Results_2d/mses.csv', 'wt');
 % Set up for one global run.
 % fprintf(fid, 'avg_mcmc_mse,avg_proj_mse,relative_change\n');
 % Set up for multiple global runs on three shapes.
-fprintf(fid, 'surface_mse,proj_mse,relative_change,data_shape,surface_type\n');
+fprintf(fid, 'surface_type,data_shape,surface_mse,proj_mse,relative_change\n');
 
 
 %% CONDUCT EXPERIMENT ON EACH SHAPE.
@@ -83,7 +83,7 @@ for ii = 1:num_global_iters
             gp_experiment_run_shape(tol_thres, eps1, eps2, iter, n, ...
                 ls_factor, mesh_gran, num_posteriors, desired, d, ...
                 shape{1}, fid, surface);
-        sendmail('momod@utexas.edu', 'UPDATES', ...
+        sendmail('momod@utexas.edu', strcat('UPDATE: ', surface), ...
             sprintf(strcat('Global iter: %s\nData shape: %s\n', ...
                            'Fitted surface: %s\nSurf_mse: %s\n', ... 
                            'Proj_mse: %s\nRelative change: %s'), ...
@@ -97,7 +97,7 @@ end
 fclose(fid);
    
 sendmail('momod@utexas.edu', 'RESULTS', '', ...
-    {'/home/momod/Documents/gp/mses.csv'});
+    {'/home/momod/Documents/gp/Results_2d/mses.csv'});
 
 toc
 

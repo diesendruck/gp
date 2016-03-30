@@ -18,6 +18,7 @@ if 0  % Mac version.
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Programs')
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Functions')
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Smoothing')
+    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/convex-function')
 end
 
 if 0  % Linux version.
@@ -30,6 +31,7 @@ if 0  % Linux version.
     addpath('~/Documents/gp/Programs')
     addpath('~/Documents/gp/Functions')
     addpath('~/Documents/gp/Smoothing')
+    addpath('~/Documents/gp/convex-function')
 end
 
 %% SETUP EMAIL PARAMS.
@@ -64,7 +66,7 @@ fid = fopen('Results_2d/mses.csv', 'wt');
 % Set up for one global run.
 % fprintf(fid, 'avg_mcmc_mse,avg_proj_mse,relative_change\n');
 % Set up for multiple global runs on three shapes.
-fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj\n');
+fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj,cap\n');
 
 
 %% CONDUCT EXPERIMENT ON EACH SHAPE.
@@ -79,7 +81,7 @@ for ii = 1:num_global_iters
     for shape = shapes
         shape_start_time = tic;
         
-        [gp, gp_proj, kern, kern_proj] = gp_compare_mses_shape(tol_thres, ...
+        [gp, gp_proj, kern, kern_proj, cap] = gp_compare_mses_shape(tol_thres, ...
             eps1, eps2, iter, n, ls_factor, mesh_gran, num_posteriors, ...
             desired, d, shape{1}, fid);
         
@@ -93,11 +95,13 @@ for ii = 1:num_global_iters
                            'gp_proj:        %s\n', ... 
                            'kern:             %s\n', ...
                            'kern_proj:     %s\n', ...
+                           'cap:              %s\n', ...
                            'shape_time:             %s\n', ...
                            'total_time_elapsed: %s\n'), ...
                 num2str(ii), shape{1}, num2str(gp, '%0.2f'), ...
                 num2str(gp_proj, '%0.2f'), num2str(kern, '%0.2f'), ...
                 num2str(kern_proj, '%0.2f'), ...
+                num2str(cap, '%0.2f'), ...
                 num2str(shape_time_elapsed, '%0.2f'), ...
                 num2str(total_time_elapsed, '%0.2f')));
     end

@@ -38,7 +38,7 @@ function [xt1, xt2, yq_proj, surf_mse, proj_mse, relative_change] = ...
 [x_nsy, y_nsy] = make_noisy_convex(n, d, shape);
 
 % Get associated data about noisy data set.
-[~, ~, ~, ~, ~, ~, xt1, xt2, xt] = compute_mesh_info(x_nsy);
+[~, ~, ~, ~, ~, ~, xt1, xt2, xt] = compute_mesh_info(x_nsy, mesh_gran);
 
 % Plot true convex over original data.
 ytruth_on_grid = compute_truth_from_xt(xt, shape);

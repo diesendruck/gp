@@ -33,7 +33,7 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj] = ...
 [x_nsy, y_nsy] = make_noisy_convex(n, d, shape);
 
 % Get associated data about noisy data set.
-[~, ~, ~, ~, ~, ~, xt1, xt2, xt] = compute_mesh_info(x_nsy);
+[~, ~, ~, ~, ~, ~, xt1, xt2, xt] = compute_mesh_info(x_nsy, mesh_gran);
 
 % Plot true convex over original data.
 ytruth_on_grid = compute_truth_from_xt(xt, shape);
@@ -82,7 +82,7 @@ title(sprintf('Kernel Proj (MSE = %d)', mse_kern_proj));
 %% PROJECTIONS OF EACH, AND MSES OF RESPECTIVE AVERAGES.
 % Get samples from GP posterior MCMC, project each to convex, and store.
 [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy, ...
-    y_nsy, ls_factor, num_posteriors);
+    y_nsy, ls_factor, num_posteriors, mesh_gran);
 n_gp = length(xt);
 
 n_entries = min(desired, posterior_sample_count); 

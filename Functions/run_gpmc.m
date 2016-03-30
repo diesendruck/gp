@@ -1,5 +1,5 @@
 function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x, y, ...
-    ls_factor, num_posteriors)
+    ls_factor, num_posteriors, mesh_gran)
 % Run gp mcmc and return samples of posterior.
 %
 % Args:
@@ -7,13 +7,15 @@ function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x, y, ...
 %   y: n x 1 matrix of response values.
 %   ls_factor: Prior value for lengthscale hyperparameter.
 %   num_posteriors: Number of posterior samples to generate.
+%   mesh_gran: Number of ticks on mesh for plotting.
+
 %
 % Returns:
 %   xt: Matrix of grid points to evaluate over.
 %   Eft_s: Samples from GP posterior.
 
 %% STEP 0. Establish boundary of data, to make grid for surface.
-[x1_l, x1_h, x2_l, x2_h, x1_range, x2_range, xt1, xt2, xt] = compute_mesh_info(x);
+[x1_l, x1_h, x2_l, x2_h, x1_range, x2_range, xt1, xt2, xt] = compute_mesh_info(x, mesh_gran);
 
 %% STEP 1. Set up the GP.
 noise_var_factor = 0.01;

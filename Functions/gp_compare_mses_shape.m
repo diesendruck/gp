@@ -69,13 +69,13 @@ mse_kern_proj = 1/length(xt) * norm(y_kern_proj - ytruth_on_grid)^2;
 subplot(2, 3, 2);
 mesh(xt1, xt2, y_kern); hold on;
 plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-title(sprintf('Kernel Regression (MSE = %d)', mse_kern));
+title(sprintf('Kernel (MSE = %d)', mse_kern));
 
 subplot(2, 3, 3);
 yq_proj = griddata(xt(:, 1), xt(:, 2), y_kern_proj, xt1, xt2);
 mesh(xt1, xt2, yq_proj); hold on;
 plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-title(sprintf('Projection (MSE = %d)', mse_kern_proj));
+title(sprintf('Kernel Proj (MSE = %d)', mse_kern_proj));
 
 
 %% COMPUTE AVERAGE FROM SAMPLES OF GP POSTERIOR MCMC, AVERAGE OF 
@@ -120,7 +120,7 @@ yq_proj = griddata(xt(:, 1), xt(:, 2), avg_projs, xt1, xt2);
 subplot(2, 3, 6);
 mesh(xt1, xt2, yq_proj); hold on;
 plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-title(sprintf('Avg PROJ (MSE = %d)', mse_gp_proj));
+title(sprintf('Avg MCMC Proj (MSE = %d)', mse_gp_proj));
 
 
 %% SAVE FILE DATA AND FIGURE.

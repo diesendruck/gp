@@ -21,7 +21,7 @@ if 0  % Mac version.
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/convex-function')
 end
 
-if 0  % Linux version.
+if 1  % Linux version.
     cd ~/Documents/gp/GPstuff-4.6/
     matlab_install
     cd ~/Documents/gp/Programs/
@@ -56,10 +56,10 @@ iter = 0;              % Counter for iterations.
 n = 40;                % Data sample size.
 d = 2;                  % Dimension of data points.
 ls_factor = 0.01;      % Lengthscale factor (proportion of x-range).
-mesh_gran = 10;        % Number of ticks on mesh for plotting.
-num_posteriors = 120; % Number of posterior mcmc samples to generate.
-desired = 2;         % Number of posterior mcmc samples to use.
-num_global_iters = 2; % Number of MSEs to produce per shape.
+mesh_gran = 15;        % Number of ticks on mesh for plotting.
+num_posteriors = 1020; % Number of posterior mcmc samples to generate.
+desired = 100;         % Number of posterior mcmc samples to use.
+num_global_iters = 10; % Number of MSEs to produce per shape.
 
 %% SAVE MSE RESULTS TO FILE.
 fid = fopen('Results_2d/mses.csv', 'wt');

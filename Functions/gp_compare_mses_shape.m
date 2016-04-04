@@ -1,6 +1,6 @@
-function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap] = ...
+function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mbcr_cap] = ...
     gp_compare_mses_shape(tol_thres, eps1, eps2, iter, n, ls_factor, ...
-    mesh_gran, num_posteriors, desired, d, shape, fid)
+    mesh_gran, num_posteriors, desired, d, shape, fid, mbcr_burn, mbcr_tot)
 % Run gp experiment* for a particular shape.
 %
 % *One experiment draws many samples from the Gaussian Process posterior,
@@ -21,6 +21,8 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap] = ...
 %   d: Dimension of data points.
 %   shape: String, describing original convex function that produced data.
 %   fid: File ID, used to store mses for average mcmc and projection.
+%   mbcr_burn: Number of burn-in for MBCR estimate.
+%   mbcr_tot: Number of total samples for MBCR estimate.
 %
 % Returns:
 %   mse_gp: MSE of average of desired number of GP posteriors.
@@ -28,6 +30,7 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap] = ...
 %   mse_kern: MSE of kernel regression over raw data.
 %   mse_kern_proj: MSE of projection of kernel regression.
 %   mse_cap: MSE of Convex Adaptive Partioning.
+%   mbcr_cap: MSE of Multivariate Bayesian Covex Regression with Rvrs Jump.
 
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
@@ -38,11 +41,11 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap] = ...
 
 % Plot true convex over original data.
 ytruth_on_grid = compute_truth_from_xt(xt, shape);
-yq_conv = griddata(xt(:, 1), xt(:, 2), ytruth_on_grid, xt1, xt2);
-figure; subplot(2, 3, 1);
-mesh(xt1, xt2, yq_conv); hold on;
-plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-title('True Convex');
+% yq_conv = griddata(xt(:, 1), xt(:, 2), ytruth_on_grid, xt1, xt2);
+% figure; subplot(2, 3, 1);
+% mesh(xt1, xt2, yq_conv); hold on;
+% plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+% title('True Convex');
 
 
 %% COMPUTE KERNEL REGRESSION, ITS PROJECTION, AND RESPECTIVE MSES.
@@ -67,16 +70,16 @@ mse_kern = 1/length(xt) * norm(y_kern(:) - ytruth_on_grid)^2;
 mse_kern_proj = 1/length(xt) * norm(y_kern_proj - ytruth_on_grid)^2;
 
 % Plot kernel regression and convex projection over original data.    
-subplot(2, 3, 2);
-mesh(xt1, xt2, y_kern); hold on;
-plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-title(sprintf('Kernel (MSE = %d)', mse_kern));
+% subplot(2, 3, 2);
+% mesh(xt1, xt2, y_kern); hold on;
+% plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+% title(sprintf('Kernel (MSE = %d)', mse_kern));
 
-subplot(2, 3, 3);
-yq_proj = griddata(xt(:, 1), xt(:, 2), y_kern_proj, xt1, xt2);
-mesh(xt1, xt2, yq_proj); hold on;
-plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-title(sprintf('Kernel Proj (MSE = %d)', mse_kern_proj));
+% subplot(2, 3, 3);
+% yq_proj = griddata(xt(:, 1), xt(:, 2), y_kern_proj, xt1, xt2);
+% mesh(xt1, xt2, yq_proj); hold on;
+% plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+% title(sprintf('Kernel Proj (MSE = %d)', mse_kern_proj));
 
 
 %% COMPUTE AVERAGE FROM SAMPLES OF GP POSTERIOR MCMC, AVERAGE OF 
@@ -111,30 +114,43 @@ mse_gp_proj = 1/n_gp * norm(avg_projs - ytruth_on_grid)^2;
 
 % Plot avg MCMC over original data.
 yq_mcmc = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, xt1, xt2);
-subplot(2, 3, 5);
-mesh(xt1, xt2, yq_mcmc); hold on;
-plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-title(sprintf('Avg MCMC (MSE = %d)', mse_gp));
+% subplot(2, 3, 5);
+% mesh(xt1, xt2, yq_mcmc); hold on;
+% plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+% title(sprintf('Avg MCMC (MSE = %d)', mse_gp));
 
 % Plot avg proj over original data..
 yq_proj = griddata(xt(:, 1), xt(:, 2), avg_projs, xt1, xt2);
-subplot(2, 3, 6);
-mesh(xt1, xt2, yq_proj); hold on;
-plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-title(sprintf('Avg MCMC Proj (MSE = %d)', mse_gp_proj));
+% subplot(2, 3, 6);
+% mesh(xt1, xt2, yq_proj); hold on;
+% plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+% title(sprintf('Avg MCMC Proj (MSE = %d)', mse_gp_proj));
 
 
-%% COMPUTE AVERAGE FROM SAMPLES OF GP POSTERIOR MCMC, AVERAGE OF 
+%% COMPUTE CAP ESTIMATE AND ITS MSE.
 [alpha, beta, K] = CAP(x_nsy, y_nsy);
 y_cap = convexEval(alpha, beta, xt);
 mse_cap = 1/length(xt) * norm(y_cap - ytruth_on_grid)^2;
 
+
+%% COMPUTE MBCR ESTIMATE AND ITS MSE.
+[struct_min] = MBCR(x_nsy, y_nsy, mbcr_burn, mbcr_tot);
+f_min = @(x)fMBCR(x, struct_min)
+n_xt = length(xt);
+y_mbcr = zeros(n_xt, 1);
+for i = 1:n_xt
+    y_mbcr(i) = f_min(xt(i,:));
+end
+mbcr_cap = 1/length(xt) * norm(y_mbcr - ytruth_on_grid)^2;
+
+
 %% SAVE FILE DATA AND FIGURE.
-fprintf(fid, '%s,%s,%s,%s,%s,%s\n', shape, num2str(mse_gp, '%0.7f'), ...
+fprintf(fid, '%s,%s,%s,%s,%s,%s,%s\n', shape, num2str(mse_gp, '%0.7f'), ...
                                     num2str(mse_gp_proj, '%0.7f'), ...
                                     num2str(mse_kern, '%0.7f'), ...
                                     num2str(mse_kern_proj, '%0.7f'), ...
-                                    num2str(mse_cap, '%0.7f')); 
+                                    num2str(mse_cap, '%0.7f'),...
+                                    num2str(mbcr_cap, '%0.7f')); 
 
 end
 

@@ -1,9 +1,16 @@
-% This version was partially authored by Maurice Diesendruck.
+% This version was authored by Maurice Diesendruck.
 
-% Adapted from Demo_example.m, a part of:
+% Adapted from 
+% (1) Demo_example.m
 % Mazumder, R., Choudhury, A., Iyengar, G. and Sen, B. (2015).
 %   A Computational Framework for Multivariate Convex Regression and its Variants.
 %   Available at: http://www.stat.columbia.edu/~bodhi/Bodhi/Publications.html
+%
+% (2) ExampleCAP.m, noisyConvexMin.m
+% Hannah, L., and Dunson, D. (2011). Bayesian nonparametric multivariate 
+%   convex regression. Available at:
+%   https://github.com/laurenahannah/convex-function,
+%   https://github.com/laurenahannah/mbcr
 
 start_time = tic
 
@@ -19,6 +26,7 @@ if 0  % Mac version.
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Functions')
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Smoothing')
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/convex-function')
+    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/mbcr')
 end
 
 if 1  % Linux version.
@@ -32,6 +40,7 @@ if 1  % Linux version.
     addpath('~/Documents/gp/Functions')
     addpath('~/Documents/gp/Smoothing')
     addpath('~/Documents/gp/convex-function')
+    addpath('~/Documents/gp/mbcr')
 end
 
 %% SETUP EMAIL PARAMS.
@@ -59,14 +68,13 @@ ls_factor = 0.01;      % Lengthscale factor (proportion of x-range).
 mesh_gran = 15;        % Number of ticks on mesh for plotting.
 num_posteriors = 1020; % Number of posterior mcmc samples to generate.
 desired = 100;         % Number of posterior mcmc samples to use.
+mbcr_burn = 50;        % Number of burn-in for MBCR estimate.
+mbcr_tot = 100;        % Number of total samples for MBCR estimate.
 num_global_iters = 10; % Number of MSEs to produce per shape.
 
 %% SAVE MSE RESULTS TO FILE.
 fid = fopen('Results_2d/mses.csv', 'wt');
-% Set up for one global run.
-% fprintf(fid, 'avg_mcmc_mse,avg_proj_mse,relative_change\n');
-% Set up for multiple global runs on three shapes.
-fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj,cap\n');
+fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj,cap,mbcr\n');
 
 
 %% CONDUCT EXPERIMENT ON EACH SHAPE.
@@ -81,9 +89,10 @@ for ii = 1:num_global_iters
     for shape = shapes
         shape_start_time = tic;
         
-        [gp, gp_proj, kern, kern_proj, cap] = gp_compare_mses_shape(tol_thres, ...
-            eps1, eps2, iter, n, ls_factor, mesh_gran, num_posteriors, ...
-            desired, d, shape{1}, fid);
+        [gp, gp_proj, kern, kern_proj, cap, mbcr] = ...
+            gp_compare_mses_shape(tol_thres, eps1, eps2, iter, n, ...
+                ls_factor, mesh_gran, num_posteriors, desired, d, ...
+                shape{1}, fid, mbcr_burn, mbcr_tot);
         
         shape_time_elapsed = toc(shape_start_time);
         total_time_elapsed = toc(start_time);
@@ -96,12 +105,14 @@ for ii = 1:num_global_iters
                            'kern:             %s\n', ...
                            'kern_proj:     %s\n', ...
                            'cap:              %s\n', ...
+                           'mbcr:            %s\n', ...
                            'shape_time:             %s\n', ...
                            'total_time_elapsed: %s\n'), ...
                 num2str(ii), shape{1}, num2str(gp, '%0.2f'), ...
                 num2str(gp_proj, '%0.2f'), num2str(kern, '%0.2f'), ...
                 num2str(kern_proj, '%0.2f'), ...
                 num2str(cap, '%0.2f'), ...
+                num2str(mbcr, '%0.2f'), ...
                 num2str(shape_time_elapsed, '%0.2f'), ...
                 num2str(total_time_elapsed, '%0.2f')));
     end

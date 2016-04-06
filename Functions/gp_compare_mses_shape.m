@@ -32,6 +32,8 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mbcr_cap] = ...
 %   mse_cap: MSE of Convex Adaptive Partioning.
 %   mbcr_cap: MSE of Multivariate Bayesian Covex Regression with Rvrs Jump.
 
+% Toggle plotting on and off.
+do_plot = 1;
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
 [x_nsy, y_nsy] = make_noisy_convex(n, d, shape);
@@ -41,12 +43,13 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mbcr_cap] = ...
 
 % Plot true convex over original data.
 ytruth_on_grid = compute_truth_from_xt(xt, shape);
-% yq_conv = griddata(xt(:, 1), xt(:, 2), ytruth_on_grid, xt1, xt2);
-% figure; subplot(2, 3, 1);
-% mesh(xt1, xt2, yq_conv); hold on;
-% plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-% title('True Convex');
-
+if do_plot
+    yq_conv = griddata(xt(:, 1), xt(:, 2), ytruth_on_grid, xt1, xt2);
+    figure; subplot(2, 3, 1);
+    mesh(xt1, xt2, yq_conv); hold on;
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    title('True Convex');
+end
 
 %% COMPUTE KERNEL REGRESSION, ITS PROJECTION, AND RESPECTIVE MSES.
 % Select optimal bandwidth, and do kernel regression.
@@ -69,18 +72,19 @@ y_kern_proj = project_to_convex(length(xt), d, xt, y_kern(:), eps1, eps2);
 mse_kern = 1/length(xt) * norm(y_kern(:) - ytruth_on_grid)^2;
 mse_kern_proj = 1/length(xt) * norm(y_kern_proj - ytruth_on_grid)^2;
 
-% Plot kernel regression and convex projection over original data.    
-% subplot(2, 3, 2);
-% mesh(xt1, xt2, y_kern); hold on;
-% plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-% title(sprintf('Kernel (MSE = %d)', mse_kern));
+% Plot kernel regression and convex projection over original data.
+if do_plot
+    subplot(2, 3, 2);
+    mesh(xt1, xt2, y_kern); hold on;
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    title(sprintf('Kernel (MSE = %d)', mse_kern));
 
-% subplot(2, 3, 3);
-% yq_proj = griddata(xt(:, 1), xt(:, 2), y_kern_proj, xt1, xt2);
-% mesh(xt1, xt2, yq_proj); hold on;
-% plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-% title(sprintf('Kernel Proj (MSE = %d)', mse_kern_proj));
-
+    subplot(2, 3, 3);
+    yq_proj = griddata(xt(:, 1), xt(:, 2), y_kern_proj, xt1, xt2);
+    mesh(xt1, xt2, yq_proj); hold on;
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    title(sprintf('Kernel Proj (MSE = %d)', mse_kern_proj));
+end
 
 %% COMPUTE AVERAGE FROM SAMPLES OF GP POSTERIOR MCMC, AVERAGE OF 
 %% PROJECTIONS OF EACH, AND MSES OF RESPECTIVE AVERAGES.
@@ -114,18 +118,21 @@ mse_gp_proj = 1/n_gp * norm(avg_projs - ytruth_on_grid)^2;
 
 % Plot avg MCMC over original data.
 yq_mcmc = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, xt1, xt2);
-% subplot(2, 3, 5);
-% mesh(xt1, xt2, yq_mcmc); hold on;
-% plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-% title(sprintf('Avg MCMC (MSE = %d)', mse_gp));
+if do_plot
+    subplot(2, 3, 5);
+    mesh(xt1, xt2, yq_mcmc); hold on;
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    title(sprintf('Avg MCMC (MSE = %d)', mse_gp));
+end
 
 % Plot avg proj over original data..
 yq_proj = griddata(xt(:, 1), xt(:, 2), avg_projs, xt1, xt2);
-% subplot(2, 3, 6);
-% mesh(xt1, xt2, yq_proj); hold on;
-% plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-% title(sprintf('Avg MCMC Proj (MSE = %d)', mse_gp_proj));
-
+if do_plot
+    subplot(2, 3, 6);
+    mesh(xt1, xt2, yq_proj); hold on;
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    title(sprintf('Avg MCMC Proj (MSE = %d)', mse_gp_proj));
+end
 
 %% COMPUTE CAP ESTIMATE AND ITS MSE.
 [alpha, beta, K] = CAP(x_nsy, y_nsy);

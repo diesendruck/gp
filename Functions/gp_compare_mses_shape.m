@@ -33,7 +33,7 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mbcr_cap] = ...
 %   mbcr_cap: MSE of Multivariate Bayesian Covex Regression with Rvrs Jump.
 
 % Toggle plotting on and off.
-do_plot = 1;
+do_plot = 0;
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
 [x_nsy, y_nsy] = make_noisy_convex(n, d, shape);

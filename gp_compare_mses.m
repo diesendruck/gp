@@ -13,9 +13,12 @@
 %   https://github.com/laurenahannah/mbcr
 
 start_time = tic
+platform = 'mac';
+%platform = 'linux';
+            
 
 %% IMPORT GPSTUFF AND SET PATHS.
-if 0  % Mac version.
+if strcmp(platform, 'mac');  % Mac version.
     cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/GPstuff-4.6/
     matlab_install
     cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/Programs/
@@ -27,9 +30,7 @@ if 0  % Mac version.
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Smoothing')
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/convex-function')
     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/mbcr')
-end
-
-if 1  % Linux version.
+elseif strcmp(platform, 'linux');  % Linux version.
     cd ~/Documents/gp/GPstuff-4.6/
     matlab_install
     cd ~/Documents/gp/Programs/
@@ -43,6 +44,7 @@ if 1  % Linux version.
     addpath('~/Documents/gp/mbcr')
 end
 
+
 %% SETUP EMAIL PARAMS.
 myaddress = 'eltegog@gmail.com';
 myp = 'T0g.eltegog';
@@ -55,6 +57,7 @@ props.setProperty('mail.smtp.auth','true');
 props.setProperty('mail.smtp.socketFactory.class', ...
     'javax.net.ssl.SSLSocketFactory');
 props.setProperty('mail.smtp.socketFactory.port','465');
+
 
 %% SET CONSTANTS.
 format long;
@@ -71,6 +74,7 @@ desired = 50;         % Number of posterior mcmc samples to use.
 mbcr_burn = 50;        % Number of burn-in for MBCR estimate.
 mbcr_tot = 100;        % Number of total samples for MBCR estimate.
 num_global_iters = 10; % Number of MSEs to produce per shape.
+
 
 %% SAVE MSE RESULTS TO FILE.
 fid = fopen('Results_2d/mses.csv', 'wt');
@@ -97,7 +101,8 @@ for ii = 1:num_global_iters
         shape_time_elapsed = toc(shape_start_time);
         total_time_elapsed = toc(start_time);
         
-        sendmail('momod@utexas.edu', 'UPDATE: MSE Comparisons', ...
+        sendmail('momod@utexas.edu', ...
+            sprintf('UPDATE %s: MSE Comparisons', platform), ...
             sprintf(strcat('Global iter: %s\n', ...
                            'Data shape:  %s\n', ...
                            'gp:                %s\n', ...
@@ -118,10 +123,17 @@ for ii = 1:num_global_iters
     end
 end
 
+
+%% CLOSE AND SEND RESULTS FILE.
 fclose(fid);
    
-sendmail('momod@utexas.edu', 'RESULTS: MSE Comparisons', '', ...
+if strcmp(platform, 'mac')
+    sendmail('momod@utexas.edu', 'RESULTS mac: MSE Comparisons', '', ...
+        {'~/Google Drive/0-LIZHEN RESEARCH/gp/Results_2d/mses.csv'});
+elseif strcmp(platform, 'linux')
+    sendmail('momod@utexas.edu', 'RESULTS linux: MSE Comparisons', '', ...
     {'/home/momod/Documents/gp/Results_2d/mses.csv'});
+end
 
 end_time = toc(start_time)
 

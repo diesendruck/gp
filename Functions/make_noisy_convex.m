@@ -96,10 +96,21 @@ elseif strcmp(shape, 'chair');
         x1 = x_nsy(ii, 1); x2 = x_nsy(ii, 2);
         f(ii) = 0.5e-3 * (exp(x1) + x2^4);
     end
-    
+
+elseif strcmp(shape, 'hannah2');
+    x_nsy(:, 1) = unifrnd(-1, 1, n, 1);
+    x_nsy(:, 2) = unifrnd(-1, 1, n, 1);
+    sig = 0.5;
+    noise = sig*randn(n, 1);
+
+    % Compute function value.
+    for ii = 1:n
+        x1 = x_nsy(ii, 1); x2 = x_nsy(ii, 2);
+        f(ii) = (x1 + x2)^2;
+    end
     
 else
-    error('Shape should be either trough or paraboloid.')
+    error('Shape not recognized.')
 end
 
 % Response values = convex + noise.

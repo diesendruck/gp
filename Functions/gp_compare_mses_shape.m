@@ -1,4 +1,4 @@
-function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mbcr_cap] = ...
+function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mse_mbcr] = ...
     gp_compare_mses_shape(tol_thres, eps1, eps2, iter, n, ls_factor, ...
     mesh_gran, num_posteriors, desired, d, shape, fid, mbcr_burn, mbcr_tot)
 % Run gp experiment* for a particular shape.
@@ -33,7 +33,7 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mbcr_cap] = ...
 %   mbcr_cap: MSE of Multivariate Bayesian Covex Regression with Rvrs Jump.
 
 % Toggle plotting on and off.
-do_plot = 0;
+do_plot = 1;
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
 [x_nsy, y_nsy] = make_noisy_convex(n, d, shape);
@@ -45,11 +45,12 @@ do_plot = 0;
 ytruth_on_grid = compute_truth_from_xt(xt, shape);
 if do_plot
     yq_conv = griddata(xt(:, 1), xt(:, 2), ytruth_on_grid, xt1, xt2);
-    figure; subplot(2, 3, 1);
+    figure; subplot(3, 3, 1);
     mesh(xt1, xt2, yq_conv); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
     title('True Convex');
 end
+
 
 %% COMPUTE KERNEL REGRESSION, ITS PROJECTION, AND RESPECTIVE MSES.
 % Select optimal bandwidth, and do kernel regression.
@@ -74,17 +75,18 @@ mse_kern_proj = 1/length(xt) * norm(y_kern_proj - ytruth_on_grid)^2;
 
 % Plot kernel regression and convex projection over original data.
 if do_plot
-    subplot(2, 3, 2);
+    subplot(3, 3, 2);
     mesh(xt1, xt2, y_kern); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
     title(sprintf('Kernel (MSE = %d)', mse_kern));
 
-    subplot(2, 3, 3);
+    subplot(3, 3, 3);
     yq_proj = griddata(xt(:, 1), xt(:, 2), y_kern_proj, xt1, xt2);
     mesh(xt1, xt2, yq_proj); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
     title(sprintf('Kernel Proj (MSE = %d)', mse_kern_proj));
 end
+
 
 %% COMPUTE AVERAGE FROM SAMPLES OF GP POSTERIOR MCMC, AVERAGE OF 
 %% PROJECTIONS OF EACH, AND MSES OF RESPECTIVE AVERAGES.
@@ -116,28 +118,36 @@ avg_projs = mean(projs, 2);
 mse_gp = 1/n_gp * norm(avg_mcmcs - ytruth_on_grid)^2;
 mse_gp_proj = 1/n_gp * norm(avg_projs - ytruth_on_grid)^2;
 
-% Plot avg MCMC over original data.
-yq_mcmc = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, xt1, xt2);
 if do_plot
-    subplot(2, 3, 5);
+    % Plot avg MCMC over original data.
+    subplot(3, 3, 5);
+    yq_mcmc = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, xt1, xt2);
     mesh(xt1, xt2, yq_mcmc); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-    title(sprintf('Avg MCMC (MSE = %d)', mse_gp));
-end
+    title(sprintf('Avg GP (MSE = %d)', mse_gp));
 
-% Plot avg proj over original data..
-yq_proj = griddata(xt(:, 1), xt(:, 2), avg_projs, xt1, xt2);
-if do_plot
-    subplot(2, 3, 6);
+    % Plot avg proj over original data.
+    subplot(3, 3, 6); 
+    yq_proj = griddata(xt(:, 1), xt(:, 2), avg_projs, xt1, xt2);
     mesh(xt1, xt2, yq_proj); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
-    title(sprintf('Avg MCMC Proj (MSE = %d)', mse_gp_proj));
+    title(sprintf('Avg GP Proj (MSE = %d)', mse_gp_proj));
 end
+
 
 %% COMPUTE CAP ESTIMATE AND ITS MSE.
 [alpha, beta, K] = CAP(x_nsy, y_nsy);
 y_cap = convexEval(alpha, beta, xt);
 mse_cap = 1/length(xt) * norm(y_cap - ytruth_on_grid)^2;
+
+% Plot CAP estimate over original data.
+if do_plot
+    subplot(3, 3, 8); 
+    yq_cap = griddata(xt(:, 1), xt(:, 2), y_cap, xt1, xt2);
+    mesh(xt1, xt2, yq_cap); hold on;
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    title(sprintf('CAP (MSE = %d)', mse_cap));
+end
 
 
 %% COMPUTE MBCR ESTIMATE AND ITS MSE.
@@ -148,7 +158,33 @@ y_mbcr = zeros(n_xt, 1);
 for i = 1:n_xt
     y_mbcr(i) = f_min(xt(i,:));
 end
-mbcr_cap = 1/length(xt) * norm(y_mbcr - ytruth_on_grid)^2;
+mse_mbcr = 1/length(xt) * norm(y_mbcr - ytruth_on_grid)^2;
+
+% Plot MBCR estimate over original data.
+if do_plot
+    subplot(3, 3, 9); 
+    yq_mbcr = griddata(xt(:, 1), xt(:, 2), y_mbcr, xt1, xt2);
+    mesh(xt1, xt2, yq_mbcr); hold on;
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    title(sprintf('MBCR (MSE = %d)', mse_mbcr));
+end
+
+
+%% ADD SUMMARY TEXT TO PLOT.
+% Add text on plot to say which method did best (lowest MSE).
+ax = subplot(3, 3, 4);
+[~, index] = min([mse_gp mse_gp_proj mse_kern mse_kern_proj mse_cap mse_mbcr]);
+methods = {'mse_gp' 'mse_gp_proj' 'mse_kern' 'mse_kern_proj' 'mse_cap' 'mse_mbcr'};
+min_str = strrep(char(methods(index)), '_', '\_');
+text(0, 0.5, 'Min MSE Method:', 'FontSize', 14);
+text(0, 0.3, min_str, 'FontSize', 14);
+set (ax, 'visible', 'off')
+
+% % Add text on plot to say which gp optimization method was used.
+% ax = subplot(3, 3, 7);
+% text(0, 0.5, 'GP Optimization:', 'FontSize', 14);
+% text(0, 0.3, gp_optimization, 'FontSize', 14);
+% set (ax, 'visible', 'off')
 
 
 %% SAVE FILE DATA AND FIGURE.
@@ -157,7 +193,7 @@ fprintf(fid, '%s,%s,%s,%s,%s,%s,%s\n', shape, num2str(mse_gp, '%0.7f'), ...
                                     num2str(mse_kern, '%0.7f'), ...
                                     num2str(mse_kern_proj, '%0.7f'), ...
                                     num2str(mse_cap, '%0.7f'),...
-                                    num2str(mbcr_cap, '%0.7f')); 
+                                    num2str(mse_mbcr, '%0.7f')); 
 
 end
 

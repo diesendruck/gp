@@ -1,5 +1,7 @@
 function [ytruth_on_mcmcgrid] = compute_truth_from_xt(xt, shape)
 % Evaluate true convex function on xt grid (from run_gpmc).
+% NOTE1: Functions appear in BOTH this file and make_noisy_convex.m.
+% NOTE2: Each function gets a unique error variance, sig.
 %
 % Args:
 %   xt: Meshgrid matrix of points.
@@ -52,9 +54,16 @@ elseif strcmp(shape, 'chair')
         x1 = xt(ii, 1); x2 = xt(ii, 2);
         ytruth_on_mcmcgrid(ii) = 0.5e-3 * (exp(x1) + x2^4);
     end
+
+elseif strcmp(shape, 'hannah2')
+    for ii = 1:n
+        x1 = xt(ii, 1); x2 = xt(ii, 2);
+        ytruth_on_mcmcgrid(ii) = (x1 + x2)^2;
+    end
+
     
 else
-    error('Shape should be either "trough" or "paraboloid".')
+    error('Shape not recognized.')
 end
 
 end

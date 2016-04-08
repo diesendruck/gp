@@ -65,15 +65,15 @@ tol_thres = 0;
 eps1 = 10^-5;          % These 2 epsilons are used for convergence of the
 eps2 = 10^-5;          %   convex projection algorithm.
 iter = 0;              % Counter for iterations.
-n = 40;                % Data sample size.
+n = 100;                % Data sample size.
 d = 2;                  % Dimension of data points.
 ls_factor = 0.005;      % Lengthscale factor (proportion of x-range).
 mesh_gran = 15;        % Number of ticks on mesh for plotting.
-num_posteriors = 2020; % Number of posterior mcmc samples to generate.
+num_posteriors = 1020; % Number of posterior mcmc samples to generate.
 desired = 50;         % Number of posterior mcmc samples to use.
 mbcr_burn = 50;        % Number of burn-in for MBCR estimate.
 mbcr_tot = 100;        % Number of total samples for MBCR estimate.
-num_global_iters = 5; % Number of MSEs to produce per shape.
+num_global_iters = 1; % Number of MSEs to produce per shape.
 
 
 %% SAVE MSE RESULTS TO FILE.
@@ -86,7 +86,8 @@ fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj,cap,mbcr\n');
 % shapes = {'trough', 'paraboloid', 'hand', 'parabolic_cylinder', ...
 %           'wolverine', 'exponential', 'chair'};
 % Try with only "flatter" surfaces.
-shapes = {'hand', 'parabolic_cylinder', 'wolverine'};
+% shapes = {'hand', 'parabolic_cylinder', 'wolverine',};
+shapes = {'hannah2'};
 
 % Run experiment for each shape.
 for ii = 1:num_global_iters

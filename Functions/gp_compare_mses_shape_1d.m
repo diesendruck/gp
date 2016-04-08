@@ -121,13 +121,13 @@ if do_plot
     subplot(3, 3, 5);
     plot(x_grid, avg_mcmcs, 'b-.'); hold on;
     plot(x_nsy, y_nsy, 'r.', 'Markers', 20);
-    title(sprintf('Avg MCMC (MSE = %d)', mse_gp));
+    title(sprintf('Avg GP (MSE = %d)', mse_gp));
 
     % Plot average projection over original data..
     subplot(3, 3, 6);
     plot(x_grid, avg_projs, 'b-.'); hold on;
     plot(x_nsy, y_nsy, 'r.', 'MarkerSize', 20);
-    title(sprintf('Avg PROJ (MSE = %d)', mse_gp_proj));
+    title(sprintf('Avg GP_PROJ (MSE = %d)', mse_gp_proj));
 end
 
 

@@ -1,28 +1,25 @@
-function [x_grid, Eft_s, posterior_sample_count] = run_gpmc_1d(x, y, ...
+function [Eft_s, posterior_sample_count] = run_gpmc_1d(x_nsy, y_nsy, ...
     ls_factor, num_posteriors, mesh_gran)
 % Run gp mcmc and return samples of posterior.
 %
 % Args:
-%   x: n x 1 matrix of data values.
-%   y: n x 1 matrix of response values.
+%   x_nsy: n x 1 matrix of data values.
+%   y_nsy: n x 1 matrix of response values.
 %   ls_factor: Prior value for lengthscale hyperparameter.
 %   num_posteriors: Number of posterior samples to generate.
 %   mesh_gran: Number of ticks on mesh for plotting.
 %
 % Returns:
-%   x_grid: Array of grid points to evaluate over.
 %   Eft_s: Samples from GP posterior.
 %   posterior_sample_count: Posterior count after burn-in and thinning.
 
 %% STEP 0. Establish boundary of data, to make grid for surface.
-[x_l, x_h, x_range, x_grid] = compute_mesh_info_1d(x, mesh_gran);
+[x_l, x_h, x_range, x_grid] = compute_mesh_info_1d(x_nsy, mesh_gran);
 
 %% STEP 1. Set up the GP.
 noise_var_factor = 0.01;
 length_scale = x_range*ls_factor;  % Scaled according to range.
-% Scaled according to range. 
-% TODO: What should the sigma scaling be? MAX or MIN?
-mag_sig2 = (min(x_range)*noise_var_factor)^2;  
+mag_sig2 = (min(x_range)*noise_var_factor)^2;  % TODO: What should the sigma scaling be? MAX or MIN?
 
 % Set up likelihood and covariance functions.
 lik = lik_gaussian('sigma2', mag_sig2);
@@ -41,11 +38,11 @@ gp = gp_set('lik', lik, 'cf', gpcf);
 %% STEP 2. Optimize GP and get params.
 burned = 21;
 thinned = 2;
-[rfull, g, opt] = gp_mc(gp, x, y, 'nsamples', num_posteriors);
+[rfull, g, opt] = gp_mc(gp, x_nsy, y_nsy, 'nsamples', num_posteriors);
 gp_rec = thin(rfull, burned, thinned);
 
 %% STEP 3. Produce surface prediction.
-[Eft_s, Varft_s] = gpmc_preds(gp_rec, x, y, x_grid);  % Produce MCMC predictions.
+[Eft_s, Varft_s] = gpmc_preds(gp_rec, x_nsy, y_nsy, x_grid);  % Produce MCMC predictions.
 
 % Print summary of results to console.
 posterior_sample_count = size(Eft_s, 2);

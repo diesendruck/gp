@@ -1,6 +1,7 @@
 function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mse_mbcr] = ...
     gp_compare_mses_shape_1d(tol_thres, eps1, eps2, iter, n, ls_factor, ...
-    mesh_gran, num_posteriors, desired, d, shape, fid, mbcr_burn, mbcr_tot)
+    mesh_gran, gp_optimization, num_posteriors, desired, d, shape, fid, ...
+    mbcr_burn, mbcr_tot)
 % Run gp experiment* for a particular shape.
 %
 % *One experiment draws many samples from the Gaussian Process posterior,
@@ -16,6 +17,7 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mse_mbcr] = ...
 %   n: Data sample size.
 %   ls_factor: Lengthscale factor (proportion of x-range).
 %   mesh_gran: Number of ticks on mesh for plotting.
+%   gp_optimization: "mcmc" or "map" to select GP optimization type.
 %   num_posteriors: Number of posterior samples to generate.
 %   desired: Number of posterior samples to use.
 %   d: Dimension of data points.
@@ -41,6 +43,7 @@ do_plot = 1;
 
 % Get associated data about noisy data set.
 [~, ~, ~, x_grid] = compute_mesh_info_1d(x_nsy, mesh_gran);
+n_grid = length(x_grid);
 
 % Plot true convex over original data.
 ytruth_on_grid = compute_truth_from_xt_1d(x_grid, shape);
@@ -55,7 +58,7 @@ end
 %% COMPUTE KERNEL REGRESSION, ITS PROJECTION, AND RESPECTIVE MSES.
 % Select optimal bandwidth, and do kernel regression.
 h0 = rand(size(x_nsy', 1), 1)*10;
-fprintf('(%s) Optimizing for kernel regression bandwidth.\n', shape);
+%fprintf('(%s) Optimizing for kernel regression bandwidth.\n', shape);
 h = Opt_Hyp_Gauss_Ker_Reg(h0, x_nsy', y_nsy');
 y_kern = zeros(size(x_grid));
 
@@ -64,7 +67,7 @@ for ii = 1:size(x_grid, 1)
 end
 
 % Get convex projection of kernel regression.
-fprintf('(%s) Projecting kernel regression surface to convex.\n', shape);
+%fprintf('(%s) Projecting kernel regression surface to convex.\n', shape);
 y_kern_proj = project_to_convex(length(x_grid), d, x_grid, y_kern, eps1, eps2);
 
 % Compute mses and relative change
@@ -82,52 +85,76 @@ if do_plot
     plot(x_grid, y_kern_proj, 'k-.'); hold on;
     plot(x_nsy, y_nsy, 'r.', 'MarkerSize', 20);
     title(sprintf('Kernel Proj (MSE = %d)', mse_kern_proj));
+end
+
+
+%% COMPUTE GP SURFACE.
+if strcmp(gp_optimization, 'mcmc');
+    % Average samples of GP Posterior MCMC, average projections of each,
+    % compute MSEs of respective averages.
     
+    % Get samples from GP posterior MCMC, project each to convex, and store.
+    [Eft_s, posterior_sample_count] = run_gpmc_1d(x_nsy, y_nsy, ...
+        ls_factor, num_posteriors, mesh_gran);
+
+    n_entries = min(desired, posterior_sample_count); 
+    mcmcs = zeros(n_grid, n_entries);
+    projs = zeros(n_grid, n_entries);
+
+    % Sample several times from posterior, and store as column in mcmcs.
+    for index = 1:n_entries
+        disp(sprintf('(%s) Projecting convex version of sample %d.', shape, ...
+           index));
+        
+        % Sample posterior.
+        y_smp = Eft_s(:, randi(posterior_sample_count));
+        mcmcs(:, index) = y_smp;
+        
+        % Get convex projection of sample, and store it as a column in projs.
+        y_smp_convex = project_to_convex(n_grid, d, x_grid, y_smp, eps1, eps2);
+        projs(:, index) = y_smp_convex;
+    end
+
+    % Compute averages over mcmc and convex projections, respectively.
+    avg_GPmcmc = mean(mcmcs, 2);  % Row means.
+    avg_GPmcmc_projs = mean(projs, 2);
+    
+    % Redefine names for plotting (at the mcmc vs map level).
+    plot_gp = avg_GPmcmc; plot_proj = avg_GPmcmc_projs;
+
+    % Compute MSE between truth and each average.
+    mse_gp = 1/n_grid * norm(avg_GPmcmc - ytruth_on_grid)^2;
+    mse_gp_proj = 1/n_grid * norm(avg_GPmcmc_projs - ytruth_on_grid)^2;
+
+elseif strcmp(gp_optimization, 'map')
+    % Get a single estimate of fitted GP.
+    [y_GPmap] = run_gp_1d(x_nsy, y_nsy, ls_factor, x_grid)
+
+    % Project fitted GP to convex.
+    y_GPmap_proj = project_to_convex(n_grid, d, x_grid, y_GPmap, eps1, eps2);
+    
+    % Redefine names for plotting.
+    plot_gp = y_GPmap; plot_proj = y_GPmap_proj;
+    
+    % Compute MSE for map and its projection.
+    mse_gp = 1/n_grid * norm(y_GPmap - ytruth_on_grid)^2;
+    mse_gp_proj = 1/n_grid * norm(y_GPmap_proj - ytruth_on_grid)^2;
 end
 
 
-%% COMPUTE AVERAGE FROM SAMPLES OF GP POSTERIOR MCMC, AVERAGE OF 
-%% PROJECTIONS OF EACH, AND MSES OF RESPECTIVE AVERAGES.
-% Get samples from GP posterior MCMC, project each to convex, and store.
-[x_grid, Eft_s, posterior_sample_count] = run_gpmc_1d(x_nsy, y_nsy, ...
-    ls_factor, num_posteriors, mesh_gran);
-n_gp = length(x_grid);
-
-n_entries = min(desired, posterior_sample_count); 
-mcmcs = zeros(n_gp, n_entries);
-projs = zeros(n_gp, n_entries);
-
-for index = 1:n_entries
-    disp(sprintf('(%s) Projecting convex version of sample %d.', shape, ...
-        index));
-    % Sample once from posterior, and store it as a column in mcmcs.
-    y_smp = Eft_s(:, randi(posterior_sample_count));
-    mcmcs(:, index) = y_smp;
-    % Get convex projection of sample, and store it as a column in projs.
-    y_smp_convex = project_to_convex(n_gp, d, x_grid, y_smp, eps1, eps2);
-    projs(:, index) = y_smp_convex;
-end
-
-% Compute averages over mcmc and convex projections, respectively.
-avg_mcmcs = mean(mcmcs, 2);  % Row means.
-avg_projs = mean(projs, 2);
-
-% Compute MSE between truth and each average.
-mse_gp = 1/n_gp * norm(avg_mcmcs - ytruth_on_grid)^2;
-mse_gp_proj = 1/n_gp * norm(avg_projs - ytruth_on_grid)^2;
-
+%% PLOT GP and ITS PROJECTION OVER TRUE DATA.
 if do_plot
     % Plot average MCMC over original data.
     subplot(3, 3, 5);
-    plot(x_grid, avg_mcmcs, 'b-.'); hold on;
+    plot(x_grid, plot_gp, 'b-.'); hold on;
     plot(x_nsy, y_nsy, 'r.', 'Markers', 20);
-    title(sprintf('Avg GP (MSE = %d)', mse_gp));
+    title(sprintf('GP (MSE = %d)', mse_gp));
 
     % Plot average projection over original data..
     subplot(3, 3, 6);
-    plot(x_grid, avg_projs, 'b-.'); hold on;
+    plot(x_grid, plot_proj, 'b-.'); hold on;
     plot(x_nsy, y_nsy, 'r.', 'MarkerSize', 20);
-    title(sprintf('Avg GP_PROJ (MSE = %d)', mse_gp_proj));
+    title(sprintf('GP Proj (MSE = %d)', mse_gp_proj));
 end
 
 
@@ -163,13 +190,23 @@ if do_plot
     title(sprintf('MBCR (MSE = %d)', mse_mbcr));
 end
 
-[minimum, index] = min([mse_gp mse_gp_proj mse_kern mse_kern_proj mse_cap mse_mbcr]);
-methods = {'mse_gp' 'mse_gp_proj' 'mse_kern' 'mse_kern_proj' 'mse_cap' 'mse_mbcr'};
+
+%% ADD SUMMARY TEXT TO PLOT.
+% Add text on plot to say which method did best (lowest MSE).
 ax = subplot(3, 3, 4);
-% Replace underscores with spaces, for plot clarity.
+[~, index] = min([mse_gp mse_gp_proj mse_kern mse_kern_proj mse_cap mse_mbcr]);
+methods = {'mse_gp' 'mse_gp_proj' 'mse_kern' 'mse_kern_proj' 'mse_cap' 'mse_mbcr'};
 min_str = strrep(char(methods(index)), '_', '\_');
-text(0, 0.5, strcat('MIN: ', min_str), 'FontSize', 16);
+text(0, 0.5, 'Min MSE Method:', 'FontSize', 14);
+text(0, 0.3, min_str, 'FontSize', 14);
 set (ax, 'visible', 'off')
+
+% Add text on plot to say which gp optimization method was used.
+ax = subplot(3, 3, 7);
+text(0, 0.5, 'GP Optimization:', 'FontSize', 14);
+text(0, 0.3, gp_optimization, 'FontSize', 14);
+set (ax, 'visible', 'off')
+
 
 %% SAVE FILE DATA AND FIGURE.
 fprintf(fid, '%s,%s,%s,%s,%s,%s,%s\n', shape, num2str(mse_gp, '%0.7f'), ...

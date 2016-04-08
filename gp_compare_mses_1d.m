@@ -18,31 +18,31 @@ platform = 'mac';
 
 
 %% IMPORT GPSTUFF AND SET PATHS.
-if strcmp(platform, 'mac');  % Mac version.
-    cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/GPstuff-4.6/
-    matlab_install
-    cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/Programs/
-    run_mex_commands();
-    cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/')
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Programs')
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Functions')
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Smoothing')
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/convex-function')
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/mbcr')
-elseif strcmp(platform, 'linux');  % Linux version.
-    cd ~/Documents/gp/GPstuff-4.6/
-    matlab_install
-    cd ~/Documents/gp/Programs/
-    run_mex_commands();
-    cd ~/Documents/gp/
-    addpath('~/Documents/gp/')
-    addpath('~/Documents/gp/Programs')
-    addpath('~/Documents/gp/Functions')
-    addpath('~/Documents/gp/Smoothing')
-    addpath('~/Documents/gp/convex-function')
-    addpath('~/Documents/gp/mbcr')
-end
+% if strcmp(platform, 'mac');  % Mac version.
+%     cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/GPstuff-4.6/
+%     matlab_install
+%     cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/Programs/
+%     run_mex_commands();
+%     cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/
+%     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/')
+%     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Programs')
+%     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Functions')
+%     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Smoothing')
+%     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/convex-function')
+%     addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/mbcr')
+% elseif strcmp(platform, 'linux');  % Linux version.
+%     cd ~/Documents/gp/GPstuff-4.6/
+%     matlab_install
+%     cd ~/Documents/gp/Programs/
+%     run_mex_commands();
+%     cd ~/Documents/gp/
+%     addpath('~/Documents/gp/')
+%     addpath('~/Documents/gp/Programs')
+%     addpath('~/Documents/gp/Functions')
+%     addpath('~/Documents/gp/Smoothing')
+%     addpath('~/Documents/gp/convex-function')
+%     addpath('~/Documents/gp/mbcr')
+% end
 
 
 %% SETUP EMAIL PARAMS.
@@ -67,13 +67,14 @@ eps2 = 10^-5;          %   convex projection algorithm.
 iter = 0;              % Counter for iterations.
 n = 20;                % Data sample size.
 d = 1;                  % Dimension of data points.
-ls_factor = 0.0005;      % Lengthscale factor (proportion of x-range).
+ls_factor = 0.005;      % Lengthscale factor (proportion of x-range).
 mesh_gran = 15;        % Number of ticks on mesh for plotting.
+gp_optimization = 'map'; % "mcmc" or "map" to select GP optimization type.
 num_posteriors = 2020; % Number of posterior mcmc samples to generate.
 desired = 50;         % Number of posterior mcmc samples to use.
 mbcr_burn = 50;        % Number of burn-in for MBCR estimate.
 mbcr_tot = 100;        % Number of total samples for MBCR estimate.
-num_global_iters = 1; % Number of MSEs to produce per shape.
+num_global_iters = 50; % Number of MSEs to produce per shape.
 
 
 %% SAVE MSE RESULTS TO FILE.
@@ -92,8 +93,8 @@ for ii = 1:num_global_iters
 
         [gp, gp_proj, kern, kern_proj, cap, mbcr] = ...
             gp_compare_mses_shape_1d(tol_thres, eps1, eps2, iter, n, ...
-                ls_factor, mesh_gran, num_posteriors, desired, d, ...
-                shape{1}, fid, mbcr_burn, mbcr_tot);
+                ls_factor, mesh_gran, gp_optimization, num_posteriors, ...
+                desired, d, shape{1}, fid, mbcr_burn, mbcr_tot);
         
         shape_time_elapsed = toc(shape_start_time);
         total_time_elapsed = toc(start_time);

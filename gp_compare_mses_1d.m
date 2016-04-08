@@ -69,11 +69,11 @@ n = 20;                % Data sample size.
 d = 1;                  % Dimension of data points.
 ls_factor = 0.0005;      % Lengthscale factor (proportion of x-range).
 mesh_gran = 15;        % Number of ticks on mesh for plotting.
-num_posteriors = 420; % Number of posterior mcmc samples to generate.
-desired = 10;         % Number of posterior mcmc samples to use.
-mbcr_burn = 10;        % Number of burn-in for MBCR estimate.
-mbcr_tot = 20;        % Number of total samples for MBCR estimate.
-num_global_iters = 5; % Number of MSEs to produce per shape.
+num_posteriors = 2020; % Number of posterior mcmc samples to generate.
+desired = 50;         % Number of posterior mcmc samples to use.
+mbcr_burn = 50;        % Number of burn-in for MBCR estimate.
+mbcr_tot = 100;        % Number of total samples for MBCR estimate.
+num_global_iters = 1; % Number of MSEs to produce per shape.
 
 
 %% SAVE MSE RESULTS TO FILE.

@@ -166,7 +166,9 @@ end
 [minimum, index] = min([mse_gp mse_gp_proj mse_kern mse_kern_proj mse_cap mse_mbcr]);
 methods = {'mse_gp' 'mse_gp_proj' 'mse_kern' 'mse_kern_proj' 'mse_cap' 'mse_mbcr'};
 ax = subplot(3, 3, 4);
-text(0.1, 0.5, strcat('Min: ', char(methods(index))), 'FontSize', 16);
+% Replace underscores with spaces, for plot clarity.
+min_str = strrep(char(methods(index)), '_', '\_');
+text(0, 0.5, strcat('MIN: ', min_str), 'FontSize', 16);
 set (ax, 'visible', 'off')
 
 %% SAVE FILE DATA AND FIGURE.

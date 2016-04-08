@@ -1,4 +1,4 @@
-function [ytruth_on_mcmcgrid] = compute_truth_from_xt_1d(x_grid, shape)
+function [ytruth_on_grid] = compute_truth_from_xt_1d(x_grid, shape)
 % Evaluate true convex function on x_grid (from compute_mesh_info_1d).
 % NOTE: Functions appear in BOTH this file and make_noisy_convex_1d.m.
 %
@@ -7,25 +7,25 @@ function [ytruth_on_mcmcgrid] = compute_truth_from_xt_1d(x_grid, shape)
 %   shape: String indicating which convex function to use.
 %
 % Returns:
-%   ytruth_on_mcmcgrid: Matrix (nx1) of true convex response values.
+%   ytruth_on_grid: Matrix (nx1) of true convex response values.
 
 n = length(x_grid);
-ytruth_on_mcmcgrid = zeros(n, 1);
+ytruth_on_grid = zeros(n, 1);
 
 if strcmp(shape, 'parabola')
     for ii = 1:n
-        ytruth_on_mcmcgrid(ii) = 1e-3 * x_grid(ii)^4;            
+        ytruth_on_grid(ii) = 1e-3 * x_grid(ii)^4;            
     end
 
 elseif strcmp(shape, 'exponential')
     for ii = 1:n
         %ytruth_on_mcmcgrid(ii) = exp(x_grid(ii)) + 0.5*x_grid(ii)^2;            
-        ytruth_on_mcmcgrid(ii) = exp(x_grid(ii));
+        ytruth_on_grid(ii) = exp(x_grid(ii));
     end
     
 elseif strcmp(shape, 'negative_entropy')
     for ii = 1:n
-        ytruth_on_mcmcgrid(ii) = x_grid(ii) * log(x_grid(ii));            
+        ytruth_on_grid(ii) = x_grid(ii) * log(x_grid(ii));            
     end
     
 else

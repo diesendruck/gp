@@ -14,6 +14,8 @@ function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy,...
 %   xt: Matrix of grid points to evaluate over.
 %   Eft_s: Samples from GP posterior.
 
+do_diagnostics = 1;
+
 %% STEP 0. Establish boundary of data, to make grid for surface.
 [~, ~, ~, ~, x1_range, x2_range, xt1, xt2, xt] = compute_mesh_info(...
     x_nsy, mesh_gran);
@@ -42,6 +44,9 @@ burned = 21;
 thinned = 2;
 [rfull, g, opt] = gp_mc(gp, x_nsy, y_nsy, 'nsamples', num_posteriors);
 gp_rec = thin(rfull, burned, thinned);
+if do_diagnostics
+    plot_mcmc_diagnostics(gp_rec, gp)
+end
 
 %% STEP 3. Produce surface prediction.
 [Eft_s, Varft_s] = gpmc_preds(gp_rec, x_nsy, y_nsy, xt);  % Produce MCMC predictions.

@@ -13,8 +13,8 @@
 %   https://github.com/laurenahannah/mbcr
 
 start_time = tic
-%platform = 'mac';
-platform = 'linux';
+platform = 'mac';
+%platform = 'linux';
             
 
 %% IMPORT GPSTUFF AND SET PATHS.
@@ -65,14 +65,14 @@ tol_thres = 0;
 eps1 = 10^-5;          % These 2 epsilons are used for convergence of the
 eps2 = 10^-5;          %   convex projection algorithm.
 iter = 0;              % Counter for iterations.
-n = 1000;                % Data sample size.
+n = 100;                % Data sample size.
 d = 2;                  % Dimension of data points.
 ls_factor = 0.005;      % Lengthscale factor (proportion of x-range).
 mesh_gran = 15;        % Number of ticks on mesh for plotting.
-num_posteriors = 1020; % Number of posterior mcmc samples to generate.
-desired = 50;         % Number of posterior mcmc samples to use.
+num_posteriors = 2020; % Number of posterior mcmc samples to generate.
+desired = 100;         % Number of posterior mcmc samples to use.
 mbcr_burn = 50;        % Number of burn-in for MBCR estimate.
-mbcr_tot = 100;        % Number of total samples for MBCR estimate.
+mbcr_tot = 51;        % Number of total samples for MBCR estimate.
 num_global_iters = 1; % Number of MSEs to produce per shape.
 
 

@@ -1,6 +1,7 @@
 function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mse_mbcr] = ...
     gp_compare_mses_shape(tol_thres, eps1, eps2, iter, n, ls_factor, ...
-    mesh_gran, num_posteriors, desired, d, shape, fid, mbcr_burn, mbcr_tot)
+    noise_var_factor, mesh_gran, num_posteriors, desired, d, shape, fid, ...
+    mbcr_burn, mbcr_tot)
 % Run gp experiment* for a particular shape.
 %
 % *One experiment draws many samples from the Gaussian Process posterior,
@@ -15,6 +16,7 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mse_mbcr] = ...
 %   iter: Counter for iterations.
 %   n: Data sample size.
 %   ls_factor: Lengthscale factor (proportion of x-range).
+%   noise_var_factor: Factor on prior value for noise variance.
 %   mesh_gran: Number of ticks on mesh for plotting.
 %   num_posteriors: Number of posterior samples to generate.
 %   desired: Number of posterior samples to use.
@@ -33,7 +35,7 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mse_mbcr] = ...
 %   mbcr_cap: MSE of Multivariate Bayesian Covex Regression with Rvrs Jump.
 
 % Toggle plotting on and off.
-do_plot = 1;
+do_plot = 0;
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
 [x_nsy, y_nsy] = make_noisy_convex(n, d, shape);
@@ -92,7 +94,7 @@ end
 %% PROJECTIONS OF EACH, AND MSES OF RESPECTIVE AVERAGES.
 % Get samples from GP posterior MCMC, project each to convex, and store.
 [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy, ...
-    y_nsy, ls_factor, num_posteriors, mesh_gran);
+    y_nsy, ls_factor, noise_var_factor, num_posteriors, mesh_gran);
 n_gp = length(xt);
 
 n_entries = min(desired, posterior_sample_count); 
@@ -172,19 +174,23 @@ end
 
 %% ADD SUMMARY TEXT TO PLOT.
 % Add text on plot to say which method did best (lowest MSE).
-ax = subplot(3, 3, 4);
-[~, index] = min([mse_gp mse_gp_proj mse_kern mse_kern_proj mse_cap mse_mbcr]);
-methods = {'mse_gp' 'mse_gp_proj' 'mse_kern' 'mse_kern_proj' 'mse_cap' 'mse_mbcr'};
-min_str = strrep(char(methods(index)), '_', '\_');
-text(0, 0.5, 'Min MSE Method:', 'FontSize', 14);
-text(0, 0.3, min_str, 'FontSize', 14);
-set (ax, 'visible', 'off')
+if do_plot
+    ax = subplot(3, 3, 4);
+    [~, index] = min([mse_gp mse_gp_proj mse_kern mse_kern_proj mse_cap mse_mbcr]);
+    methods = {'mse_gp' 'mse_gp_proj' 'mse_kern' 'mse_kern_proj' 'mse_cap' 'mse_mbcr'};
+    min_str = strrep(char(methods(index)), '_', '\_');
+    text(0, 0.5, 'Min MSE Method:', 'FontSize', 14);
+    text(0, 0.3, min_str, 'FontSize', 14);
+    set (ax, 'visible', 'off')
 
-% % Add text on plot to say which gp optimization method was used.
-% ax = subplot(3, 3, 7);
-% text(0, 0.5, 'GP Optimization:', 'FontSize', 14);
-% text(0, 0.3, gp_optimization, 'FontSize', 14);
-% set (ax, 'visible', 'off')
+    % % Add text on plot to say which gp optimization method was used.
+    % ax = subplot(3, 3, 7);
+    % text(0, 0.5, 'GP Optimization:', 'FontSize', 14);
+    % text(0, 0.3, gp_optimization, 'FontSize', 14);
+    % set (ax, 'visible', 'off')
+end
+
+
 
 
 %% SAVE FILE DATA AND FIGURE.

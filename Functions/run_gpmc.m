@@ -1,11 +1,12 @@
 function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy,...
-    y_nsy, ls_factor, num_posteriors, mesh_gran)
+    y_nsy, ls_factor, noise_var_factor, num_posteriors, mesh_gran)
 % Run gp mcmc and return samples of posterior.
 %
 % Args:
 %   x_nsy: n x d matrix of data values.
 %   y_nsy: n x 1 matrix of response values.
-%   ls_factor: Prior value for lengthscale hyperparameter.
+%   ls_factor: Factor on prior value for lengthscale hyperparameter.
+%   noise_var_factor: Factor on prior value for noise variance.
 %   num_posteriors: Number of posterior samples to generate.
 %   mesh_gran: Number of ticks on mesh for plotting.
 
@@ -21,7 +22,6 @@ do_diagnostics = 1;
     x_nsy, mesh_gran);
 
 %% STEP 1. Set up the GP.
-noise_var_factor = 0.1;
 length_scale = [x1_range*ls_factor, x2_range*ls_factor];  % Scaled according to range.
 mag_sig2 = (min(x1_range, x2_range)*noise_var_factor)^2;  % Scaled according to range. % TODO: What should the sigma scaling be? MAX or MIN?
 

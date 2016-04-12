@@ -67,12 +67,13 @@ eps2 = 10^-5;          %   convex projection algorithm.
 iter = 0;              % Counter for iterations.
 n = 100;                % Data sample size.
 d = 2;                  % Dimension of data points.
-ls_factor = 0.005;      % Lengthscale factor (proportion of x-range).
+ls_factor = 0.05;      % Lengthscale factor (proportion of x-range).
+noise_var_factor = 0.05  % Noise variance factor (proportion of x-range).
 mesh_gran = 15;        % Number of ticks on mesh for plotting.
-num_posteriors = 2020; % Number of posterior mcmc samples to generate.
-desired = 100;         % Number of posterior mcmc samples to use.
-mbcr_burn = 50;        % Number of burn-in for MBCR estimate.
-mbcr_tot = 51;        % Number of total samples for MBCR estimate.
+num_posteriors = 1020; % Number of posterior mcmc samples to generate.
+desired = 50;         % Number of posterior mcmc samples to use.
+mbcr_burn = 1;        % Number of burn-in for MBCR estimate.
+mbcr_tot = 2;        % Number of total samples for MBCR estimate.
 num_global_iters = 1; % Number of MSEs to produce per shape.
 
 
@@ -96,8 +97,8 @@ for ii = 1:num_global_iters
         
         [gp, gp_proj, kern, kern_proj, cap, mbcr] = ...
             gp_compare_mses_shape(tol_thres, eps1, eps2, iter, n, ...
-                ls_factor, mesh_gran, num_posteriors, desired, d, ...
-                shape{1}, fid, mbcr_burn, mbcr_tot);
+                ls_factor, noise_var_factor, mesh_gran, num_posteriors, ...
+                desired, d, shape{1}, fid, mbcr_burn, mbcr_tot);
         
         shape_time_elapsed = toc(shape_start_time);
         total_time_elapsed = toc(start_time);

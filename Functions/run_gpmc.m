@@ -23,10 +23,12 @@ do_diagnostics = 1;
 
 %% STEP 1. Set up the GP.
 length_scale = [x1_range*ls_factor, x2_range*ls_factor];  % Scaled according to range.
-mag_sig2 = (min(x1_range, x2_range)*noise_var_factor)^2;  % Scaled according to range. % TODO: What should the sigma scaling be? MAX or MIN?
+lik_sig2 = (max(x1_range, x2_range)*noise_var_factor);  % Scaled according to range.
+mag_sig2 = (min(x1_range, x2_range)*noise_var_factor);  % Scaled according to range.
+
 
 % Set up likelihood and covariance functions.
-lik = lik_gaussian('sigma2', mag_sig2);
+lik = lik_gaussian('sigma2', lik_sig2);
 gpcf = gpcf_sexp('lengthScale', length_scale, 'magnSigma2', mag_sig2);
 
 % Set up priors. Here, all parameters get uniform prior.
@@ -41,7 +43,7 @@ gp = gp_set('lik', lik, 'cf', gpcf);
 
 %% STEP 2. Optimize GP and get params.
 burned = 21;
-thinned = 2;
+thinned = 3;
 [rfull, g, opt] = gp_mc(gp, x_nsy, y_nsy, 'nsamples', num_posteriors);
 gp_rec = thin(rfull, burned, thinned);
 if do_diagnostics

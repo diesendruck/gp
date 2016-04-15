@@ -34,7 +34,7 @@ elseif strcmp(shape, 'hand')
 elseif strcmp(shape, 'parabolic_cylinder')
     for ii = 1:n
         x1 = xt(ii, 1); x2 = xt(ii, 2);
-        ytruth_on_mcmcgrid(ii) = -2*x1 + x2 + x1^2 - 2*x1*x2 + x2^2;
+        ytruth_on_mcmcgrid(ii) = 0.1*(-2*x1 + x2 + x1^2 - 2*x1*x2 + x2^2);
     end
     
 elseif strcmp(shape, 'wolverine')

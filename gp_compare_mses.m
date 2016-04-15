@@ -80,7 +80,7 @@ desired = 10;              % Number of posterior mcmc samples to use.
 mbcr_burn = 10;            % Number of burn-in for MBCR estimate.
 mbcr_tot = 20;             % Number of total samples for MBCR estimate.
 
-num_global_iters = 5;      % Number of MSEs to produce per shape.
+num_global_iters = 1;      % Number of MSEs to produce per shape.
 
 
 %% SAVE MSE RESULTS TO FILE.

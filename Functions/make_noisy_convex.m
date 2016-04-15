@@ -93,7 +93,7 @@ elseif strcmp(shape, 'parabolic_cylinder');
     % Compute function value.
     for ii = 1:length(x_nsy)
         x1 = x_nsy(ii, 1); x2 = x_nsy(ii, 2);
-        f(ii) = -2*x1 + x2 + x1^2 - 2*x1*x2 + x2^2;
+        f(ii) = 0.1*(-2*x1 + x2 + x1^2 - 2*x1*x2 + x2^2);
     end
     
 elseif strcmp(shape, 'wolverine');

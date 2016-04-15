@@ -22,8 +22,8 @@ x1_l = min(x(:, 1)); x1_h = max(x(:, 1));
 x2_l = min(x(:, 2)); x2_h = max(x(:, 2));
 x1_range = x1_h - x1_l; x2_range = x2_h - x2_l;
 
-x1_grid = x1_l*1.1 : x1_range/mesh_gran : x1_h*1.1;  % Create surface grids.
-x2_grid = x2_l*1.1 : x2_range/mesh_gran : x2_h*1.1;  % Create surface grids.
+x1_grid = linspace(x1_l, x1_h, mesh_gran);  % Create surface grids.
+x2_grid = linspace(x2_l, x2_h, mesh_gran);  % Create surface grids.
 [xt1, xt2] = meshgrid(x1_grid, x2_grid);
 xt = [xt1(:) xt2(:)];
 

@@ -1,7 +1,7 @@
 function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mse_mbcr] = ...
     gp_compare_mses_shape(tol_thres, eps1, eps2, iter, n, ls_factor, ...
     noise_var_factor, mesh_gran, num_posteriors, desired, d, shape, fid, ...
-    mbcr_burn, mbcr_tot)
+    mbcr_burn, mbcr_tot, do_grid, data_grid_gran)
 % Run gp experiment* for a particular shape.
 %
 % *One experiment draws many samples from the Gaussian Process posterior,
@@ -25,6 +25,8 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mse_mbcr] = ...
 %   fid: File ID, used to store mses for average mcmc and projection.
 %   mbcr_burn: Number of burn-in for MBCR estimate.
 %   mbcr_tot: Number of total samples for MBCR estimate.
+%   do_grid: Indicator for whether to generate random data, or grid data.
+%   data_grid_gran: Number of points per dimension. 10 means 10x10 for d=2.
 %
 % Returns:
 %   mse_gp: MSE of average of desired number of GP posteriors.
@@ -35,10 +37,10 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mse_mbcr] = ...
 %   mbcr_cap: MSE of Multivariate Bayesian Covex Regression with Rvrs Jump.
 
 % Toggle plotting on and off.
-do_plot = 0;
+do_plot = 1;
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
-[x_nsy, y_nsy] = make_noisy_convex(n, d, shape);
+[x_nsy, y_nsy] = make_noisy_convex(n, d, shape, do_grid, data_grid_gran);
 
 % Get associated data about noisy data set.
 [~, ~, ~, ~, ~, ~, xt1, xt2, xt] = compute_mesh_info(x_nsy, mesh_gran);
@@ -49,7 +51,7 @@ if do_plot
     yq_conv = griddata(xt(:, 1), xt(:, 2), ytruth_on_grid, xt1, xt2);
     figure; subplot(3, 3, 1);
     mesh(xt1, xt2, yq_conv); hold on;
-    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
     title('True Convex');
 end
 
@@ -68,7 +70,7 @@ for ii = 1:size(xt1, 1)
 end
 
 % Get convex projection of kernel regression.
-fprintf('(%s) Projecting kernel regression surface to convex.', shape);
+fprintf('(%s) Projecting kernel regression surface to convex.\n', shape);
 y_kern_proj = project_to_convex(length(xt), d, xt, y_kern(:), eps1, eps2);
 
 % Compute mses and relative change
@@ -79,13 +81,13 @@ mse_kern_proj = 1/length(xt) * norm(y_kern_proj - ytruth_on_grid)^2;
 if do_plot
     subplot(3, 3, 2);
     mesh(xt1, xt2, y_kern); hold on;
-    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
     title(sprintf('Kernel (MSE = %d)', mse_kern));
 
     subplot(3, 3, 3);
     yq_proj = griddata(xt(:, 1), xt(:, 2), y_kern_proj, xt1, xt2);
     mesh(xt1, xt2, yq_proj); hold on;
-    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
     title(sprintf('Kernel Proj (MSE = %d)', mse_kern_proj));
 end
 
@@ -125,14 +127,14 @@ if do_plot
     subplot(3, 3, 5);
     yq_mcmc = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, xt1, xt2);
     mesh(xt1, xt2, yq_mcmc); hold on;
-    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
     title(sprintf('Avg GP (MSE = %d)', mse_gp));
 
     % Plot avg proj over original data.
     subplot(3, 3, 6); 
     yq_proj = griddata(xt(:, 1), xt(:, 2), avg_projs, xt1, xt2);
     mesh(xt1, xt2, yq_proj); hold on;
-    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
     title(sprintf('Avg GP Proj (MSE = %d)', mse_gp_proj));
 end
 
@@ -147,7 +149,7 @@ if do_plot
     subplot(3, 3, 8); 
     yq_cap = griddata(xt(:, 1), xt(:, 2), y_cap, xt1, xt2);
     mesh(xt1, xt2, yq_cap); hold on;
-    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
     title(sprintf('CAP (MSE = %d)', mse_cap));
 end
 
@@ -167,7 +169,7 @@ if do_plot
     subplot(3, 3, 9); 
     yq_mbcr = griddata(xt(:, 1), xt(:, 2), y_mbcr, xt1, xt2);
     mesh(xt1, xt2, yq_mbcr); hold on;
-    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 30);
+    plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
     title(sprintf('MBCR (MSE = %d)', mse_mbcr));
 end
 

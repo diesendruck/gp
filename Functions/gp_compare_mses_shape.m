@@ -47,6 +47,11 @@ do_plot = 1;
 
 % Plot true convex over original data.
 ytruth_on_grid = compute_truth_from_xt(xt, shape);
+
+% Also produce truth for test set.
+[t1, t2] = meshgrid(x_nsy(:, 1), x_nsy(:, 2)); tt = [t1(:) t2(:)];
+ytruth_on_test = compute_truth_from_xt(tt, shape);
+
 if do_plot
     yq_conv = griddata(xt(:, 1), xt(:, 2), ytruth_on_grid, xt1, xt2);
     figure; subplot(3, 3, 1);
@@ -59,7 +64,7 @@ end
 %% COMPUTE KERNEL REGRESSION, ITS PROJECTION, AND RESPECTIVE MSES.
 % Select optimal bandwidth, and do kernel regression.
 h0 = rand(size(x_nsy', 1), 1)*10;
-fprintf('(%s) Optimizing for kernel regression bandwidth.', shape);
+fprintf('(%s) Optimizing for kernel regression bandwidth.\n', shape);
 h = Opt_Hyp_Gauss_Ker_Reg(h0, x_nsy', y_nsy');
 y_kern = zeros(size(xt1));
 for ii = 1:size(xt1, 1)
@@ -73,9 +78,24 @@ end
 fprintf('(%s) Projecting kernel regression surface to convex.\n', shape);
 y_kern_proj = project_to_convex(length(xt), d, xt, y_kern(:), eps1, eps2);
 
-% Compute mses and relative change
-mse_kern = 1/length(xt) * norm(y_kern(:) - ytruth_on_grid)^2;
-mse_kern_proj = 1/length(xt) * norm(y_kern_proj - ytruth_on_grid)^2;
+% Compute mses over grid.
+%mse_kern = 1/length(xt) * norm(y_kern(:) - ytruth_on_grid)^2;
+%mse_kern_proj = 1/length(xt) * norm(y_kern_proj - ytruth_on_grid)^2;
+
+% Compute mses on test/data points.
+y_kern_test = zeros(size(t1));
+for ii = 1:size(t1, 1)
+    for jj = 1:size(t1, 2)
+        xk = [t1(ii, jj); t2(ii, jj)];
+        y_kern_test(ii, jj) = gaussian_kern_reg(xk, x_nsy', y_nsy', h);
+    end
+end
+y_kern_test_proj = project_to_convex(length(tt), d, tt, y_kern_test(:), ...
+    eps1, eps2);
+mse_kern = 1/length(tt) * norm(y_kern_test(:) - ytruth_on_test)^2;
+mse_kern_proj = 1/length(tt) * norm(y_kern_test_proj - ytruth_on_test)^2;
+
+
 
 % Plot kernel regression and convex projection over original data.
 if do_plot

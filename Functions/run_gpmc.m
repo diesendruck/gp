@@ -14,6 +14,8 @@ function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy,...
 %   xt: Matrix of grid points to evaluate over.
 %   Eft_s: Samples from GP posterior.
 
+% Plots MCMC traceplots. Turn off during global run to make figures work
+% properly.
 do_diagnostics = 0;
 
 %% STEP 0. Establish boundary of data, to make grid for surface.
@@ -30,18 +32,19 @@ gpcf = gpcf_sexp('lengthScale', length_scale, 'magnSigma2', mag_sig2);
 lik = lik_gaussian('sigma2', lik_sig2);
 
 % Set up priors. Here, all parameters get uniform prior.
-pn=prior_logunif();
-lik = lik_gaussian(lik, 'sigma2_prior', pn);
-%pl = prior_unif();
-pl = prior_gamma('sh', length_scale(1)/2, 'is', 1);
+%pn=prior_logunif(); %pl = prior_unif();
+pn = prior_sinvchi2('s2', 1,'nu', length(x_nsy));
+pl = prior_gamma('sh', length_scale(1)/5, 'is', 1);
 pm = prior_sqrtunif();
 
-% Assemble covariance function with priors, and assemple gaussian process.
+% Assemble likelihood, covariance function, and gaussian process.
+lik = lik_gaussian(lik, 'sigma2_prior', pn);
 gpcf = gpcf_sexp(gpcf, 'lengthScale_prior', pl, 'magnSigma2_prior', pm);
 gp = gp_set('lik', lik, 'cf', gpcf);
 
+
 %% STEP 2. Optimize GP and get params.
-burned = 21;
+burned = 101;
 thinned = 3;
 [rfull, g, opt] = gp_mc(gp, x_nsy, y_nsy, 'nsamples', num_posteriors);
 gp_rec = thin(rfull, burned, thinned);

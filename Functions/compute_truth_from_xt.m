@@ -28,7 +28,7 @@ elseif strcmp(shape, 'paraboloid')
 elseif strcmp(shape, 'hand')
     for ii = 1:n
         x1 = xt(ii, 1); x2 = xt(ii, 2);
-        ytruth_on_mcmcgrid(ii) = 0.1*x1^2 - log(x2) + 10;
+        ytruth_on_mcmcgrid(ii) = 1e-5*x1^6 - log(x2) + 10;
     end
     
 elseif strcmp(shape, 'parabolic_cylinder')

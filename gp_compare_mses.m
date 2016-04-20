@@ -72,14 +72,23 @@ do_grid = 1;               % Indicator for whether to generate random data, or g
 data_grid_gran = 5;        % Number of points per dimension. 10 means 10x10 for d=2.
 
 ls_factor = 0.5;           % Lengthscale factor (proportion of x-range).
-
 mesh_gran = 10;            % Number of ticks on mesh for plotting.
-num_posteriors = 120;      % Number of posterior mcmc samples to generate.
-desired = 10;              % Number of posterior mcmc samples to use.
-mbcr_burn = 10;            % Number of burn-in for MBCR estimate.
-mbcr_tot = 20;             % Number of total samples for MBCR estimate.
 
-num_global_iters = 5;      % Number of MSEs to produce per shape.
+if 0
+    num_posteriors = 201;      % Number of posterior mcmc samples to generate.
+    desired = 5;              % Number of posterior mcmc samples to use.
+    mbcr_burn = 5;            % Number of burn-in for MBCR estimate.
+    mbcr_tot = 10;             % Number of total samples for MBCR estimate.
+    num_global_iters = 3;      % Number of MSEs to produce per shape.
+end
+
+if 1
+    num_posteriors = 2101;      % Number of posterior mcmc samples to generate.
+    desired = 50;              % Number of posterior mcmc samples to use.
+    mbcr_burn = 50;            % Number of burn-in for MBCR estimate.
+    mbcr_tot = 100;             % Number of total samples for MBCR estimate.
+    num_global_iters = 5;      % Number of MSEs to produce per shape.
+end
 
 
 %% SAVE MSE RESULTS TO FILE.
@@ -92,8 +101,8 @@ fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj,sen,cap,mbcr\n');
 % shapes = {'trough', 'paraboloid', 'hand', 'parabolic_cylinder', ...
 %           'wolverine', 'exponential', 'chair'};
 % Try with only "flatter" surfaces.
-shapes = {'hand', 'parabolic_cylinder', 'wolverine'};
-shapes = {'hannah2'};
+shapes = {'hand', 'parabolic_cylinder', 'wolverine', 'hannah2'};
+%shapes = {'hannah2'};
 
 % Run experiment for each shape.
 for ii = 1:num_global_iters

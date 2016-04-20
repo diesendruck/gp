@@ -92,8 +92,8 @@ elseif strcmp(shape, 'hand')
     for ii = 1:length(x_nsy)
         x1 = x_nsy(ii, 1); x2 = x_nsy(ii, 2);
         x1_jit = x_nsy_jit(ii, 1); x2_jit = x_nsy_jit(ii, 2);
-        f(ii) = 0.1*x1^2 - log(x2) + 10;
-        f_jit(ii) = 0.1*x1_jit^2 - log(x2_jit) + 10;
+        f(ii) = 1e-5*x1^6 - log(x2) + 10;
+        f_jit(ii) = 1e-5*x1_jit^6 - log(x2_jit) + 10;
     end
 
 elseif strcmp(shape, 'parabolic_cylinder');

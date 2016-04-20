@@ -1,7 +1,7 @@
-function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mse_mbcr] = ...
-    gp_compare_mses_shape(tol_thres, eps1, eps2, iter, n, ls_factor, ...
-    noise_var_factor, mesh_gran, num_posteriors, desired, d, shape, fid, ...
-    mbcr_burn, mbcr_tot, do_grid, data_grid_gran)
+function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_sen, ...
+    mse_cap, mse_mbcr] = gp_compare_mses_shape(tol_thres, eps1, eps2, ...
+        iter, n, ls_factor, mesh_gran, num_posteriors, desired, d, ...
+        shape, fid, mbcr_burn, mbcr_tot, do_grid, data_grid_gran)
 % Run gp experiment* for a particular shape.
 %
 % *One experiment draws many samples from the Gaussian Process posterior,
@@ -16,7 +16,6 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mse_mbcr] = ...
 %   iter: Counter for iterations.
 %   n: Data sample size.
 %   ls_factor: Lengthscale factor (proportion of x-range).
-%   noise_var_factor: Factor on prior value for noise variance.
 %   mesh_gran: Number of ticks on mesh for plotting.
 %   num_posteriors: Number of posterior samples to generate.
 %   desired: Number of posterior samples to use.
@@ -40,7 +39,8 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_cap, mse_mbcr] = ...
 do_plot = 1;
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
-[x_nsy, y_nsy] = make_noisy_convex(n, d, shape, do_grid, data_grid_gran);
+[x_nsy_nojit, x_nsy, y_nsy_nojit, y_nsy] = make_noisy_convex(n, d, ...
+    shape, do_grid, data_grid_gran);
 
 % Get associated data about noisy data set.
 [~, ~, ~, ~, ~, ~, xt1, xt2, xt] = compute_mesh_info(x_nsy, mesh_gran);
@@ -49,7 +49,8 @@ do_plot = 1;
 ytruth_on_grid = compute_truth_from_xt(xt, shape);
 
 % Also produce truth for test set.
-[t1, t2] = meshgrid(x_nsy(:, 1), x_nsy(:, 2)); tt = [t1(:) t2(:)];
+[t1, t2] = meshgrid(unique(x_nsy_nojit(:, 1))', unique(x_nsy_nojit(:, 2))'); 
+tt = [t1(:) t2(:)];
 ytruth_on_test = compute_truth_from_xt(tt, shape);
 
 if do_plot
@@ -62,6 +63,7 @@ end
 
 
 %% COMPUTE KERNEL REGRESSION, ITS PROJECTION, AND RESPECTIVE MSES.
+
 % Select optimal bandwidth, and do kernel regression.
 h0 = rand(size(x_nsy', 1), 1)*10;
 fprintf('(%s) Optimizing for kernel regression bandwidth.\n', shape);
@@ -82,20 +84,19 @@ y_kern_proj = project_to_convex(length(xt), d, xt, y_kern(:), eps1, eps2);
 %mse_kern = 1/length(xt) * norm(y_kern(:) - ytruth_on_grid)^2;
 %mse_kern_proj = 1/length(xt) * norm(y_kern_proj - ytruth_on_grid)^2;
 
-% Compute mses on test/data points.
+% Do kernel regression on test data, and compute mses on test points.
 y_kern_test = zeros(size(t1));
 for ii = 1:size(t1, 1)
     for jj = 1:size(t1, 2)
         xk = [t1(ii, jj); t2(ii, jj)];
-        y_kern_test(ii, jj) = gaussian_kern_reg(xk, x_nsy', y_nsy', h);
+        y_kern_test(ii, jj) = gaussian_kern_reg(xk, x_nsy_nojit', ...
+                                                y_nsy_nojit', h);
     end
 end
 y_kern_test_proj = project_to_convex(length(tt), d, tt, y_kern_test(:), ...
     eps1, eps2);
 mse_kern = 1/length(tt) * norm(y_kern_test(:) - ytruth_on_test)^2;
 mse_kern_proj = 1/length(tt) * norm(y_kern_test_proj - ytruth_on_test)^2;
-
-
 
 % Plot kernel regression and convex projection over original data.
 if do_plot
@@ -116,7 +117,7 @@ end
 %% PROJECTIONS OF EACH, AND MSES OF RESPECTIVE AVERAGES.
 % Get samples from GP posterior MCMC, project each to convex, and store.
 [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy, ...
-    y_nsy, ls_factor, noise_var_factor, num_posteriors, mesh_gran);
+    y_nsy, ls_factor, num_posteriors, mesh_gran);
 n_gp = length(xt);
 
 n_entries = min(desired, posterior_sample_count); 
@@ -139,8 +140,14 @@ avg_mcmcs = mean(mcmcs, 2);  % Row means.
 avg_projs = mean(projs, 2);
 
 % Compute MSE between truth and each average.
-mse_gp = 1/n_gp * norm(avg_mcmcs - ytruth_on_grid)^2;
-mse_gp_proj = 1/n_gp * norm(avg_projs - ytruth_on_grid)^2;
+%mse_gp = 1/n_gp * norm(avg_mcmcs - ytruth_on_grid)^2;
+%mse_gp_proj = 1/n_gp * norm(avg_projs - ytruth_on_grid)^2;
+
+% Evaluate mcmc and proj estimates on test points.
+y_mcmc_test = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, t1, t2);
+y_proj_test = griddata(xt(:, 1), xt(:, 2), avg_projs, t1, t2);
+mse_gp = 1/length(tt) * norm(y_mcmc_test(:) - ytruth_on_test)^2;
+mse_gp_proj = 1/length(tt) * norm(y_proj_test(:) - ytruth_on_test)^2;
 
 if do_plot
     % Plot avg MCMC over original data.
@@ -159,10 +166,30 @@ if do_plot
 end
 
 
+%% COMPUTE SEN ESTIMATE AND ITS MSE.
+y_sen_test = project_to_convex(length(tt), d, tt, y_nsy_nojit, eps1, eps2);
+mse_sen = 1/length(tt) * norm(y_sen_test(:) - ytruth_on_test)^2;
+
+if do_plot
+    % Plot avg MCMC over original data.
+    subplot(3, 3, 7);
+    plot3(x_nsy_nojit(:, 1), x_nsy_nojit(:, 2), y_nsy_nojit, 'r.', ...
+        'MarkerSize', 10); hold on;
+    plot3(x_nsy_nojit(:, 1), x_nsy_nojit(:, 2), y_sen_test, 'b.', ...
+        'MarkerSize', 20);
+    grid on;
+    title(sprintf('Sen (MSE = %d)', mse_sen));
+end
+
+
 %% COMPUTE CAP ESTIMATE AND ITS MSE.
 [alpha, beta, K] = CAP(x_nsy, y_nsy);
 y_cap = convexEval(alpha, beta, xt);
-mse_cap = 1/length(xt) * norm(y_cap - ytruth_on_grid)^2;
+%mse_cap = 1/length(xt) * norm(y_cap - ytruth_on_grid)^2;
+
+% Evaluate CAP estimate on test points.
+y_cap_test = griddata(xt(:, 1), xt(:, 2), y_cap, t1, t2);
+mse_cap = 1/length(tt) * norm(y_cap_test(:) - ytruth_on_test)^2;
 
 % Plot CAP estimate over original data.
 if do_plot
@@ -182,7 +209,11 @@ y_mbcr = zeros(n_xt, 1);
 for i = 1:n_xt
     y_mbcr(i) = f_min(xt(i,:));
 end
-mse_mbcr = 1/length(xt) * norm(y_mbcr - ytruth_on_grid)^2;
+%mse_mbcr = 1/length(xt) * norm(y_mbcr - ytruth_on_grid)^2;
+
+% Evaluate MBCR estimate on test points.
+y_mbcr_test = griddata(xt(:, 1), xt(:, 2), y_mbcr, t1, t2);
+mse_mbcr = 1/length(tt) * norm(y_mbcr_test(:) - ytruth_on_test)^2;
 
 % Plot MBCR estimate over original data.
 if do_plot
@@ -198,7 +229,8 @@ end
 % Add text on plot to say which method did best (lowest MSE).
 if do_plot
     ax = subplot(3, 3, 4);
-    [~, index] = min([mse_gp mse_gp_proj mse_kern mse_kern_proj mse_cap mse_mbcr]);
+    [~, index] = min([mse_gp mse_gp_proj mse_kern mse_kern_proj ...
+                      mse_sen mse_cap mse_mbcr]);
     methods = {'mse_gp' 'mse_gp_proj' 'mse_kern' 'mse_kern_proj' 'mse_cap' 'mse_mbcr'};
     min_str = strrep(char(methods(index)), '_', '\_');
     text(0, 0.5, 'Min MSE Method:', 'FontSize', 14);
@@ -213,15 +245,15 @@ if do_plot
 end
 
 
-
-
 %% SAVE FILE DATA AND FIGURE.
-fprintf(fid, '%s,%s,%s,%s,%s,%s,%s\n', shape, num2str(mse_gp, '%0.7f'), ...
-                                    num2str(mse_gp_proj, '%0.7f'), ...
-                                    num2str(mse_kern, '%0.7f'), ...
-                                    num2str(mse_kern_proj, '%0.7f'), ...
-                                    num2str(mse_cap, '%0.7f'),...
-                                    num2str(mse_mbcr, '%0.7f')); 
+fprintf(fid, '%s,%s,%s,%s,%s,%s,%s,%s\n', shape, ...
+        num2str(mse_gp, '%0.7f'), ...
+        num2str(mse_gp_proj, '%0.7f'), ...
+        num2str(mse_kern, '%0.7f'), ...
+        num2str(mse_kern_proj, '%0.7f'), ...
+        num2str(mse_sen, '%0.7f'), ...
+        num2str(mse_cap, '%0.7f'),...
+        num2str(mse_mbcr, '%0.7f')); 
 
 end
 

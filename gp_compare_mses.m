@@ -13,8 +13,8 @@
 %   https://github.com/laurenahannah/mbcr
 
 start_time = tic
-%platform = 'mac';
-platform = 'linux';
+platform = 'mac';
+%platform = 'linux';
             
 
 %% IMPORT GPSTUFF AND SET PATHS.
@@ -69,23 +69,23 @@ iter = 0;                  % Counter for iterations.
 n = 100;                   % Data sample size.
 d = 2;                     % Dimension of data points.
 do_grid = 1;               % Indicator for whether to generate random data, or grid data.
-data_grid_gran = 10;        % Number of points per dimension. 10 means 10x10 for d=2.
+data_grid_gran = 5;        % Number of points per dimension. 10 means 10x10 for d=2.
 
-ls_factor = 0.5;          % Lengthscale factor (proportion of x-range).
+ls_factor = 0.5;           % Lengthscale factor (proportion of x-range).
 noise_var_factor = 0.001;  % Noise variance factor (proportion of x-range).
 
 mesh_gran = 10;            % Number of ticks on mesh for plotting.
 num_posteriors = 420;      % Number of posterior mcmc samples to generate.
-desired = 10;              % Number of posterior mcmc samples to use.
-mbcr_burn = 10;            % Number of burn-in for MBCR estimate.
-mbcr_tot = 20;             % Number of total samples for MBCR estimate.
+desired = 50;              % Number of posterior mcmc samples to use.
+mbcr_burn = 50;            % Number of burn-in for MBCR estimate.
+mbcr_tot = 100;             % Number of total samples for MBCR estimate.
 
-num_global_iters = 2;      % Number of MSEs to produce per shape.
+num_global_iters = 1;      % Number of MSEs to produce per shape.
 
 
 %% SAVE MSE RESULTS TO FILE.
 fid = fopen('Results_2d/mses.csv', 'wt');
-fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj,cap,mbcr\n');
+fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj,sen,cap,mbcr\n');
 
 
 %% CONDUCT EXPERIMENT ON EACH SHAPE.
@@ -101,10 +101,10 @@ for ii = 1:num_global_iters
     for shape = shapes
         shape_start_time = tic;
         
-        [gp, gp_proj, kern, kern_proj, cap, mbcr] = ...
+        [gp, gp_proj, kern, kern_proj, sen, cap, mbcr] = ...
             gp_compare_mses_shape(tol_thres, eps1, eps2, iter, n, ...
-                ls_factor, noise_var_factor, mesh_gran, num_posteriors, ...
-                desired, d, shape{1}, fid, mbcr_burn, mbcr_tot, do_grid, ...
+                ls_factor, mesh_gran, num_posteriors, desired, d, ...
+                shape{1}, fid, mbcr_burn, mbcr_tot, do_grid, ...
                 data_grid_gran);
         
         shape_time_elapsed = toc(shape_start_time);
@@ -118,13 +118,14 @@ for ii = 1:num_global_iters
                            'gp_proj:        %s\n', ... 
                            'kern:             %s\n', ...
                            'kern_proj:     %s\n', ...
+                           'sen:              %s\n', ...
                            'cap:              %s\n', ...
                            'mbcr:            %s\n', ...
                            'shape_time:             %s\n', ...
                            'total_time_elapsed: %s\n'), ...
                 num2str(ii), shape{1}, num2str(gp, '%0.2f'), ...
                 num2str(gp_proj, '%0.2f'), num2str(kern, '%0.2f'), ...
-                num2str(kern_proj, '%0.2f'), ...
+                num2str(kern_proj, '%0.2f'), num2str(sen, '%0.2f'),...
                 num2str(cap, '%0.2f'), ...
                 num2str(mbcr, '%0.2f'), ...
                 num2str(shape_time_elapsed, '%0.2f'), ...
@@ -138,7 +139,7 @@ fclose(fid);
    
 if strcmp(platform, 'mac')
     sendmail('momod@utexas.edu', 'RESULTS mac: MSE Comparisons', '', ...
-        {'~/Google Drive/0-LIZHEN RESEARCH/gp/Results_2d/mses.csv'});
+        {'/Users/mauricediesendruck/Google Drive/0-LIZHEN RESEARCH/gp/Results_2d/mses.csv'});
 elseif strcmp(platform, 'linux')
     sendmail('momod@utexas.edu', 'RESULTS linux: MSE Comparisons', '', ...
     {'/home/momod/Documents/gp/Results_2d/mses.csv'});

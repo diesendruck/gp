@@ -1,12 +1,11 @@
 function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy,...
-    y_nsy, ls_factor, noise_var_factor, num_posteriors, mesh_gran)
+    y_nsy, ls_factor, num_posteriors, mesh_gran)
 % Run gp mcmc and return samples of posterior.
 %
 % Args:
 %   x_nsy: n x d matrix of data values.
 %   y_nsy: n x 1 matrix of response values.
 %   ls_factor: Factor on prior value for lengthscale hyperparameter.
-%   noise_var_factor: Factor on prior value for noise variance.
 %   num_posteriors: Number of posterior samples to generate.
 %   mesh_gran: Number of ticks on mesh for plotting.
 
@@ -15,7 +14,7 @@ function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy,...
 %   xt: Matrix of grid points to evaluate over.
 %   Eft_s: Samples from GP posterior.
 
-do_diagnostics = 1;
+do_diagnostics = 0;
 
 %% STEP 0. Establish boundary of data, to make grid for surface.
 [~, ~, ~, ~, x1_range, x2_range, xt1, xt2, xt] = compute_mesh_info(...
@@ -23,7 +22,7 @@ do_diagnostics = 1;
 
 %% STEP 1. Set up the GP.
 length_scale = [x1_range*ls_factor, x2_range*ls_factor];  % Scaled according to range.
-mag_sig2 = 4;  % Scaled according to range.
+mag_sig2 = 1;  % Scaled according to range.
 lik_sig2 = 1;  % Scaled according to range.
 
 % Set up likelihood and covariance functions.
@@ -44,7 +43,7 @@ gp = gp_set('lik', lik, 'cf', gpcf);
 %% STEP 2. Optimize GP and get params.
 burned = 21;
 thinned = 3;
-[rfull, g, opt] = gp_mc(gp, x_nsy, y_nsy, 'nsamples', 500);
+[rfull, g, opt] = gp_mc(gp, x_nsy, y_nsy, 'nsamples', num_posteriors);
 gp_rec = thin(rfull, burned, thinned);
 if do_diagnostics
     plot_mcmc_diagnostics(gp_rec, gp)

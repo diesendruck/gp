@@ -19,8 +19,9 @@ function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy,...
 do_diagnostics = 0;
 
 %% STEP 0. Establish boundary of data, to make grid for surface.
+do_buffer = 1;
 [~, ~, ~, ~, x1_range, x2_range, xt1, xt2, xt] = compute_mesh_info(...
-    x_nsy, mesh_gran);
+    x_nsy, mesh_gran, do_buffer);
 
 %% STEP 1. Set up the GP.
 length_scale = [x1_range*ls_factor, x2_range*ls_factor];  % Scaled according to range.

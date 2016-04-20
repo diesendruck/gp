@@ -25,11 +25,12 @@ y_nsy = zeros(len, 1);
 y_nsy_jit = zeros(len, 1);
 f = zeros(len, 1);
 f_jit = zeros(len, 1);
+do_buffer = 0;
 
 if strcmp(shape, 'trough')
     if do_grid
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
-            compute_mesh_info([-10 -10; 10 10], data_grid_gran);
+            compute_mesh_info([-10 -10; 10 10], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
         x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
                              (1e-6)*x2_range*randn(length(x_nsy), 1)];
@@ -52,7 +53,7 @@ if strcmp(shape, 'trough')
 elseif strcmp(shape, 'paraboloid')
     if do_grid
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
-            compute_mesh_info([-10 -10; 10 10], data_grid_gran);
+            compute_mesh_info([-10 -10; 10 10], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
         x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
                              (1e-6)*x2_range*randn(length(x_nsy), 1)];
@@ -75,7 +76,7 @@ elseif strcmp(shape, 'paraboloid')
 elseif strcmp(shape, 'hand')
     if do_grid
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
-            compute_mesh_info([0 1; 10 10000], data_grid_gran);
+            compute_mesh_info([0 1; 10 10000], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
         x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
                              (1e-6)*x2_range*randn(length(x_nsy), 1)];
@@ -99,7 +100,7 @@ elseif strcmp(shape, 'hand')
 elseif strcmp(shape, 'parabolic_cylinder');
     if do_grid
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
-            compute_mesh_info([0 0; 10 10], data_grid_gran);
+            compute_mesh_info([0 0; 10 10], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
         x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
                              (1e-6)*x2_range*randn(length(x_nsy), 1)];        
@@ -123,7 +124,7 @@ elseif strcmp(shape, 'parabolic_cylinder');
 elseif strcmp(shape, 'wolverine');
     if do_grid
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
-            compute_mesh_info([-10 1; 10 5], data_grid_gran);
+            compute_mesh_info([-10 1; 10 5], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
         x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
                              (1e-6)*x2_range*randn(length(x_nsy), 1)];
@@ -147,7 +148,7 @@ elseif strcmp(shape, 'wolverine');
 elseif strcmp(shape, 'exponential');
     if do_grid
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
-            compute_mesh_info([0 0; 1 10], data_grid_gran);
+            compute_mesh_info([0 0; 1 10], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
         x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
                              (1e-6)*x2_range*randn(length(x_nsy), 1)];
@@ -171,7 +172,7 @@ elseif strcmp(shape, 'exponential');
 elseif strcmp(shape, 'chair');
     if do_grid
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
-            compute_mesh_info([0 -10; 10 10], data_grid_gran);
+            compute_mesh_info([0 -10; 10 10], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
         x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
                              (1e-6)*x2_range*randn(length(x_nsy), 1)];    
@@ -195,7 +196,7 @@ elseif strcmp(shape, 'chair');
 elseif strcmp(shape, 'hannah2');
     if do_grid
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
-            compute_mesh_info([-1 -1; 1 1], data_grid_gran);
+            compute_mesh_info([-1 -1; 1 1], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
         x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
                              (1e-6)*x2_range*randn(length(x_nsy), 1)];

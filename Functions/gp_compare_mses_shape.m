@@ -43,7 +43,9 @@ do_plot = 1;
     shape, do_grid, data_grid_gran);
 
 % Get associated data about noisy data set.
-[~, ~, ~, ~, ~, ~, xt1, xt2, xt] = compute_mesh_info(x_nsy, mesh_gran);
+do_buffer = 1;
+[~, ~, ~, ~, ~, ~, xt1, xt2, xt] = compute_mesh_info(x_nsy, mesh_gran, ...
+    do_buffer);
 
 % Plot true convex over original data.
 ytruth_on_grid = compute_truth_from_xt(xt, shape);

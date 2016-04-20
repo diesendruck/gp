@@ -12,16 +12,17 @@ function [xt, Eft] = run_gp(x, y, ls_factor, mcmc_or_map)
 %   Eft: Sample from GP posterior.
 
 %% STEP 0. Establish boundary of data, to make grid for surface.
-[x1_l, x1_h, x2_l, x2_h, x1_range, x2_range, xt1, xt2, xt] = compute_mesh_info(x);
+[x1_l, x1_h, x2_l, x2_h, x1_range, x2_range, xt1, xt2, xt] = compute_mesh_info(x, mesh_gran);
 
 %% STEP 1. Set up the GP.
 noise_var_factor = 0.01;
 length_scale = [x1_range*ls_factor, x2_range*ls_factor];  % Scaled according to range.
-mag_sig2 = (min(x1_range, x2_range)*noise_var_factor)^2;  % Scaled according to range. % TODO: What should the sigma scaling be? MAX or MIN?
+mag_sig2 = max(x1_range, x2_range);  % Scaled according to range. % TODO: What should the sigma scaling be? MAX or MIN?
+lik_sig2 = max(x1_range, x2_range)*noise_var_factor;  % Scaled according to range.
 
 % Set up likelihood and covariance functions.
-lik = lik_gaussian('sigma2', mag_sig2);
 gpcf = gpcf_sexp('lengthScale', length_scale, 'magnSigma2', mag_sig2);
+lik = lik_gaussian('sigma2', lik_sig2);
 
 % Set up priors. Here, all parameters get uniform prior.
 pn=prior_logunif();

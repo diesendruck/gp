@@ -15,6 +15,7 @@ function [x_nsy, y_nsy] = make_noisy_convex(n, d, shape, do_grid, ...
 %   x_nsy: Matrix (nxd) of convex+noise data points.
 %   y_nsy: Matrix (nx1) of noisy response values.
 
+
 if strcmp(shape, 'trough')
     if do_grid
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...

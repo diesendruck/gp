@@ -23,18 +23,18 @@ do_diagnostics = 1;
 
 %% STEP 1. Set up the GP.
 length_scale = [x1_range*ls_factor, x2_range*ls_factor];  % Scaled according to range.
-lik_sig2 = (max(x1_range, x2_range)*noise_var_factor);  % Scaled according to range.
-mag_sig2 = (min(x1_range, x2_range)*noise_var_factor);  % Scaled according to range.
-
+mag_sig2 = 4;  % Scaled according to range.
+lik_sig2 = 1;  % Scaled according to range.
 
 % Set up likelihood and covariance functions.
-lik = lik_gaussian('sigma2', lik_sig2);
 gpcf = gpcf_sexp('lengthScale', length_scale, 'magnSigma2', mag_sig2);
+lik = lik_gaussian('sigma2', lik_sig2);
 
 % Set up priors. Here, all parameters get uniform prior.
 pn=prior_logunif();
 lik = lik_gaussian(lik, 'sigma2_prior', pn);
-pl = prior_unif();
+%pl = prior_unif();
+pl = prior_gamma('sh', length_scale(1)/2, 'is', 1);
 pm = prior_sqrtunif();
 
 % Assemble covariance function with priors, and assemple gaussian process.
@@ -44,7 +44,7 @@ gp = gp_set('lik', lik, 'cf', gpcf);
 %% STEP 2. Optimize GP and get params.
 burned = 21;
 thinned = 3;
-[rfull, g, opt] = gp_mc(gp, x_nsy, y_nsy, 'nsamples', num_posteriors);
+[rfull, g, opt] = gp_mc(gp, x_nsy, y_nsy, 'nsamples', 500);
 gp_rec = thin(rfull, burned, thinned);
 if do_diagnostics
     plot_mcmc_diagnostics(gp_rec, gp)

@@ -72,15 +72,14 @@ do_grid = 1;               % Indicator for whether to generate random data, or g
 data_grid_gran = 5;        % Number of points per dimension. 10 means 10x10 for d=2.
 
 ls_factor = 0.5;           % Lengthscale factor (proportion of x-range).
-noise_var_factor = 0.001;  % Noise variance factor (proportion of x-range).
 
 mesh_gran = 10;            % Number of ticks on mesh for plotting.
-num_posteriors = 420;      % Number of posterior mcmc samples to generate.
-desired = 50;              % Number of posterior mcmc samples to use.
-mbcr_burn = 50;            % Number of burn-in for MBCR estimate.
-mbcr_tot = 100;             % Number of total samples for MBCR estimate.
+num_posteriors = 120;      % Number of posterior mcmc samples to generate.
+desired = 10;              % Number of posterior mcmc samples to use.
+mbcr_burn = 10;            % Number of burn-in for MBCR estimate.
+mbcr_tot = 20;             % Number of total samples for MBCR estimate.
 
-num_global_iters = 1;      % Number of MSEs to produce per shape.
+num_global_iters = 5;      % Number of MSEs to produce per shape.
 
 
 %% SAVE MSE RESULTS TO FILE.

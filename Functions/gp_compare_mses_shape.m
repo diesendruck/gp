@@ -37,7 +37,7 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_sen, ...
 
 % Toggle plotting on and off.
 do_plot = 1;
-verbose = 1;
+verbose = 0;
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
 [x_nsy_nojit, x_nsy, y_nsy_nojit, y_nsy] = make_noisy_convex(n, d, ...
@@ -176,18 +176,25 @@ end
 
 
 %% COMPUTE SEN ESTIMATE AND ITS MSE.
-y_sen_test = project_to_convex(length(tt), d, tt, y_nsy_nojit, eps1, eps2);
-mse_sen = 1/length(tt) * norm(y_sen_test(:) - ytruth_on_test)^2;
+if do_grid
+    y_sen_test = project_to_convex(length(tt), d, tt, y_nsy_nojit, eps1, eps2);
+    mse_sen = 1/length(tt) * norm(y_sen_test(:) - ytruth_on_test)^2;
 
-if do_plot
-    % Plot avg MCMC over original data.
-    subplot(3, 3, 7);
-    plot3(x_nsy_nojit(:, 1), x_nsy_nojit(:, 2), y_nsy_nojit, 'r.', ...
-        'MarkerSize', 10); hold on;
-    plot3(x_nsy_nojit(:, 1), x_nsy_nojit(:, 2), y_sen_test, 'b.', ...
-        'MarkerSize', 20);
-    grid on;
-    title(sprintf('Sen (MSE = %d)', mse_sen));
+    if do_plot
+        % Plot avg MCMC over original data.
+        subplot(3, 3, 7);
+        plot3(x_nsy_nojit(:, 1), x_nsy_nojit(:, 2), y_nsy_nojit, 'r.', ...
+            'MarkerSize', 10); hold on;
+        plot3(x_nsy_nojit(:, 1), x_nsy_nojit(:, 2), y_sen_test, 'b.', ...
+            'MarkerSize', 20);
+        grid on;
+        title(sprintf('Sen (MSE = %d)', mse_sen));
+    end
+else
+    mse_sen = 1e10;
+    if verbose
+        fprintf('Skipped Sen, putting placeholder value for MSE.\n');
+    end
 end
 
 

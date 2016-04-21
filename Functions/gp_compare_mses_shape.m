@@ -259,4 +259,3 @@ fprintf(fid, '%s,%s,%s,%s,%s,%s,%s,%s\n', shape, ...
         num2str(mse_mbcr, '%0.7f')); 
 
 end
-

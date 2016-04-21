@@ -25,8 +25,8 @@ x1_range = x1_h - x1_l; x2_range = x2_h - x2_l;
 
 if do_buffer
     % Create surface grids.
-    x1_grid = linspace(x1_l-abs(0.1*x1_l), x1_h+abs(0.1*x1_h), mesh_gran);  
-    x2_grid = linspace(x2_l-abs(0.1*x2_l), x2_h+abs(0.1*x2_h), mesh_gran);
+    x1_grid = linspace(x1_l-0.1*x1_range, x1_h+0.1*x1_range, mesh_gran);  
+    x2_grid = linspace(x2_l-0.1*x2_range, x2_h+0.1*x2_range, mesh_gran);
 else
     x1_grid = linspace(x1_l, x1_h, mesh_gran);
     x2_grid = linspace(x2_l, x2_h, mesh_gran);

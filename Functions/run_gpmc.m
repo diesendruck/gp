@@ -34,9 +34,12 @@ lik = lik_gaussian('sigma2', lik_sig2);
 
 % Set up priors. Here, all parameters get uniform prior.
 %pn=prior_logunif(); %pl = prior_unif();
-pn = prior_sinvchi2('s2', 1,'nu', length(x_nsy));
-pl = prior_gamma('sh', length_scale(1)/5, 'is', 1);
+pn = prior_sinvchi2('s2', 0.1,'nu', length(x_nsy));
 pm = prior_sqrtunif();
+%pn = prior_invgamma('sh', 10, 's', 1);
+pl = prior_invgamma('sh', length_scale(1), 's', 1);
+%pm = prior_invgamma('sh', 10, 's', 1);
+
 
 % Assemble likelihood, covariance function, and gaussian process.
 lik = lik_gaussian(lik, 'sigma2_prior', pn);
@@ -45,8 +48,8 @@ gp = gp_set('lik', lik, 'cf', gpcf);
 
 
 %% STEP 2. Optimize GP and get params.
-burned = 101;
-thinned = 3;
+burned = round(num_posteriors/4);
+thinned = 4;
 [rfull, g, opt] = gp_mc(gp, x_nsy, y_nsy, 'nsamples', num_posteriors);
 gp_rec = thin(rfull, burned, thinned);
 if do_diagnostics

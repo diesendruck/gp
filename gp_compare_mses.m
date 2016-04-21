@@ -13,8 +13,8 @@
 %   https://github.com/laurenahannah/mbcr
 
 start_time = tic
-platform = 'mac';
-%platform = 'linux';
+%platform = 'mac';
+platform = 'linux';
             
 
 %% IMPORT GPSTUFF AND SET PATHS.
@@ -146,11 +146,13 @@ end
 fclose(fid);
    
 if strcmp(platform, 'mac')
-    sendmail('momod@utexas.edu', 'RESULTS mac: MSE Comparisons', '', ...
+    sendmail('momod@utexas.edu', 'RESULTS mac: MSE Comparisons', ...
+        sprintf('Total time: %s', num2str(total_time_elapsed, '%0.2f')),...
         {'/Users/mauricediesendruck/Google Drive/0-LIZHEN RESEARCH/gp/Results_2d/mses.csv'});
 elseif strcmp(platform, 'linux')
-    sendmail('momod@utexas.edu', 'RESULTS linux: MSE Comparisons', '', ...
-    {'/home/momod/Documents/gp/Results_2d/mses.csv'});
+    sendmail('momod@utexas.edu', 'RESULTS linux: MSE Comparisons', ...
+        sprintf('Total time: %s', num2str(total_time_elapsed, '%0.2f')),...
+        {'/home/momod/Documents/gp/Results_2d/mses.csv'});
 end
 
 end_time = toc(start_time)

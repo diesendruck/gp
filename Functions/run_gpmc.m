@@ -19,7 +19,7 @@ function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy,...
 do_diagnostics = 0;
 
 %% STEP 0. Establish boundary of data, to make grid for surface.
-do_buffer = 1;
+do_buffer = 0;
 [~, ~, ~, ~, x1_range, x2_range, xt1, xt2, xt] = compute_mesh_info(...
     x_nsy, mesh_gran, do_buffer);
 
@@ -33,17 +33,19 @@ gpcf = gpcf_sexp('lengthScale', length_scale, 'magnSigma2', mag_sig2);
 lik = lik_gaussian('sigma2', lik_sig2);
 
 % Set up priors. Here, all parameters get uniform prior.
-%pn=prior_logunif(); %pl = prior_unif();
-pn = prior_sinvchi2('s2', 0.1,'nu', length(x_nsy));
-pm = prior_sqrtunif();
-%pn = prior_invgamma('sh', 10, 's', 1);
-pl = prior_invgamma('sh', length_scale(1), 's', 1);
-%pm = prior_invgamma('sh', 10, 's', 1);
+%pns = prior_sinvchi2('s2', 0.1,'nu', length(x_nsy));
+pmg = prior_invgamma('sh', 1, 's', 1);
+pns = prior_invgamma('sh', 4, 's', 1);
+pns = prior_sinvchi2('s2', 0.1,'nu', length(x_nsy));
+pls = prior_invgamma('sh', 2, 's', length_scale(1));
 
+% pmg = prior_sqrtunif();
+% pns=prior_logunif();
+% pls = prior_unif();
 
 % Assemble likelihood, covariance function, and gaussian process.
-lik = lik_gaussian(lik, 'sigma2_prior', pn);
-gpcf = gpcf_sexp(gpcf, 'lengthScale_prior', pl, 'magnSigma2_prior', pm);
+lik = lik_gaussian(lik, 'sigma2_prior', pns);
+gpcf = gpcf_sexp(gpcf, 'lengthScale_prior', pls, 'magnSigma2_prior', pmg);
 gp = gp_set('lik', lik, 'cf', gpcf);
 
 

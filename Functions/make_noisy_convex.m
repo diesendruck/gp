@@ -1,6 +1,5 @@
 function [x_nsy, x_nsy_jit, y_nsy, y_nsy_jit] = make_noisy_convex(n, d, ...
-    shape, do_grid, ...
-    data_grid_gran)
+    shape, do_grid, data_grid_gran)
 % Make convex data, with option to normalize.
 % NOTE1: Functions appear in BOTH this file and compute_truth_from_xt.m.
 % NOTE2: Each function gets a unique error variance, sig.
@@ -13,7 +12,7 @@ function [x_nsy, x_nsy_jit, y_nsy, y_nsy_jit] = make_noisy_convex(n, d, ...
 %   data_grid_gran: Number of points per dimension. 10 means 10x10 for d=2.
 %
 % Returns:
-%   x_nsy: Matrix (nxd) of convex+noise data points.
+%   x_nsy: Matrix of convex+noise data points.
 %   x_nsy_jit: Same as x_nsy, but jittered.
 %   y_nsy: Matrix (nx1) of noisy response values.
 %   y_nsy_jit: Same as y_nsy, but for jittered inputs.
@@ -32,8 +31,7 @@ if strcmp(shape, 'trough')
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
             compute_mesh_info([-10 -10; 10 10], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
-        x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
-                             (1e-6)*x2_range*randn(length(x_nsy), 1)];
+        [x_nsy_jit] = jitter(x_nsy);
     else
         x_nsy = unifrnd(-10, 10, n, d);
         x_nsy_jit = x_nsy;
@@ -55,8 +53,7 @@ elseif strcmp(shape, 'paraboloid')
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
             compute_mesh_info([-10 -10; 10 10], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
-        x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
-                             (1e-6)*x2_range*randn(length(x_nsy), 1)];
+        [x_nsy_jit] = jitter(x_nsy);
     else
         x_nsy = unifrnd(-10, 10, n, d);
         x_nsy_jit = x_nsy;
@@ -78,8 +75,7 @@ elseif strcmp(shape, 'hand')
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
             compute_mesh_info([0 1; 10 10000], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
-        x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
-                             (1e-6)*x2_range*randn(length(x_nsy), 1)];
+        [x_nsy_jit] = jitter(x_nsy);
     else
         x_nsy(:, 1) = unifrnd(0, 10, n, 1);
         x_nsy(:, 2) = unifrnd(1, 10000, n, 1);
@@ -102,8 +98,7 @@ elseif strcmp(shape, 'parabolic_cylinder');
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
             compute_mesh_info([0 0; 10 10], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
-        x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
-                             (1e-6)*x2_range*randn(length(x_nsy), 1)];        
+        [x_nsy_jit] = jitter(x_nsy);        
     else
         x_nsy = unifrnd(0, 10, n, d);
         x_nsy_jit = x_nsy;
@@ -126,8 +121,7 @@ elseif strcmp(shape, 'wolverine');
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
             compute_mesh_info([-10 1; 10 5], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
-        x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
-                             (1e-6)*x2_range*randn(length(x_nsy), 1)];
+        [x_nsy_jit] = jitter(x_nsy);
     else
         x_nsy(:, 1) = unifrnd(-10, 10, n, 1);
         x_nsy(:, 2) = unifrnd(1, 5, n, 1);
@@ -150,8 +144,7 @@ elseif strcmp(shape, 'exponential');
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
             compute_mesh_info([0 0; 1 10], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
-        x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
-                             (1e-6)*x2_range*randn(length(x_nsy), 1)];
+        [x_nsy_jit] = jitter(x_nsy);
     else
         x_nsy(:, 1) = unifrnd(0, 1, n, 1);
         x_nsy(:, 2) = unifrnd(0, 10, n, 1);
@@ -174,8 +167,7 @@ elseif strcmp(shape, 'chair');
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
             compute_mesh_info([0 -10; 10 10], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
-        x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
-                             (1e-6)*x2_range*randn(length(x_nsy), 1)];    
+        [x_nsy_jit] = jitter(x_nsy);    
     else
         x_nsy(:, 1) = unifrnd(0, 10, n, 1);
         x_nsy(:, 2) = unifrnd(-10, 10, n, 1);
@@ -198,8 +190,7 @@ elseif strcmp(shape, 'hannah2');
         [~, ~, ~, ~, x1_range, x2_range, ~, ~, x_nsy] = ...
             compute_mesh_info([-1 -1; 1 1], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
-        x_nsy_jit = x_nsy + [(1e-6)*x1_range*randn(length(x_nsy), 1) ...
-                             (1e-6)*x2_range*randn(length(x_nsy), 1)];
+        [x_nsy_jit] = jitter(x_nsy);
     else
         x_nsy(:, 1) = unifrnd(-1, 1, n, 1);
         x_nsy(:, 2) = unifrnd(-1, 1, n, 1);
@@ -226,4 +217,3 @@ y_nsy = f + noise;
 y_nsy_jit = f_jit + noise;
 
 end
-

@@ -37,13 +37,14 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_sen, ...
 
 % Toggle plotting on and off.
 do_plot = 1;
+verbose = 1;
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
 [x_nsy_nojit, x_nsy, y_nsy_nojit, y_nsy] = make_noisy_convex(n, d, ...
     shape, do_grid, data_grid_gran);
-
+%%
 % Get associated data about noisy data set.
-do_buffer = 1;
+do_buffer = 0;
 [~, ~, ~, ~, ~, ~, xt1, xt2, xt] = compute_mesh_info(x_nsy, mesh_gran, ...
     do_buffer);
 
@@ -68,7 +69,9 @@ end
 
 % Select optimal bandwidth, and do kernel regression.
 h0 = rand(size(x_nsy', 1), 1)*10;
-fprintf('(%s) Optimizing for kernel regression bandwidth.\n', shape);
+if verbose
+    fprintf('(%s) Optimizing for kernel regression bandwidth.\n', shape);
+end
 h = Opt_Hyp_Gauss_Ker_Reg(h0, x_nsy', y_nsy');
 y_kern = zeros(size(xt1));
 for ii = 1:size(xt1, 1)
@@ -79,7 +82,9 @@ for ii = 1:size(xt1, 1)
 end
 
 % Get convex projection of kernel regression.
-fprintf('(%s) Projecting kernel regression surface to convex.\n', shape);
+if verbose
+    fprintf('(%s) Projecting kernel regression surface to convex.\n', shape);
+end
 y_kern_proj = project_to_convex(length(xt), d, xt, y_kern(:), eps1, eps2);
 
 % Compute mses over grid.
@@ -127,8 +132,10 @@ mcmcs = zeros(n_gp, n_entries);
 projs = zeros(n_gp, n_entries);
 
 for index = 1:n_entries
-    fprintf('(%s) Projecting mcmc surface to convex, sample %d.\n', ...
-        shape, index);
+    if verbose
+        fprintf('(%s) Projecting mcmc surface to convex, sample %d.\n', ...
+            shape, index);
+    end
     % Sample once from posterior, and store it as a column in mcmcs.
     y_smp = Eft_s(:, randi(posterior_sample_count));
     mcmcs(:, index) = y_smp;

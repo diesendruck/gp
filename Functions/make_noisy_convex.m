@@ -77,12 +77,12 @@ elseif strcmp(shape, 'paraboloid')
 elseif strcmp(shape, 'hand')
     if do_grid
         [~, ~, ~, ~, ~, ~, ~, ~, x_nsy] = ...
-            compute_mesh_info([0 1; 10 10000], data_grid_gran, do_buffer);
+            compute_mesh_info([0 100; 10 5000], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
         [x_nsy_jit] = jitter(x_nsy);
     else
         x_nsy(:, 1) = unifrnd(0, 10, n, 1);
-        x_nsy(:, 2) = unifrnd(1, 10000, n, 1);
+        x_nsy(:, 2) = unifrnd(100, 5000, n, 1);
         x_nsy_jit = x_nsy;
     end
     

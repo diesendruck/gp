@@ -73,7 +73,7 @@ data_grid_gran = 20;       % Number of points per dimension. 10 means 10x1 for d
 
 gp_optimization = 'mcmc';  % "mcmc" or "map" to select GP optimization type. 
                            % TODO: MAP not adjusted for test data.
-ls_factor = 0.3;           % Lengthscale factor (proportion of x-range).
+ls_factor = 0.8;           % Lengthscale factor ([0, 1] proportion of x-range).
 mesh_gran = 40;            % Number of ticks on mesh for plotting.
 
 if 1
@@ -106,7 +106,7 @@ for ii = 1:num_global_iters
     for shape = shapes
         shape_start_time = tic;
 
-        [gp, gp_proj, kern, kern_proj, cap, mbcr] = ...
+        [gp, gp_proj, kern, kern_proj, sen, cap, mbcr] = ...
             gp_compare_mses_shape_1d(tol_thres, eps1, eps2, iter, n, ...
                 ls_factor, mesh_gran, gp_optimization, num_posteriors, ...
                 desired, d, shape{1}, fid, mbcr_burn, mbcr_tot, do_grid,...

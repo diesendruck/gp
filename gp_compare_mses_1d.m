@@ -14,7 +14,7 @@
 
 start_time = tic
 platform = 'mac';
-%platform = 'linux';
+platform = 'linux';
 
 
 %% IMPORT GPSTUFF AND SET PATHS.
@@ -76,7 +76,7 @@ gp_optimization = 'mcmc';  % "mcmc" or "map" to select GP optimization type.
 ls_factor = 0.8;           % Lengthscale factor ([0, 1] proportion of x-range).
 mesh_gran = 40;            % Number of ticks on mesh for plotting.
 
-if 1
+if 0
     num_posteriors = 120;      % Number of posterior mcmc samples to generate.
     desired = 5;              % Number of posterior mcmc samples to use.
     mbcr_burn = 5;            % Number of burn-in for MBCR estimate.
@@ -84,12 +84,12 @@ if 1
     num_global_iters = 1;      % Number of MSEs to produce per shape.
 end
 
-if 0
+if 1
     num_posteriors = 2000;      % Number of posterior mcmc samples to generate.
     desired = 50;              % Number of posterior mcmc samples to use.
     mbcr_burn = 500;            % Number of burn-in for MBCR estimate.
     mbcr_tot = 1000;             % Number of total samples for MBCR estimate.
-    num_global_iters = 5;      % Number of MSEs to produce per shape.
+    num_global_iters = 1;      % Number of MSEs to produce per shape.
 end
 
 
@@ -99,7 +99,7 @@ fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj,sen,cap,mbcr\n');
 
 %% CONDUCT EXPERIMENT ON EACH SHAPE.
 % List of shapes to run.
-shapes = {'parabola', 'exponential', 'negative_entropy'};
+shapes = {'1d-parabola', '1d-exponential', '1d-negative_entropy'};
 
 % Run whole experiment many times.
 for ii = 1:num_global_iters

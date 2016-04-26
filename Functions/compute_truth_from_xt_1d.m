@@ -12,24 +12,24 @@ function [ytruth_on_grid] = compute_truth_from_xt_1d(x_grid, shape)
 n = length(x_grid);
 ytruth_on_grid = zeros(n, 1);
 
-if strcmp(shape, 'parabola')
+if strcmp(shape, '1d-parabola')
     for ii = 1:n
         ytruth_on_grid(ii) = 1e-3 * x_grid(ii)^4;            
     end
 
-elseif strcmp(shape, 'exponential')
+elseif strcmp(shape, '1d-exponential')
     for ii = 1:n
         %ytruth_on_mcmcgrid(ii) = exp(x_grid(ii)) + 0.5*x_grid(ii)^2;            
         ytruth_on_grid(ii) = exp(x_grid(ii));
     end
     
-elseif strcmp(shape, 'negative_entropy')
+elseif strcmp(shape, '1d-negative_entropy')
     for ii = 1:n
         ytruth_on_grid(ii) = x_grid(ii) * log(x_grid(ii));            
     end
     
 else
-    error('Shape should be either "parabola" or "parabola".')
+    error('Shape not recognized.')
 end
 
 end

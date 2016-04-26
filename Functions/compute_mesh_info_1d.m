@@ -18,7 +18,7 @@ x_h = max(x);
 x_range = x_h - x_l;
 
 % Create surface grids.
-x_grid = (x_l*1.1 : x_range/mesh_gran : x_h*1.1)';
+x_grid = (x_l:x_range/mesh_gran:x_h)';
 
 end
 

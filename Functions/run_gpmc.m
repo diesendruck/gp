@@ -18,30 +18,31 @@ function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy,...
 % properly.
 do_diagnostics = 0;
 
+
 %% STEP 0. Establish boundary of data, to make grid for surface.
 do_buffer = 0;
 [~, ~, ~, ~, x1_range, x2_range, xt1, xt2, xt] = compute_mesh_info(...
     x_nsy, mesh_gran, do_buffer);
 
+
 %% STEP 1. Set up the GP.
 length_scale = [x1_range*ls_factor, x2_range*ls_factor];  % Scaled according to range.
-mag_sig2 = 1;  % Scaled according to range.
-lik_sig2 = 1;  % Scaled according to range.
+mag_sig2 = 1;
+lik_sig2 = 1;
 
 % Set up likelihood and covariance functions.
 gpcf = gpcf_sexp('lengthScale', length_scale, 'magnSigma2', mag_sig2);
 lik = lik_gaussian('sigma2', lik_sig2);
 
-% Set up priors. Here, all parameters get uniform prior.
+% Set up priors.
+%pmg = prior_sqrtunif();
+%pns=prior_logunif();
+%pls = prior_unif();
 %pns = prior_sinvchi2('s2', 0.1,'nu', length(x_nsy));
+%pns = prior_invgamma('sh', 4, 's', 1);
 pmg = prior_invgamma('sh', 1, 's', 1);
-pns = prior_invgamma('sh', 4, 's', 1);
 pns = prior_sinvchi2('s2', 0.1,'nu', length(x_nsy));
 pls = prior_invgamma('sh', 2, 's', length_scale(1));
-
-% pmg = prior_sqrtunif();
-% pns=prior_logunif();
-% pls = prior_unif();
 
 % Assemble likelihood, covariance function, and gaussian process.
 lik = lik_gaussian(lik, 'sigma2_prior', pns);
@@ -58,6 +59,7 @@ if do_diagnostics
     plot_mcmc_diagnostics(gp_rec, gp)
 end
 
+
 %% STEP 3. Produce surface prediction.
 [Eft_s, Varft_s] = gpmc_preds(gp_rec, x_nsy, y_nsy, xt);  % Produce MCMC predictions.
 
@@ -65,6 +67,7 @@ end
 posterior_sample_count = size(Eft_s, 2);
 sprintf('Of %d posterior samples, burned %d, thinned by %d: so %d remain.', ...
     [num_posteriors, burned, thinned, posterior_sample_count])
+
 
 end
 

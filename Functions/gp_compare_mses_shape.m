@@ -32,8 +32,9 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_sen, ...
 %   mse_gp_proj: MSE of average of projections of desired number of GP posteriors.
 %   mse_kern: MSE of kernel regression over raw data.
 %   mse_kern_proj: MSE of projection of kernel regression.
+%   mse_sen: MSE of Sen's projection algorithm on points.
 %   mse_cap: MSE of Convex Adaptive Partioning.
-%   mbcr_cap: MSE of Multivariate Bayesian Covex Regression with Rvrs Jump.
+%   mse_mbcr: MSE of Multivariate Bayesian Covex Regression with Rvrs Jump.
 
 % Toggle plotting on and off.
 do_plot = 1;
@@ -67,7 +68,8 @@ end
 
 %% COMPUTE KERNEL REGRESSION, ITS PROJECTION, AND RESPECTIVE MSES.
 
-% Select optimal bandwidth, and do kernel regression.
+% --------FULL MESH--------
+% Kernel regression on mesh xt.
 h0 = rand(size(x_nsy', 1), 1)*10;
 if verbose
     fprintf('(%s) Optimizing for kernel regression bandwidth.\n', shape);
@@ -81,17 +83,15 @@ for ii = 1:size(xt1, 1)
     end
 end
 
-% Get convex projection of kernel regression.
-if verbose
-    fprintf('(%s) Projecting kernel regression surface to convex.\n', shape);
-end
+% Project to convex.
 y_kern_proj = project_to_convex(length(xt), d, xt, y_kern(:), eps1, eps2);
 
-% Compute mses over grid.
+% Compute mses on mesh xt.
 %mse_kern = 1/length(xt) * norm(y_kern(:) - ytruth_on_grid)^2;
 %mse_kern_proj = 1/length(xt) * norm(y_kern_proj - ytruth_on_grid)^2;
 
-% Do kernel regression on test data, and compute mses on test points.
+% --------TEST MESH--------
+% Kernel regression on test data.
 y_kern_test = zeros(size(t1));
 for ii = 1:size(t1, 1)
     for jj = 1:size(t1, 2)
@@ -100,10 +100,14 @@ for ii = 1:size(t1, 1)
                                                 y_nsy_nojit', h);
     end
 end
-y_kern_test_proj = project_to_convex(length(tt), d, tt, y_kern_test(:), ...
-    eps1, eps2);
+
+% Project to convex.
+y_kern_test_proj = project_to_convex(length(tt), d, tt, y_kern_test(:), eps1, eps2);
+
+% Compute mses on test data.
 mse_kern = 1/length(tt) * norm(y_kern_test(:) - ytruth_on_test)^2;
 mse_kern_proj = 1/length(tt) * norm(y_kern_test_proj - ytruth_on_test)^2;
+
 
 % Plot kernel regression and convex projection over original data.
 if do_plot

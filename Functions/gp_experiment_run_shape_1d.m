@@ -94,4 +94,3 @@ fprintf(fid, strcat(num2str(mcmc_mse, '%0.7f'), ',', ...
 %savefig(sprintf('Results_1d/%s.fig', shape));
 
 end
-

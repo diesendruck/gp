@@ -22,7 +22,7 @@ function [x_nsy, x_nsy_jit, y_nsy, y_nsy_jit] = make_noisy_convex(n, d, ...
 if do_grid
     len = data_grid_gran^2;
 else
-    len = n
+    len = n;
 end
 y_nsy = zeros(len, 1);
 y_nsy_jit = zeros(len, 1);

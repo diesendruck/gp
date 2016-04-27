@@ -20,15 +20,14 @@ if do_grid
 else
     len = n;
 end
-y_nsy = zeros(len, 1);
 f = zeros(len, 1);
 
 % Define x values.
 if strcmp(shape, '1d-parabola');
     if do_grid
-        x_nsy = linspace(-10, 10, len)';
+        x_nsy = linspace(-10, 3, len)';
     else
-        x_nsy = unifrnd(-10, 10, len, 1);
+        x_nsy = unifrnd(-10, 3, len, 1);
     end
     
     sig = 2.0;

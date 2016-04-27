@@ -1,16 +1,17 @@
-function [th_trans] = project_to_convex(n, d, x, y, eps1, eps2)
+function [th_trans] = convex1(x, y)
 % Project x, y onto convex function.
 %
 % Args:
-%   n: Data sample size.
-%   d: Dimension of data points.
-%   x: n x d matrix of data values.
+%   x: n x 1 matrix of data values.
 %   y: n x 1 matrix of response values.
-%   eps1: These 2 epsilons are used for convergence of the convex projection algorithm.
-%   eps2: Same as above.
 %
 % Returns:
 %   th_trans: Convex response variable.
+
+n = length(y); 
+d = 1;
+eps1 = 1e-6;
+eps2 = 1e-6;
 
 % Standardize variables x and y.
 X = zeros(n,d);
@@ -31,4 +32,5 @@ rho0 = 1/n;	 rho = rho0;
 th_trans = norm(y)*th;
 
 end
+
 

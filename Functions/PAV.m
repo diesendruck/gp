@@ -1,4 +1,4 @@
-function Pmono=PAV(PP)
+function Pmono = monotone(PP)
 
     n1 = max(size(PP));
     wt = ones(size(PP));
@@ -18,7 +18,9 @@ function Pmono=PAV(PP)
         lvlsets(ilvl) = lvl1;
     end
     
-    Pmono=PP;
+    Pmono = PP;
+    
+end
     
     
     

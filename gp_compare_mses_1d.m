@@ -14,7 +14,7 @@
 
 start_time = tic
 platform = 'mac';
-platform = 'linux';
+%platform = 'linux';
 
 
 %% IMPORT GPSTUFF AND SET PATHS.
@@ -100,6 +100,7 @@ fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj,sen,cap,mbcr\n');
 %% CONDUCT EXPERIMENT ON EACH SHAPE.
 % List of shapes to run.
 shapes = {'1d-parabola', '1d-exponential', '1d-negative_entropy'};
+
 
 % Run whole experiment many times.
 for ii = 1:num_global_iters

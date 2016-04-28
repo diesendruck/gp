@@ -13,13 +13,15 @@ iter = 0;
 max_iter = 1e3;
 eps = 1e-6;
 
-% Set up initial monotone and convex projections, and their residuals.
+% Set up initial surface.
 f_init = y_nsy;
 
-f_mono = monotone(f_init);
+% First monotone projection, and its residual.
+f_mono = monotone_1d(f_init);
 r_mono = f_mono - f_init;
 
-f_conv = convex1(x_nsy, f_init + r_mono);
+% First convex projection, and its residual.
+f_conv = convex_1d(x_nsy, f_init + r_mono);
 r_conv = f_conv - (f_init + r_mono);
 
 while (iter < max_iter)
@@ -34,11 +36,12 @@ while (iter < max_iter)
     % Get previous convex residual.
     latest_r_c = r_conv(:, max(size(r_conv, 2)));
     
-    % Compute monotone projection, and its residual.
+    % Get monotone projection, and its residual.
     new_f_m = monotone_1d(f_init + latest_r_c);
     new_r_m = new_f_m - (f_init + latest_r_c);
     
-    % Compute convex projection (of above monotone), and its residual.
+    % Get convex projection (with monotone residual from above), and its 
+    % residual.
     new_f_c = convex_1d(x_nsy, f_init + new_r_m);
     new_r_c = new_f_c - (f_init + new_r_m);
     

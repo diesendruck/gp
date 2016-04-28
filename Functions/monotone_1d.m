@@ -1,60 +1,43 @@
-function Pmono = monotone_1d(PP)
+function [Pmono, direction] = monotone_1d(PP, varargin)
 % Project vector to monotone space.
 %
 % Args:
 %   PP: Vector of data values.
+%   direction: Optional String 'up' or 'down'.
 %
 % Returns:
 %   Pmono: Monotone Convex response variable.
+%   direction: String, the direction chosen by the function.
 
-
-
-orig_PP = PP
-
-n1 = max(size(PP));
-wt = ones(size(PP));
-lvlsets = (1:n1)';
-one2 = (1:n1-1)';
-
-while (true)
-    viol = (PP(1:(n1-1))-PP(2:n1) > 0);
-    if (~any(viol))
-        break;
-    end
-    ii = min(find(viol));
-    lvl1 = lvlsets(ii);
-    lvl2 = lvlsets(ii+1);
-    ilvl = (lvlsets==lvl1)|(lvlsets==lvl2);
-    PP(ilvl) = sum( PP(ilvl).*wt(ilvl) )/sum(wt(ilvl));
-    lvlsets(ilvl) = lvl1;
+% Check if user supplied known direction of monotonicity.
+if nargin > 1
+    direction = varargin{1};
+else
+    direction = 'unknown';
 end
 
-if all(PP == PP(1))
-    PP = flipud(orig_PP);
+% Do projection.
+if strcmp(direction, 'up')
+    % Project to monotone ascending.
+    Pmono = monotoneUp_1d(PP);
     
-    n1 = max(size(PP));
-    wt = ones(size(PP));
-    lvlsets = (1:n1)';
-    one2 = (1:n1-1)';
-
-    while (true)
-        viol = (PP(1:(n1-1))-PP(2:n1) > 0);
-        if (~any(viol))
-            break;
-        end
-        ii = min(find(viol));
-        lvl1 = lvlsets(ii);
-        lvl2 = lvlsets(ii+1);
-        ilvl = (lvlsets==lvl1)|(lvlsets==lvl2);
-        PP(ilvl) = sum( PP(ilvl).*wt(ilvl) )/sum(wt(ilvl));
-        lvlsets(ilvl) = lvl1;
+elseif strcmp(direction, 'down')
+    % Project to monotone descending.
+    Pmono = monotoneDown_1d(PP);
+    
+elseif strcmp(direction, 'unknown')
+    % Try ascending, and if result is flat, try descending.
+    Pmono = monotoneUp_1d(PP); 
+    direction = 'up';
+    if all(Pmono == Pmono(1))
+        Pmono = monotoneDown_1d(PP); 
+        direction = 'down';
     end
-    
-    PP = flipud(PP);
+else
+    error('Direction argument not recognized.')
 end
 
-Pmono = PP;
-    
+
 end
     
     

@@ -23,7 +23,7 @@ end
 f = zeros(len, 1);
 
 % Define x values.
-if strcmp(shape, '1d-parabola');
+if strcmp(shape, '1d_parabola');
     if do_grid
         x_nsy = linspace(-10, 3, len)';
     else
@@ -38,7 +38,7 @@ if strcmp(shape, '1d-parabola');
         f(ii) = 1e-3 * (x_nsy(ii))^4;
     end
     
-elseif strcmp(shape, '1d-exponential');
+elseif strcmp(shape, '1d_exponential');
     if do_grid
         x_nsy = linspace(-3, 3, len)';
     else
@@ -54,7 +54,7 @@ elseif strcmp(shape, '1d-exponential');
         f(ii) = exp(x_nsy(ii));
     end
     
-elseif strcmp(shape, '1d-negative_entropy');
+elseif strcmp(shape, '1d_negative_entropy');
     if do_grid
         x_nsy = linspace(1, 6, len)';
     else

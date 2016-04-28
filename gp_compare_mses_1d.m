@@ -99,7 +99,7 @@ fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj,sen,cap,mbcr\n');
 
 %% CONDUCT EXPERIMENT ON EACH SHAPE.
 % List of shapes to run.
-shapes = {'1d-parabola', '1d-exponential', '1d-negative_entropy'};
+shapes = {'1d_parabola', '1d_exponential', '1d_negative_entropy'};
 
 
 % Run whole experiment many times.

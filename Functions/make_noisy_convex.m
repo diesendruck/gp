@@ -169,12 +169,12 @@ elseif strcmp(shape, 'exponential');
 elseif strcmp(shape, 'chair');
     if do_grid
         [~, ~, ~, ~, ~, ~, ~, ~, x_nsy] = ...
-            compute_mesh_info([0 -10; 10 10], data_grid_gran, do_buffer);
+            compute_mesh_info([0 -7; 9 10], data_grid_gran, do_buffer);
         % Jitter the data. For CAP method.
         [x_nsy_jit] = jitter(x_nsy);    
     else
-        x_nsy(:, 1) = unifrnd(0, 10, n, 1);
-        x_nsy(:, 2) = unifrnd(-10, 10, n, 1);
+        x_nsy(:, 1) = unifrnd(0, 9, n, 1);
+        x_nsy(:, 2) = unifrnd(-7, 10, n, 1);
         x_nsy_jit = x_nsy;
     end
     

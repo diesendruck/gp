@@ -6,55 +6,29 @@ function Pmono = monotone_2d(x_nsy, y_nsy)
 %   y_nsy: Matrix (nx1) of noisy response values.
 %
 % Returns:
-%   Pmono: Monotone Convex response variable.
+%   Pmono: Matrix (2x2) of the monotone response variable.
 
+% Define convergence indicator and max number of iterations in while loop.
+iter = 0;
+max_iter = 1e3;
+eps = 1e-6;
 
+% Set up initial surface.
+dim = sqrt(length(x_nsy));
+x1 = reshape(x_nsy(:, 1), dim, dim)';
+x2 = reshape(x_nsy(:, 2), dim, dim)';
+y = reshape(y_nsy, dim, dim)';
+f_init = y_nsy;
 
-orig_PP = PP
+% First monotone projection, and its residual.
+f_mono = monotone_1d(f_init);
+r_mono = f_mono - f_init;
 
-n1 = max(size(PP));
-wt = ones(size(PP));
-lvlsets = (1:n1)';
-one2 = (1:n1-1)';
+% First convex projection, and its residual.
+f_conv = convex_1d(x_nsy, f_init + r_mono);
+r_conv = f_conv - (f_init + r_mono);
 
-while (true)
-    viol = (PP(1:(n1-1))-PP(2:n1) > 0);
-    if (~any(viol))
-        break;
-    end
-    ii = min(find(viol));
-    lvl1 = lvlsets(ii);
-    lvl2 = lvlsets(ii+1);
-    ilvl = (lvlsets==lvl1)|(lvlsets==lvl2);
-    PP(ilvl) = sum( PP(ilvl).*wt(ilvl) )/sum(wt(ilvl));
-    lvlsets(ilvl) = lvl1;
-end
-
-if all(PP == PP(1))
-    PP = flipud(orig_PP);
-    
-    n1 = max(size(PP));
-    wt = ones(size(PP));
-    lvlsets = (1:n1)';
-    one2 = (1:n1-1)';
-
-    while (true)
-        viol = (PP(1:(n1-1))-PP(2:n1) > 0);
-        if (~any(viol))
-            break;
-        end
-        ii = min(find(viol));
-        lvl1 = lvlsets(ii);
-        lvl2 = lvlsets(ii+1);
-        ilvl = (lvlsets==lvl1)|(lvlsets==lvl2);
-        PP(ilvl) = sum( PP(ilvl).*wt(ilvl) )/sum(wt(ilvl));
-        lvlsets(ilvl) = lvl1;
-    end
-    
-    PP = flipud(PP);
-end
-
-Pmono = PP;
+while (iter < max_iter)
     
 end
     

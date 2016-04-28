@@ -1,4 +1,4 @@
-function [th_trans] = convex1(x, y)
+function [th_trans] = convex_1d(x, y)
 % Project x, y onto convex function.
 %
 % Args:

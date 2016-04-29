@@ -1,7 +1,8 @@
 function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_sen, ...
-    mse_cap, mse_mbcr] = gp_compare_mses_shape(tol_thres, eps1, eps2, ...
-        iter, n, ls_factor, mesh_gran, num_posteriors, desired, d, ...
-        shape, fid, mbcr_burn, mbcr_tot, do_grid, data_grid_gran)
+    mse_cap, mse_mbcr, gp_proj_time_elapsed, mbcr_time_elapsed] = ...
+        gp_compare_mses_shape(tol_thres, eps1, eps2, ...
+            iter, n, ls_factor, mesh_gran, num_posteriors, desired, d, ...
+            shape, fid, mbcr_burn, mbcr_tot, do_grid, data_grid_gran)
 % Run gp experiment* for a particular shape.
 %
 % *One experiment draws many samples from the Gaussian Process posterior,
@@ -126,6 +127,8 @@ end
 
 %% COMPUTE AVERAGE FROM SAMPLES OF GP POSTERIOR MCMC, AVERAGE OF 
 %% PROJECTIONS OF EACH, AND MSES OF RESPECTIVE AVERAGES.
+gp_proj_start_time = tic;
+
 % Get samples from GP posterior MCMC, project each to convex, and store.
 [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy, ...
     y_nsy, ls_factor, num_posteriors, mesh_gran);
@@ -178,6 +181,8 @@ if do_plot
     title(sprintf('Avg GP Proj (MSE = %d)', mse_gp_proj));
 end
 
+gp_proj_time_elapsed = toc(gp_proj_start_time);
+
 
 %% COMPUTE SEN ESTIMATE AND ITS MSE.
 if do_grid
@@ -222,6 +227,8 @@ end
 
 
 %% COMPUTE MBCR ESTIMATE AND ITS MSE.
+mbcr_start_time = tic;
+
 [struct_min] = MBCR(x_nsy, y_nsy, mbcr_burn, mbcr_tot);
 f_min = @(x)fMBCR(x, struct_min)
 n_xt = length(xt);
@@ -243,6 +250,8 @@ if do_plot
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
     title(sprintf('MBCR (MSE = %d)', mse_mbcr));
 end
+
+mbcr_time_elapsed = toc(mbcr_start_time);
 
 
 %% ADD SUMMARY TEXT TO PLOT.

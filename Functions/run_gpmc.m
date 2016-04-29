@@ -43,6 +43,7 @@ lik = lik_gaussian('sigma2', lik_sig2);
 pmg = prior_invgamma('sh', 1, 's', 1);
 pns = prior_sinvchi2('s2', 0.1,'nu', length(x_nsy));
 pls = prior_invgamma('sh', 2, 's', length_scale(1));
+pls = prior_gamma('sh', 10, 'is', 2);
 
 % Assemble likelihood, covariance function, and gaussian process.
 lik = lik_gaussian(lik, 'sigma2_prior', pns);

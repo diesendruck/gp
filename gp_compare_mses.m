@@ -76,9 +76,9 @@ mesh_gran = 20;            % Number of ticks on mesh for plotting.
 
 if 0
     num_posteriors = 120;      % Number of posterior mcmc samples to generate.
-    desired = 2;              % Number of posterior mcmc samples to use.
-    mbcr_burn = 2;            % Number of burn-in for MBCR estimate.
-    mbcr_tot = 4;             % Number of total samples for MBCR estimate.
+    desired = 1;              % Number of posterior mcmc samples to use.
+    mbcr_burn = 1;            % Number of burn-in for MBCR estimate.
+    mbcr_tot = 2;             % Number of total samples for MBCR estimate.
     num_global_iters = 1;      % Number of MSEs to produce per shape.
 end
 

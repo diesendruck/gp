@@ -73,7 +73,7 @@ data_grid_gran = 10;       % Number of points per dimension. 10 means 10x1 for d
 
 gp_optimization = 'mcmc';  % "mcmc" or "map" to select GP optimization type. 
                            % TODO: MAP not adjusted for test data.
-ls_factor = 1.5;           % Lengthscale factor ([0, 1] proportion of x-range).
+ls_factor = 0.3;           % Lengthscale factor ([0, 1] proportion of x-range).
 mesh_gran = 20;            % Number of ticks on mesh for plotting.
 
 if 0

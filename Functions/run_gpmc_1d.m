@@ -15,7 +15,7 @@ function [Eft_s, posterior_sample_count] = run_gpmc_1d(x_nsy, y_nsy, ...
 
 % Plots MCMC traceplots. Turn off during global run to make figures work
 % properly.
-do_diagnostics = 0;
+do_diagnostics = 1;
 
 
 %% STEP 0. Establish boundary of data, to make grid for surface.
@@ -24,13 +24,12 @@ do_diagnostics = 0;
 
 %% STEP 1. Set up the GP.
 length_scale = x_range*ls_factor;  % Scaled according to range.
-mag_sig2 = 1
+mag_sig2 = 1;
 lik_sig2 = 1;
-%mag_sig2 = (min(x_range)*noise_var_factor)^2;  % TODO: What should the sigma scaling be? MAX or MIN?
 
 % Set up likelihood and covariance functions.
 gpcf = gpcf_sexp('lengthScale', length_scale, 'magnSigma2', mag_sig2);
-lik = lik_gaussian('sigma2', mag_sig2);
+lik = lik_gaussian('sigma2', lik_sig2);
 
 % Set up priors.
 %pn=prior_logunif();
@@ -38,7 +37,8 @@ lik = lik_gaussian('sigma2', mag_sig2);
 %pm = prior_sqrtunif();
 pmg = prior_invgamma('sh', 1, 's', 1);
 pns = prior_sinvchi2('s2', 0.1,'nu', length(x_nsy));
-pls = prior_invgamma('sh', 2, 's', length_scale(1));
+%pls = prior_invgamma('sh', 2, 's', length_scale(1));
+pls = prior_gamma('sh', 15*length_scale, 'is', 5*length_scale);
 
 % Assemble covariance function with priors, and assemple gaussian process.
 lik = lik_gaussian(lik, 'sigma2_prior', pns);
@@ -47,7 +47,7 @@ gp = gp_set('lik', lik, 'cf', gpcf);
 
 
 %% STEP 2. Optimize GP and get params.
-burned = round(num_posteriors/4);
+burned = round(num_posteriors/5);
 thinned = 4;
 [rfull, g, opt] = gp_mc(gp, x_nsy, y_nsy, 'nsamples', num_posteriors);
 gp_rec = thin(rfull, burned, thinned);

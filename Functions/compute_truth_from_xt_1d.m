@@ -14,18 +14,18 @@ ytruth_on_grid = zeros(n, 1);
 
 if strcmp(shape, '1d_parabola')
     for ii = 1:n
-        ytruth_on_grid(ii) = 1e-3 * x_grid(ii)^4;            
+        ytruth_on_grid(ii) = 0.004 * (x_grid(ii)-7)^4;  
     end
 
 elseif strcmp(shape, '1d_exponential')
     for ii = 1:n
         %ytruth_on_mcmcgrid(ii) = exp(x_grid(ii)) + 0.5*x_grid(ii)^2;            
-        ytruth_on_grid(ii) = exp(x_grid(ii));
+        ytruth_on_grid(ii) = 4.5e-4 * exp(x_grid(ii));
     end
     
 elseif strcmp(shape, '1d_negative_entropy')
     for ii = 1:n
-        ytruth_on_grid(ii) = x_grid(ii) * log(x_grid(ii));            
+        ytruth_on_grid(ii) = 0.4 * x_grid(ii) * log(x_grid(ii)+1); 
     end
     
 else

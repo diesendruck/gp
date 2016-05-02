@@ -13,8 +13,8 @@
 %   https://github.com/laurenahannah/mbcr
 
 start_time = tic
-%platform = 'mac';
-platform = 'linux';
+platform = 'mac';
+%platform = 'linux';
             
 
 %% IMPORT GPSTUFF AND SET PATHS.

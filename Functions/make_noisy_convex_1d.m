@@ -25,9 +25,9 @@ f = zeros(len, 1);
 % Define x values.
 if strcmp(shape, '1d_parabola');
     if do_grid
-        x_nsy = linspace(-10, 3, len)';
+        x_nsy = linspace(0, 10, len)';
     else
-        x_nsy = unifrnd(-10, 3, len, 1);
+        x_nsy = unifrnd(0, 10, len, 1);
     end
     
     sig = 2.0;
@@ -35,14 +35,14 @@ if strcmp(shape, '1d_parabola');
     
     % Compute function value.
     for ii = 1:len,
-        f(ii) = 1e-3 * (x_nsy(ii))^4;
+        f(ii) = 0.004 * (x_nsy(ii)-7)^4;
     end
     
 elseif strcmp(shape, '1d_exponential');
     if do_grid
-        x_nsy = linspace(-3, 3, len)';
+        x_nsy = linspace(0, 10, len)';
     else
-        x_nsy = unifrnd(-3, 3, len, 1);
+        x_nsy = unifrnd(0, 10, len, 1);
     end
     
     sig = 2.0;
@@ -51,14 +51,14 @@ elseif strcmp(shape, '1d_exponential');
     % Compute function value.
     for ii = 1:len,
         %f(ii) = exp(x_nsy(ii)) + 0.5*x_nsy(ii)^2;
-        f(ii) = exp(x_nsy(ii));
+        f(ii) = 4.5e-4 * exp(x_nsy(ii));
     end
     
 elseif strcmp(shape, '1d_negative_entropy');
     if do_grid
-        x_nsy = linspace(1, 6, len)';
+        x_nsy = linspace(0, 10, len)';
     else
-        x_nsy = unifrnd(1, 6, len, 1);
+        x_nsy = unifrnd(0, 10, len, 1);
     end
     
     sig = 2.0;
@@ -66,7 +66,7 @@ elseif strcmp(shape, '1d_negative_entropy');
     
     % Compute function value.
     for ii = 1:len,
-        f(ii) = x_nsy(ii) * log(x_nsy(ii));
+        f(ii) = 0.4 * x_nsy(ii) * log(x_nsy(ii)+1);
     end
     
 else

@@ -16,7 +16,7 @@ function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy,...
 
 % Plots MCMC traceplots. Turn off during global run to make figures work
 % properly.
-do_diagnostics = 0;
+do_diagnostics = 1;
 
 
 %% STEP 0. Establish boundary of data, to make grid for surface.
@@ -41,6 +41,7 @@ lik = lik_gaussian('sigma2', lik_sig2);
 %pns = prior_sinvchi2('s2', 0.1,'nu', length(x_nsy));
 %pns = prior_invgamma('sh', 4, 's', 1);
 pmg = prior_invgamma('sh', 1, 's', 1);
+pmg = prior_gamma('sh', 10, 'is', 10);
 pns = prior_sinvchi2('s2', 0.1,'nu', length(x_nsy));
 %pls = prior_invgamma('sh', 2, 's', length_scale(1));
 pls = prior_gamma('sh', 15*length_scale(1), 'is', 5*length_scale(1));
@@ -52,7 +53,7 @@ gp = gp_set('lik', lik, 'cf', gpcf);
 
 
 %% STEP 2. Optimize GP and get params.
-burned = round(num_posteriors/5);
+burned = round(num_posteriors/4);
 thinned = 4;
 [rfull, g, opt] = gp_mc(gp, x_nsy, y_nsy, 'nsamples', num_posteriors);
 gp_rec = thin(rfull, burned, thinned);

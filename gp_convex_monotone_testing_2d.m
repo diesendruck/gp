@@ -36,8 +36,16 @@ tt = [t1(:) t2(:)];
 ytruth_on_test = compute_truth_from_xt(tt, shape);
 
 if do_plot
+    x0=50;
+    y0=100;
+    width=1200;
+    height=600;
+    set(gcf,'units','points','position',[x0,y0,width,height])
+    
+    %figure('units','normlized','position',[.1 .1 .4 .4])
+    
     yq_conv = griddata(xt(:, 1), xt(:, 2), ytruth_on_grid, xt1, xt2);
-    figure; subplot(2, 3, 1);
+    subplot(2, 3, 1);
     surf(xt1, xt2, yq_conv); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
     title('True Convex');

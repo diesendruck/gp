@@ -29,8 +29,7 @@ f_init = reshape(y_nsy, dim, dim)';
 % Show original surface.
 if do_plot
     figure; surf(x1, x2, f_init); hold on; 
-    p3(x_nsy, ytruth);
-    %scatter3(x_nsy(:,1), x_nsy(:,2), ytruth, ones(100, 1)*30, 'r', 'filled')
+    p3(x_nsy, ytruth);d
 end
 
 % First monotone row projection, and its residual.
@@ -108,7 +107,6 @@ f = f_col(:, :, max(size(f_col, 3)));
 if do_plot
     figure; surf(x1, x2, f); hold on;
     p3(x_nsy, ytruth);
-    %scatter3(x_nsy(:,1), x_nsy(:,2), ytruth, ones(100, 1)*30, 'r', 'filled')
 end
 
 end

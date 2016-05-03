@@ -9,10 +9,10 @@ eps2 = 1e-5;
 n = 100;
 d = 2;
 shape = 'cm1';
-data_grid_gran = 5;
+data_grid_gran = 10;
 ls_factor = 0.3;
-num_posteriors = 50;
-desired = 10;
+num_posteriors = 1000;
+desired = 50;
 mesh_gran = 2*data_grid_gran;
 dim = sqrt(length(x_nsy));
 
@@ -107,23 +107,23 @@ end
 gp_proj_time_elapsed = toc(gp_proj_start_time);
 
 
-%% MONOTONE PROJECTION
-f = monotone_2d(x_nsy, y_nsy);
+%% MONOTONE PROJECTION OF AVG GP.
+f = monotone_2d(x_nsy, y_mcmc_test);
 f_mono = griddata(tt(:, 1), tt(:, 2), f(:), xt1, xt2);
 mse_mono = 1/length(tt) * norm(f(:) - ytruth_on_test)^2;
 
 subplot(2, 3, 5);
 surf(xt1, xt2, f_mono); hold on;
 plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
-title(sprintf('Monotone (MSE = %d)', mse_mono));
+title(sprintf('Avg GP Monotone (MSE = %d)', mse_mono));
 
 
-%% CONVEX MONOTONE PROJECTION
-f = convex_monotone_2d(x_nsy, y_nsy);
+%% CONVEX MONOTONE PROJECTION OF AVG GP.
+f = convex_monotone_2d(x_nsy, y_mcmc_test);
 f_cm = griddata(tt(:, 1), tt(:, 2), f(:), xt1, xt2);
 mse_cm = 1/length(tt) * norm(f(:) - ytruth_on_test)^2;
 
 subplot(2, 3, 6);
 surf(xt1, xt2, f_cm); hold on;
 plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
-title(sprintf('Conv+Mono (MSE = %d)', mse_cm));
+title(sprintf('Avg GP Conv+Mono (MSE = %d)', mse_cm));

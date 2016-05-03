@@ -18,7 +18,7 @@ function [x_nsy, x_nsy_jit, y_nsy, y_nsy_jit] = make_noisy_convex(n, d, ...
 %   y_nsy_jit: Same as y_nsy, but for jittered inputs.
 
 % Toggle plotting. Set to 0 when running full test in gp_compare_mses.m.
-do_plot = 0;
+do_plot = 1;
 
 % Setup storage for y values and function values. Given data_grid_gran, can
 % find number of output points: e.g. grid gran of 5 means 5x5 or 25 points.
@@ -44,7 +44,7 @@ if strcmp(shape, 'trough')
         x_nsy_jit = x_nsy;
     end
     
-    sig = 2.0;
+    sig = 3.0;
     noise = sig*randn(len, 1);
 
     % Compute function value.
@@ -66,7 +66,7 @@ elseif strcmp(shape, 'paraboloid')
         x_nsy_jit = x_nsy;
     end
     
-    sig = 2.0;
+    sig = 3.0;
     noise = sig*randn(len, 1);
 
     % Compute function value.
@@ -88,7 +88,7 @@ elseif strcmp(shape, 'hand')
         x_nsy_jit = x_nsy;
     end
     
-    sig = 2.0;
+    sig = 3.0;
     noise = sig*randn(len, 1);
 
     % Compute function value.
@@ -110,7 +110,7 @@ elseif strcmp(shape, 'parabolic_cylinder');
         x_nsy_jit = x_nsy;
     end
 
-    sig = 2.0;
+    sig = 3.0;
     noise = sig*randn(len, 1);
 
     % Compute function value.
@@ -133,7 +133,7 @@ elseif strcmp(shape, 'wolverine');
         x_nsy_jit = x_nsy;
     end
     
-    sig = 2.0;
+    sig = 3.0;
     noise = sig*randn(len, 1);
 
     % Compute function value.
@@ -155,7 +155,7 @@ elseif strcmp(shape, 'exponential');
         x_nsy_jit = x_nsy;
     end
     
-    sig = 2.0;
+    sig = 3.0;
     noise = sig*randn(len, 1);
 
     % Compute function value.
@@ -177,7 +177,7 @@ elseif strcmp(shape, 'chair');
         x_nsy_jit = x_nsy;
     end
     
-    sig = 2.0;
+    sig = 3.0;
     noise = sig*randn(len, 1);
 
     % Compute function value.
@@ -211,6 +211,28 @@ elseif strcmp(shape, 'hannah2');
         f_jit(ii) = (x1_jit + x2_jit)^2;
     end
     
+elseif strcmp(shape, 'cm1');
+    if do_grid
+        [~, ~, ~, ~, ~, ~, ~, ~, x_nsy] = ...
+            compute_mesh_info([0 0; 10 10], data_grid_gran, do_buffer);
+        % Jitter the data. For CAP method.
+        [x_nsy_jit] = jitter(x_nsy);
+    else
+        x_nsy = unifrnd(0, 10, n, d);
+        x_nsy_jit = x_nsy;
+    end
+
+    sig = 3.0;
+    noise = sig*randn(len, 1);
+
+    % Compute function value.
+    for ii = 1:len
+        x1 = x_nsy(ii, 1); x2 = x_nsy(ii, 2);
+        x1_jit = x_nsy_jit(ii, 1); x2_jit = x_nsy_jit(ii, 2);
+        f(ii) = 0.025 * (x1 + x2)^2;
+        f_jit(ii) = 0.025 * (x1_jit + x2_jit)^2;
+    end
+    
 else
     error('Shape not recognized.')
 end
@@ -220,7 +242,7 @@ y_nsy = f + noise;
 y_nsy_jit = f_jit + noise;
 
 if do_plot
-    p3(x_nsy, y_nsy)
+    p3(x_nsy, y_nsy);
 end
 
 end

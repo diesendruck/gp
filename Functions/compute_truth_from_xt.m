@@ -61,6 +61,11 @@ elseif strcmp(shape, 'hannah2')
         ytruth_on_mcmcgrid(ii) = (x1 + x2)^2;
     end
 
+elseif strcmp(shape, 'cm1')
+    for ii = 1:n
+        x1 = xt(ii, 1); x2 = xt(ii, 2);
+        ytruth_on_mcmcgrid(ii) = 0.025 * (x1 + x2)^2;
+    end
     
 else
     error('Shape not recognized.')

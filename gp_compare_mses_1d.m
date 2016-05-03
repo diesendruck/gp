@@ -69,12 +69,12 @@ iter = 0;                  % Counter for iterations.
 n = 100;                   % Data sample size. Ignored if do_grid=1.
 d = 1;                     % Dimension of data points.
 do_grid = 1;               % Indicator for whether to generate random data, or grid data.
-data_grid_gran = 10;       % Number of points per dimension. 10 means 10x1 for d=1.
+data_grid_gran = 100;       % Number of points per dimension. 10 means 10x1 for d=1.
 
 gp_optimization = 'mcmc';  % "mcmc" or "map" to select GP optimization type. 
                            % TODO: MAP not adjusted for test data.
 ls_factor = 0.3;           % Lengthscale factor ([0, 1] proportion of x-range).
-mesh_gran = 20;            % Number of ticks on mesh for plotting.
+mesh_gran = 200;            % Number of ticks on mesh for plotting.
 
 if 0
     num_posteriors = 120;      % Number of posterior mcmc samples to generate.
@@ -85,11 +85,11 @@ if 0
 end
 
 if 1
-    num_posteriors = 1000;      % Number of posterior mcmc samples to generate.
+    num_posteriors = 500;      % Number of posterior mcmc samples to generate.
     desired = 50;              % Number of posterior mcmc samples to use.
-    mbcr_burn = 500;            % Number of burn-in for MBCR estimate.
-    mbcr_tot = 1000;             % Number of total samples for MBCR estimate.
-    num_global_iters = 10;      % Number of MSEs to produce per shape.
+    mbcr_burn = 5;            % Number of burn-in for MBCR estimate.
+    mbcr_tot = 10;             % Number of total samples for MBCR estimate.
+    num_global_iters = 3;      % Number of MSEs to produce per shape.
 end
 
 

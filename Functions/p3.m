@@ -13,12 +13,12 @@ function [x, y] = p3(x, y, varargin)
 %scatter3(x(:,1), x(:,2), y);
 
 if nargin > 2
-    mesh_gran = varargin{1}
+    mesh_gran = varargin{1};
 else
-    mesh_gran = 2*sqrt(length(x))
+    mesh_gran = 2*sqrt(length(x));
 end
 
-figure; 
+%figure; 
 do_buffer = 0;
 [~, ~, ~, ~, ~, ~, xt1, xt2, xt] = compute_mesh_info(x, mesh_gran, ...
     do_buffer);

@@ -11,7 +11,7 @@ function y_cm = convex_monotone_2d(x_nsy, y_nsy)
 %% SETUP
 
 % Toggle plotting.
-do_plot = 1;
+do_plot = 0;
 
 % Define convergence indicator and max number of iterations of while loop.
 iter = 1;
@@ -146,8 +146,8 @@ while (iter < max_iter)
 end
 
 % Compute MSE for convex projection, after projections converge.
-latest_f_conv = f_conv(:, :, size(f_conv, 3))
-mse_iter_converge = 1/length(xt) * norm(latest_f_conv(:) - ytruth)^2;
+y_cm = f_conv(:, :, size(f_conv, 3));
+mse_iter_converge = 1/length(xt) * norm(y_cm(:) - ytruth)^2;
 
 
 %% SHOW RESULT

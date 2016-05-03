@@ -16,7 +16,7 @@ function [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy,...
 
 % Plots MCMC traceplots. Turn off during global run to make figures work
 % properly.
-do_diagnostics = 1;
+do_diagnostics = 0;
 
 
 %% STEP 0. Establish boundary of data, to make grid for surface.

@@ -1,4 +1,4 @@
-function Pmono = monotone_2d(x_nsy, y_nsy)
+function f = monotone_2d(x_nsy, y_nsy)
 % Project vector to monotone space.
 %
 % Args:
@@ -6,10 +6,12 @@ function Pmono = monotone_2d(x_nsy, y_nsy)
 %   y_nsy: Matrix (nx1) of noisy response values.
 %
 % Returns:
-%   Pmono: Matrix (sqrt(n)xsqrt(n)) of the monotone response variable.
+%   x1: First dimension matrix of meshgrid.
+%   x2: Second dimension matrix of meshgrid.
+%   f: Matrix (sqrt(n)xsqrt(n)) of the monotone response variable.
 
 % Toggle plotting.
-do_plot = 1;
+do_plot = 0;
 
 % Define convergence indicator and max number of iterations of while loop.
 iter = 1;
@@ -99,9 +101,11 @@ while (iter < max_iter)
     
 end
 
+% Result is latest column projection.
+f = f_col(:, :, max(size(f_col, 3)));
+
 % Show last projection.
 if do_plot
-    f = f_col(:, :, max(size(f_col, 3)));
     figure; surf(x1, x2, f); hold on;
     p3(x_nsy, ytruth);
     %scatter3(x_nsy(:,1), x_nsy(:,2), ytruth, ones(100, 1)*30, 'r', 'filled')

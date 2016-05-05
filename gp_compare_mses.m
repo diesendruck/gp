@@ -71,18 +71,18 @@ d = 2;                     % Dimension of data points.
 do_grid = 1;               % Indicator for whether to generate random data, or grid data.
 data_grid_gran = 10;        % Number of points per dimension. 10 means 10x10 for d=2.
 
-ls_factor = 0.3;           % Lengthscale factor (proportion of x-range).
+ls_factor = 0.5;           % Lengthscale factor (proportion of x-range).
 mesh_gran = 20;            % Number of ticks on mesh for plotting.
 
-if 0
-    num_posteriors = 120;      % Number of posterior mcmc samples to generate.
+if 1
+    num_posteriors = 50;      % Number of posterior mcmc samples to generate.
     desired = 1;              % Number of posterior mcmc samples to use.
     mbcr_burn = 1;            % Number of burn-in for MBCR estimate.
     mbcr_tot = 2;             % Number of total samples for MBCR estimate.
     num_global_iters = 1;      % Number of MSEs to produce per shape.
 end
 
-if 1
+if 0
     num_posteriors = 2000;      % Number of posterior mcmc samples to generate.
     desired = 50;              % Number of posterior mcmc samples to use.
     mbcr_burn = 500;            % Number of burn-in for MBCR estimate.
@@ -103,7 +103,7 @@ fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj,sen,cap,mbcr\n');
 % Try with only "flatter" surfaces.
 shapes = {'chair', 'parabolic_cylinder', 'wolverine', 'trough', ...
     'paraboloid', 'hand', 'exponential', 'hannah2'};
-%shapes = {'chair', 'parabolic_cylinder'};
+shapes = {'chair'};
 
 
 % Run experiment for each shape.

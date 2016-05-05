@@ -1,5 +1,7 @@
 % Convex and Monotone Projections of Gaussian Processes.
 
+start_time = tic;
+
 % Set up constants.
 verbose = 1;
 do_plot = 1;
@@ -10,11 +12,11 @@ n = 100;
 d = 2;
 shape = 'cm1';
 data_grid_gran = 10;
-ls_factor = 0.3;
-num_posteriors = 1000;
+ls_factor = 0.5;
+num_posteriors = 2000;
 desired = 50;
 mesh_gran = 2*data_grid_gran;
-dim = sqrt(length(x_nsy));
+dim = data_grid_gran;
 
 % Make test data.
 [x_nsy, ~, y_nsy, ~] = make_noisy_convex(n, d, shape, do_grid, ...
@@ -49,6 +51,9 @@ if do_plot
     surf(xt1, xt2, yq_conv); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
     title('True Convex');
+    
+    % Store original plot axis limits.
+    xl = xlim; yl = ylim; zl = zlim;
 end
 
 
@@ -74,7 +79,9 @@ for index = 1:n_entries
     y_smp = Eft_s(:, randi(posterior_sample_count));
     mcmcs(:, index) = y_smp;
     % Get convex projection of sample, and store it as a column in projs.
+    c_time = tic;
     y_smp_convex = project_to_convex(n_gp, d, xt, y_smp, eps1, eps2);
+    disp(sprintf('(Convex 2D) Time: %d', toc(c_time)))
     projs(:, index) = y_smp_convex;
 end
 
@@ -95,6 +102,9 @@ if do_plot
     surf(xt1, xt2, yq_mcmc); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
     title(sprintf('Avg GP (MSE = %d)', mse_gp));
+    
+    % Set axis limits to match original plot.
+    xlim(xl); ylim(yl); zlim(zl);
 
     % Plot avg proj over original data.
     subplot(2, 3, 3); 
@@ -102,12 +112,18 @@ if do_plot
     surf(xt1, xt2, yq_proj); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
     title(sprintf('Avg GP Conv (MSE = %d)', mse_gp_proj));
+    
+    % Set axis limits to match original plot.
+    xlim(xl); ylim(yl); zlim(zl);
 end
 
 gp_proj_time_elapsed = toc(gp_proj_start_time);
 
 
 %% MONOTONE PROJECTION OF AVG GP.
+% Time subroutine.
+m_time = tic;
+
 f = monotone_2d(x_nsy, y_mcmc_test);
 f_mono = griddata(tt(:, 1), tt(:, 2), f(:), xt1, xt2);
 mse_mono = 1/length(tt) * norm(f(:) - ytruth_on_test)^2;
@@ -117,8 +133,16 @@ surf(xt1, xt2, f_mono); hold on;
 plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
 title(sprintf('Avg GP Monotone (MSE = %d)', mse_mono));
 
+% Set axis limits to match original plot.
+xlim(xl); ylim(yl); zlim(zl);
+
+% Report time of subroutine.
+disp(sprintf('(Monotone 2D) Time: %d', toc(m_time)))
 
 %% CONVEX MONOTONE PROJECTION OF AVG GP.
+% Time subroutine.
+cm_time = tic;
+
 f = convex_monotone_2d(x_nsy, y_mcmc_test);
 f_cm = griddata(tt(:, 1), tt(:, 2), f(:), xt1, xt2);
 mse_cm = 1/length(tt) * norm(f(:) - ytruth_on_test)^2;
@@ -127,3 +151,11 @@ subplot(2, 3, 6);
 surf(xt1, xt2, f_cm); hold on;
 plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
 title(sprintf('Avg GP Conv+Mono (MSE = %d)', mse_cm));
+
+% Set axis limits to match original plot.
+xlim(xl); ylim(yl); zlim(zl);
+
+% Report time of subroutine.
+disp(sprintf('(Convex Monotone 2D) Time: %d', toc(cm_time)))
+
+toc(start_time)

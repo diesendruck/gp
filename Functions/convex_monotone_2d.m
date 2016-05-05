@@ -98,7 +98,8 @@ while (iter < max_iter)
     latest_f_row = f_row(:, :, size(f_row, 3));
     latest_f_col = f_col(:, :, size(f_col, 3));
     if 1/numel(f_init) * norm(latest_f_row - latest_f_col)^2 < eps
-        sprintf('Converged at iter %s', num2str(iter))
+        disp(sprintf('(Convex Monotone 2D) Converged at iter %s', ...
+            num2str(iter)))
         break
     end
     
@@ -106,7 +107,7 @@ while (iter < max_iter)
     latest_r_col = r_col(:, :, size(r_col, 3));
     latest_r_conv = r_conv(:, :, size(r_conv, 3));
     
-    % Get new row projection, and its residual.
+    % Get new ROW PROJECTION, and its residual.
     % Pre-allocate space for proj.
     new_f_row = zeros(size(f_init));
     % Use initial, plus latest column and convex residuals.
@@ -116,7 +117,7 @@ while (iter < max_iter)
     end
     new_r_row = new_f_row - f;
     
-    % Get column projection, and its residual.
+    % Get new COLUMN PROJECTION, and its residual.
     % Pre-allocate space for proj.
     new_f_col = zeros(size(f_init));
     % Use initial, plus latest convex residual and row residual above.
@@ -126,7 +127,7 @@ while (iter < max_iter)
     end
     new_r_col = new_f_col - f;
     
-    % Get convex projection, and its residual.
+    % Get new CONVEX PROJECTION, and its residual.
     % Use initial, plus row residual above and column residual above.
     f = f_init + new_r_row + new_r_col;
     new_f_conv = convex_2d(x_nsy, f(:));

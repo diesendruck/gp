@@ -60,7 +60,7 @@ while (iter < max_iter)
     latest_f_row = f_row(:, :, max(size(f_row, 3)));
     latest_f_col = f_col(:, :, max(size(f_col, 3)));
     if 1/numel(f_init) * norm(latest_f_row - latest_f_col)^2 < eps
-        sprintf('Converged at iter %s', num2str(iter))
+        disp(sprintf('(Monotone 2D) Converged at iter %s', num2str(iter)))
         break
     end
     

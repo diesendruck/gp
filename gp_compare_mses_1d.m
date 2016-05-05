@@ -73,18 +73,18 @@ data_grid_gran = 100;       % Number of points per dimension. 10 means 10x1 for 
 
 gp_optimization = 'mcmc';  % "mcmc" or "map" to select GP optimization type. 
                            % TODO: MAP not adjusted for test data.
-ls_factor = 0.3;           % Lengthscale factor ([0, 1] proportion of x-range).
+ls_factor = 0.5;           % Lengthscale factor ([0, 1] proportion of x-range).
 mesh_gran = 200;            % Number of ticks on mesh for plotting.
 
-if 0
+if 1
     num_posteriors = 120;      % Number of posterior mcmc samples to generate.
-    desired = 5;              % Number of posterior mcmc samples to use.
-    mbcr_burn = 5;            % Number of burn-in for MBCR estimate.
-    mbcr_tot = 10;             % Number of total samples for MBCR estimate.
+    desired = 2;              % Number of posterior mcmc samples to use.
+    mbcr_burn = 1;            % Number of burn-in for MBCR estimate.
+    mbcr_tot = 2;             % Number of total samples for MBCR estimate.
     num_global_iters = 1;      % Number of MSEs to produce per shape.
 end
 
-if 1
+if 0
     num_posteriors = 500;      % Number of posterior mcmc samples to generate.
     desired = 50;              % Number of posterior mcmc samples to use.
     mbcr_burn = 5;            % Number of burn-in for MBCR estimate.

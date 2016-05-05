@@ -15,7 +15,7 @@ function [Eft_s, posterior_sample_count] = run_gpmc_1d(x_nsy, y_nsy, ...
 
 % Plots MCMC traceplots. Turn off during global run to make figures work
 % properly.
-do_diagnostics = 0;
+do_diagnostics = 1;
 
 
 %% STEP 0. Establish boundary of data, to make grid for surface.
@@ -39,7 +39,7 @@ pmg = prior_invgamma('sh', 1, 's', 1);
 %pmg = prior_gamma('sh', 2, 'is', 2);
 pns = prior_sinvchi2('s2', 0.1,'nu', length(x_nsy));
 %pls = prior_invgamma('sh', 2, 's', length_scale(1));
-pls = prior_gamma('sh', 15*length_scale, 'is', 5*length_scale);
+pls = prior_gamma('sh', 10*length_scale, 'is', 10*1);
 
 % Assemble covariance function with priors, and assemple gaussian process.
 lik = lik_gaussian(lik, 'sigma2_prior', pns);

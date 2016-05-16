@@ -39,7 +39,7 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_sen, ...
 
 % Toggle plotting on and off.
 do_plot = 1;
-verbose = 0;
+verbose = 1;
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
 [x_nsy_nojit, x_nsy, y_nsy_nojit, y_nsy] = make_noisy_convex(n, d, ...
@@ -60,7 +60,7 @@ ytruth_on_test = compute_truth_from_xt(tt, shape);
 
 if do_plot
     yq_conv = griddata(xt(:, 1), xt(:, 2), ytruth_on_grid, xt1, xt2);
-    figure; subplot(3, 3, 1);
+    f = figure; subplot(3, 3, 1);
     mesh(xt1, xt2, yq_conv); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
     title('True Convex');
@@ -285,4 +285,16 @@ fprintf(fid, '%s,%s,%s,%s,%s,%s,%s,%s\n', shape, ...
         num2str(mse_cap, '%0.7f'),...
         num2str(mse_mbcr, '%0.7f')); 
 
+if verbose
+    savefig(f, 'emailed.fig');
+    if strcmp(platform, 'mac')
+        sendmail('momod@utexas.edu', 'Figure mac', '', ...
+            {'/home/momod/Documents/gp/emailed.fig'});
+    elseif strcmp(platform, 'linux')
+        sendmail('momod@utexas.edu', 'Figure mac', '', ...
+            {'/Users/mauricediesendruck/Google Drive/0-LIZHEN RESEARCH/gp/emailed.fig'});
+    end
 end
+
+end
+

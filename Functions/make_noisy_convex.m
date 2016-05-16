@@ -242,7 +242,15 @@ y_nsy = f + noise;
 y_nsy_jit = f_jit + noise;
 
 if do_plot
-    p3(x_nsy, y_nsy);
+    %p3(x_nsy, y_nsy);
+    % Plot the true surface, with noisy points on top.
+    do_buffer = 0;
+    [~, ~, ~, ~, ~, ~, xt1, xt2, xt] = compute_mesh_info(x_nsy, mesh_gran, ...
+        do_buffer);
+    yq = griddata(x_nsy(:, 1), x_nsy(:, 2), f, xt1, xt2);
+    mesh(xt1, xt2, yq); hold on;
+    plot3(x_nsy_jit(:, 1), x_nsy_jit(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
+    title(strrep(shape, '_', '\_'));
 end
 
 end

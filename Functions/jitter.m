@@ -20,19 +20,19 @@ for i = 2:(length(x_nsy)-1)
     % For each component, if min, jitter up; if max, jitter down; otherwise
     % jitter randomly.
     if x1 == x1_l
-        x_nsy_jit(i, 1) = x_nsy(i, 1) + abs((1e-6)*x1_range*randn());
+        x_nsy_jit(i, 1) = x_nsy(i, 1) + abs((5e-3)*x1_range*randn());
     elseif x1 == x1_h
-        x_nsy_jit(i, 1) = x_nsy(i, 1) - abs((1e-6)*x1_range*randn());
+        x_nsy_jit(i, 1) = x_nsy(i, 1) - abs((5e-3)*x1_range*randn());
     else
-        x_nsy_jit(i, 1) = x_nsy(i, 1) + (1e-6)*x1_range*randn();
+        x_nsy_jit(i, 1) = x_nsy(i, 1) + (5e-3)*x1_range*randn();
     end
     
     if x2 == x2_l
-        x_nsy_jit(i, 2) = x_nsy(i, 2) + abs((1e-6)*x2_range*randn());
+        x_nsy_jit(i, 2) = x_nsy(i, 2) + abs((5e-3)*x2_range*randn());
     elseif x2 == x2_h
-        x_nsy_jit(i, 2) = x_nsy(i, 2) - abs((1e-6)*x2_range*randn());
+        x_nsy_jit(i, 2) = x_nsy(i, 2) - abs((5e-3)*x2_range*randn());
     else
-        x_nsy_jit(i, 2) = x_nsy(i, 2) + (1e-6)*x2_range*randn();
+        x_nsy_jit(i, 2) = x_nsy(i, 2) + (5e-3)*x2_range*randn();
     end
     
 end

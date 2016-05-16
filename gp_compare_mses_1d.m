@@ -68,7 +68,7 @@ iter = 0;                  % Counter for iterations.
 
 n = 100;                   % Data sample size. Ignored if do_grid=1.
 d = 1;                     % Dimension of data points.
-do_grid = 1;               % Indicator for whether to generate random data, or grid data.
+do_grid = 0;               % Indicator for whether to generate random data, or grid data.
 data_grid_gran = 100;       % Number of points per dimension. 10 means 10x1 for d=1.
 
 gp_optimization = 'mcmc';  % "mcmc" or "map" to select GP optimization type. 

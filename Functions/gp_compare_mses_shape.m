@@ -286,11 +286,12 @@ fprintf(fid, '%s,%s,%s,%s,%s,%s,%s,%s\n', shape, ...
         num2str(mse_mbcr, '%0.7f')); 
 
 if verbose
+    platform = 'linux'
     savefig(f, 'emailed.fig');
-    if strcmp(platform, 'mac')
+    if strcmp(platform, 'linux')
         sendmail('momod@utexas.edu', 'Figure mac', '', ...
             {'/home/momod/Documents/gp/emailed.fig'});
-    elseif strcmp(platform, 'linux')
+    elseif strcmp(platform, 'mac')
         sendmail('momod@utexas.edu', 'Figure mac', '', ...
             {'/Users/mauricediesendruck/Google Drive/0-LIZHEN RESEARCH/gp/emailed.fig'});
     end

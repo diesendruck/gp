@@ -41,7 +41,7 @@ function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_sen, ...
 
 % Toggle plotting on and off.
 do_plot = 1;
-verbose = 1;
+verbose = 0;
 
 %% SIMULATE RAW DATA (CONVEX + NOISE).
 [x_nsy_nojit, x_nsy, y_nsy_nojit, y_nsy] = make_noisy_convex(n, d, ...
@@ -66,6 +66,9 @@ if do_plot
     mesh(xt1, xt2, yq_conv); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
     title('True Convex');
+    
+    % Standardize z-axis.
+    zl = zlim;
 end
 
 
@@ -117,13 +120,17 @@ if do_plot
     subplot(3, 3, 2);
     mesh(xt1, xt2, y_kern); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('Kernel (MSE = %d)', mse_kern));
+    title(sprintf('Kernel (MSE = %s)', num2str(mse_kern, '%0.3f')));
+    % Standardize z-axis.
+    zlim(zl);
 
     subplot(3, 3, 3);
     yq_proj = griddata(xt(:, 1), xt(:, 2), y_kern_proj, xt1, xt2);
     mesh(xt1, xt2, yq_proj); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('Kernel Proj (MSE = %d)', mse_kern_proj));
+    title(sprintf('Kernel Proj (MSE = %s)', num2str(mse_kern_proj, '%0.3f')));
+    % Standardize z-axis.
+    zlim(zl);
 end
 
 
@@ -173,14 +180,18 @@ if do_plot
     yq_mcmc = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, xt1, xt2);
     mesh(xt1, xt2, yq_mcmc); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('Avg GP (MSE = %d)', mse_gp));
+    title(sprintf('Avg GP (MSE = %s)', num2str(mse_gp, '%0.3f')));
+    % Standardize z-axis.
+    zlim(zl);
 
     % Plot avg proj over original data.
     subplot(3, 3, 6); 
     yq_proj = griddata(xt(:, 1), xt(:, 2), avg_projs, xt1, xt2);
     mesh(xt1, xt2, yq_proj); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('Avg GP Proj (MSE = %d)', mse_gp_proj));
+    title(sprintf('Avg GP Proj (MSE = %s)', num2str(mse_gp_proj, '%0.3f')));
+    % Standardize z-axis.
+    zlim(zl);
 end
 
 gp_proj_time_elapsed = toc(gp_proj_start_time);
@@ -199,7 +210,9 @@ if do_grid
         plot3(x_nsy_nojit(:, 1), x_nsy_nojit(:, 2), y_sen_test, 'b.', ...
             'MarkerSize', 20);
         grid on;
-        title(sprintf('Sen (MSE = %d)', mse_sen));
+        title(sprintf('Sen (MSE = %s)', num2str(mse_sen, '%0.3f')));
+        % Standardize z-axis.
+        zlim(zl);
     end
 else
     mse_sen = 1e10;
@@ -224,7 +237,9 @@ if do_plot
     yq_cap = griddata(xt(:, 1), xt(:, 2), y_cap, xt1, xt2);
     mesh(xt1, xt2, yq_cap); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('CAP (MSE = %d)', mse_cap));
+    title(sprintf('CAP (MSE = %s)', num2str(mse_cap, '%0.3f')));
+    % Standardize z-axis.
+    zlim(zl);
 end
 
 
@@ -250,7 +265,9 @@ if do_plot
     yq_mbcr = griddata(xt(:, 1), xt(:, 2), y_mbcr, xt1, xt2);
     mesh(xt1, xt2, yq_mbcr); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('MBCR (MSE = %d)', mse_mbcr));
+    title(sprintf('MBCR (MSE = %s)', num2str(mse_mbcr, '%0.3f')));
+    % Standardize z-axis.
+    zlim(zl);
 end
 
 mbcr_time_elapsed = toc(mbcr_start_time);

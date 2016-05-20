@@ -235,8 +235,8 @@ for i = 1:num_global_iters;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
     title(sprintf('AvgGP Conv+Mono (MSE = %s)', num2str(mse_gp_cm, '%0.3f')));
 
-    % Set axis limits to match original plot.
-    xlim(xl); ylim(yl); zlim(zl);
+    % Set z-axis limits to match original plot.
+    zlim(zl);
 
     % Report time of subroutine.
     fprintf('(AvgGP Convex Monotone 2D) Time: %d\n', toc(gp_cm_time))
@@ -337,8 +337,8 @@ for i = 1:num_global_iters;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
     title(sprintf('Kernel Conv+Mono (MSE = %s)', num2str(mse_kern_cm, '%0.3f')));
 
-    % Set axis limits to match original plot.
-    xlim(xl); ylim(yl); zlim(zl);
+    % Set z-axis limits to match original plot.
+    zlim(zl);
 
     % Report time of subroutine.
     fprintf('(Kernel Convex Monotone 2D) Time: %d\n', toc(kern_cm_time))

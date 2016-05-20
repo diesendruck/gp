@@ -23,16 +23,12 @@ do_plot = 1;               % Whether to make plots, versus just results by email
 if 1
     num_posteriors = 50;      % Number of posterior mcmc samples to generate.
     desired = 5;              % Number of posterior mcmc samples to use.
-    mbcr_burn = 1;            % Number of burn-in for MBCR estimate.
-    mbcr_tot = 2;             % Number of total samples for MBCR estimate.
     num_global_iters = 1;      % Number of MSEs to produce per shape.
 end
 
 if 0
     num_posteriors = 2000;      % Number of posterior mcmc samples to generate.
     desired = 50;              % Number of posterior mcmc samples to use.
-    mbcr_burn = 500;            % Number of burn-in for MBCR estimate.
-    mbcr_tot = 1000;             % Number of total samples for MBCR estimate.
     num_global_iters = 15;      % Number of MSEs to produce per shape.
 end
 

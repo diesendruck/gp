@@ -2,34 +2,35 @@
 
 start_time = tic;
 
-% Set up constants.
+%% CONSTANTS
 tol_thres = 0;
-eps1 = 1e-5;              % These 2 epsilons are used for convergence of the
-eps2 = 1e-5;              %   convex projection algorithm.
-iter = 0;                  % Counter for iterations.
+eps1 = 1e-5;                % These 2 epsilons are used for convergence of the
+eps2 = 1e-5;                %   convex projection algorithm.
+iter = 0;                   % Counter for iterations.
 
-n = 100;                   % Data sample size. Only relevant if do_grid=0.
-d = 2;                     % Dimension of data points. 
-do_grid = 1;               % Indicator for whether to generate random data, or grid data.
-data_grid_gran = 10;       % Number of points per dimension. 10 means 10x10 for d=2.
+n = 100;                    % Data sample size. Only relevant if do_grid=0.
+d = 2;                      % Dimension of data points. 
+do_grid = 1;                % Indicator for whether to generate random data, or grid data.
+data_grid_gran = 10;        % Number of points per dimension. 10 means 10x10 for d=2.
 dim = data_grid_gran;
-mesh_gran = 2*dim;         % Number of ticks on mesh for plotting.
-ls_factor = 0.5;           % Lengthscale factor (proportion of x-range).
+mesh_gran = 2*dim;          % Number of ticks on mesh for plotting.
+ls_factor = 0.5;            % Lengthscale factor (proportion of x-range).
 
-verbose = 1;               % Whether to print things to console.
-do_plot = 1;               % Whether to make plots, versus just results by email.
+verbose = 1;                % Whether to print things to console.
+do_plot = 1;                % Whether to make plots, versus just results by email.
 
-
+% Short run.
 if 1
-    num_posteriors = 50;      % Number of posterior mcmc samples to generate.
-    desired = 5;              % Number of posterior mcmc samples to use.
-    num_global_iters = 1;      % Number of MSEs to produce per shape.
+    num_posteriors = 50;    % Number of posterior mcmc samples to generate.
+    desired = 2;            % Number of posterior mcmc samples to use.
+    num_global_iters = 1;   % Number of MSEs to produce per shape.
 end
 
+% Full run.
 if 0
-    num_posteriors = 2000;      % Number of posterior mcmc samples to generate.
-    desired = 50;              % Number of posterior mcmc samples to use.
-    num_global_iters = 15;      % Number of MSEs to produce per shape.
+    num_posteriors = 2000;  % Number of posterior mcmc samples to generate.
+    desired = 50;           % Number of posterior mcmc samples to use.
+    num_global_iters = 15;  % Number of MSEs to produce per shape.
 end
 
 % Choose platform 'mac' or 'linux'.
@@ -67,7 +68,7 @@ elseif strcmp(platform, 'linux');  % Linux version.
 end
 
 
-%% SETUP EMAIL PARAMS.
+%% EMAIL PARAMS
 myaddress = 'eltegog@gmail.com';
 myp = 'T0g.eltegog';
 setpref('Internet','E_mail',myaddress);
@@ -88,12 +89,12 @@ fprintf(fid, 'data_shape,gp,gp_conv,gp_mono,gp_cm,kern,kern_conv,kern_mono,kern_
     
 %% GLOBAL RUN
 for i = 1:num_global_iters;   
-    %% Make test data.
+    %% MAKE TEST DATA
     [x_nsy, ~, y_nsy, ~] = make_noisy_convex(n, d, shape, do_grid, ...
         data_grid_gran);
 
 
-    %% SHOW ORIGINAL CONVEX MONOTONE DATA
+    %% ORIGINAL CONVEX MONOTONE DATA
     % Get associated data about noisy data set.
     do_buffer = 0;
     [~, ~, ~, ~, ~, ~, xt1, xt2, xt] = compute_mesh_info(x_nsy, mesh_gran, ...
@@ -128,8 +129,7 @@ for i = 1:num_global_iters;
     end
 
 
-    %% COMPUTE AVERAGE FROM SAMPLES OF GP POSTERIOR MCMC, AVERAGE OF 
-    %% PROJECTIONS OF EACH, AND MSES OF RESPECTIVE AVERAGES.
+    %% GP POSTERIORS, THEIR CONVEX PROJECTIONS, AVERAGES, AND MSESs
     gp_c_time = tic;
 
     % Get samples from GP posterior MCMC, project each to convex, and store.
@@ -242,7 +242,7 @@ for i = 1:num_global_iters;
     fprintf('(AvgGP Convex Monotone 2D) Time: %d\n', toc(gp_cm_time))
 
 
-    %% COMPUTE KERNEL REGRESSION, ITS CONVEX PROJECTION, AND RESPECTIVE MSES.
+    %% KERNEL REGRESSION, ITS CONVEX PROJECTION, AND MSES.
     % Time subroutine.
     kern_c_time = tic;
 
@@ -379,11 +379,11 @@ fclose(fid);
    
 if strcmp(platform, 'mac')
     sendmail('momod@utexas.edu', 'RESULTS mac: CM_MSE', ...
-        sprintf('Total time: %s', num2str(toc(start_time)), '%0.2f'), ...
+        sprintf('Total time: %s', num2str(toc(start_time), '%0.2f')), ...
         {'/Users/mauricediesendruck/Google Drive/0-LIZHEN RESEARCH/gp/Results_2d/cm_mses.csv'});
 elseif strcmp(platform, 'linux')
     sendmail('momod@utexas.edu', 'RESULTS linux: CM_MSE', ...
-        sprintf('Total time: %s', num2str(toc(start_time)), '%0.2f'), ...
+        sprintf('Total time: %s', num2str(toc(start_time), '%0.2f')), ...
         {'/home/momod/Documents/gp/Results_2d/cm_mses.csv'});
 end
 

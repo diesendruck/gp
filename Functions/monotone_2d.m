@@ -1,4 +1,4 @@
-function f = monotone_2d(x_nsy, y_nsy)
+function [f, iter] = monotone_2d(x_nsy, y_nsy)
 % Project vector to monotone space.
 %
 % Args:
@@ -6,9 +6,8 @@ function f = monotone_2d(x_nsy, y_nsy)
 %   y_nsy: Matrix (nx1) of noisy response values.
 %
 % Returns:
-%   x1: First dimension matrix of meshgrid.
-%   x2: Second dimension matrix of meshgrid.
 %   f: Matrix (sqrt(n)xsqrt(n)) of the monotone response variable.
+%   iter: Integer of the iteration at which the algorithm converged.
 
 % Toggle plotting.
 do_plot = 0;

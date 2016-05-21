@@ -14,7 +14,7 @@
 
 start_time = tic
 platform = 'mac';
-platform = 'linux';
+%platform = 'linux';
             
 
 %% IMPORT GPSTUFF AND SET PATHS.

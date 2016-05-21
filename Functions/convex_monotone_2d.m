@@ -1,4 +1,4 @@
-function y_cm = convex_monotone_2d(x_nsy, y_nsy)
+function [y_cm, iter] = convex_monotone_2d(x_nsy, y_nsy)
 % Projects 2D data to convex monotone (cm).
 %
 % Args:
@@ -7,6 +7,8 @@ function y_cm = convex_monotone_2d(x_nsy, y_nsy)
 %
 % Returns:
 %   y_cm: Matrix (sqrt(n)xsqrt(n)) of convex monotone response variable.
+%   iter: Integer of the iteration at which the algorithm converged.
+
 
 %% SETUP
 

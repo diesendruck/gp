@@ -15,48 +15,9 @@
 start_time = tic
 platform = 'mac';
 %platform = 'linux';
-            
 
-%% IMPORT GPSTUFF AND SET PATHS.
-if strcmp(platform, 'mac');  % Mac version.
-    cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/GPstuff-4.6/
-    matlab_install
-    cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/Programs/
-    run_mex_commands();
-    cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/')
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Programs')
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Functions')
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Smoothing')
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/convex-function')
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/mbcr')
-elseif strcmp(platform, 'linux');  % Linux version.
-    cd ~/Documents/gp/GPstuff-4.6/
-    matlab_install
-    cd ~/Documents/gp/Programs/
-    run_mex_commands();
-    cd ~/Documents/gp/
-    addpath('~/Documents/gp/')
-    addpath('~/Documents/gp/Programs')
-    addpath('~/Documents/gp/Functions')
-    addpath('~/Documents/gp/Smoothing')
-    addpath('~/Documents/gp/convex-function')
-    addpath('~/Documents/gp/mbcr')
-end
-
-
-%% SETUP EMAIL PARAMS.
-myaddress = 'eltegog@gmail.com';
-myp = 'T0g.eltegog';
-setpref('Internet','E_mail',myaddress);
-setpref('Internet','SMTP_Server','smtp.gmail.com');
-setpref('Internet','SMTP_Username',myaddress);
-setpref('Internet','SMTP_Password',myp);
-props = java.lang.System.getProperties;
-props.setProperty('mail.smtp.auth','true');
-props.setProperty('mail.smtp.socketFactory.class', ...
-    'javax.net.ssl.SSLSocketFactory');
-props.setProperty('mail.smtp.socketFactory.port','465');
+% Import GPstuff, set paths, and setup email params.
+setup_directories_and_email(platform);
 
 
 %% SET CONSTANTS.
@@ -76,7 +37,7 @@ mesh_gran = 20;            % Number of ticks on mesh for plotting.
 
 if 1
     num_posteriors = 50;      % Number of posterior mcmc samples to generate.
-    desired = 5;              % Number of posterior mcmc samples to use.
+    desired = 2;              % Number of posterior mcmc samples to use.
     mbcr_burn = 1;            % Number of burn-in for MBCR estimate.
     mbcr_tot = 2;             % Number of total samples for MBCR estimate.
     num_global_iters = 1;      % Number of MSEs to produce per shape.
@@ -104,7 +65,6 @@ fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj,sen,cap,mbcr\n');
 shapes = {'chair', 'parabolic_cylinder', 'wolverine', 'trough', ...
     'paraboloid', 'hand', 'exponential', 'hannah2'};
 shapes = {'wolverine'};
-
 
 % Run experiment for each shape.
 for ii = 1:num_global_iters

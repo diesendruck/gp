@@ -92,27 +92,39 @@ end
 % Project to convex.
 y_kern_proj = project_to_convex(length(xt), d, xt, y_kern(:), eps1, eps2);
 
+% Evaluate mcmc and proj estimates on test points.
+y_kern_test = griddata(xt(:, 1), xt(:, 2), y_kern(:), t1, t2);
+y_kern_proj_test = griddata(xt(:, 1), xt(:, 2), y_kern_proj, t1, t2);
+mse_kern = 1/length(tt) * norm(y_kern_test(:) - ytruth_on_test)^2;
+mse_kern_proj = 1/length(tt) * norm(y_kern_proj_test(:) - ytruth_on_test)^2;
+
+
 % Compute mses on mesh xt.
 %mse_kern = 1/length(xt) * norm(y_kern(:) - ytruth_on_grid)^2;
 %mse_kern_proj = 1/length(xt) * norm(y_kern_proj - ytruth_on_grid)^2;
+% figure; p3(xt, y_kern_proj); hold on; 
+% plot3(x_nsy(:,1), x_nsy(:,2), y_nsy, 'r.', 'markersize', 20);
+% 
+% figure; p3(tt, y_kern_test_proj); hold on; 
+% plot3(x_nsy(:,1), x_nsy(:,2), y_nsy, 'r.', 'markersize', 20);
 
 % --------TEST MESH--------
 % Kernel regression on test data.
-y_kern_test = zeros(size(t1));
-for ii = 1:size(t1, 1)
-    for jj = 1:size(t1, 2)
-        xk = [t1(ii, jj); t2(ii, jj)];
-        y_kern_test(ii, jj) = gaussian_kern_reg(xk, x_nsy_nojit', ...
-                                                y_nsy_nojit', h);
-    end
-end
+% y_kern_test = zeros(size(t1));
+% for ii = 1:size(t1, 1)
+%     for jj = 1:size(t1, 2)
+%         xk = [t1(ii, jj); t2(ii, jj)];
+%         y_kern_test(ii, jj) = gaussian_kern_reg(xk, x_nsy_nojit', ...
+%                                                 y_nsy_nojit', h);
+%     end
+% end
 
 % Project to convex.
-y_kern_test_proj = project_to_convex(length(tt), d, tt, y_kern_test(:), eps1, eps2);
+% y_kern_test_proj = project_to_convex(length(tt), d, tt, y_kern_test(:), eps1, eps2);
 
 % Compute mses on test data.
-mse_kern = 1/length(tt) * norm(y_kern_test(:) - ytruth_on_test)^2;
-mse_kern_proj = 1/length(tt) * norm(y_kern_test_proj - ytruth_on_test)^2;
+% mse_kern = 1/length(tt) * norm(y_kern_test(:) - ytruth_on_test)^2;
+% mse_kern_proj = 1/length(tt) * norm(y_kern_test_proj - ytruth_on_test)^2;
 
 
 % Plot kernel regression and convex projection over original data.

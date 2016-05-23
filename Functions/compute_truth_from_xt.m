@@ -67,6 +67,24 @@ elseif strcmp(shape, 'cm1')
         ytruth_on_mcmcgrid(ii) = 0.025 * (x1 + x2)^2;
     end
     
+elseif strcmp(shape, 'cm2')
+    for ii = 1:n
+        x1 = xt(ii, 1); x2 = xt(ii, 2);
+        ytruth_on_mcmcgrid(ii) = 0.0005 * (x1^4 + x2^4);
+    end
+
+elseif strcmp(shape, 'cm3')
+    for ii = 1:n
+        x1 = xt(ii, 1); x2 = xt(ii, 2);
+        ytruth_on_mcmcgrid(ii) = 0.00005 * (x1^5 + x2^5);
+    end
+
+elseif strcmp(shape, 'cm4')
+    for ii = 1:n
+        x1 = xt(ii, 1); x2 = xt(ii, 2);
+        ytruth_on_mcmcgrid(ii) = 0.00000005 * (x1^8 + x2^8);
+    end
+ 
 else
     error('Shape not recognized.')
 end

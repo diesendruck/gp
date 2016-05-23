@@ -38,7 +38,7 @@ end
 platform = 'mac';
 
 % Choose 2D shapes.
-shapes = {'cm1', 'exponential'};
+shapes = {'cm1', 'cm2', 'cm3', 'cm4', 'exponential'};
 
 
 %% EMAIL PARAMS

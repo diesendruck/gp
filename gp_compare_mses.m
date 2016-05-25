@@ -59,9 +59,6 @@ fprintf(fid, 'data_shape,gp,gp_proj,kern,kern_proj,sen,cap,mbcr\n');
 
 %% CONDUCT EXPERIMENT ON EACH SHAPE.
 % List of shapes to run.
-% shapes = {'trough', 'paraboloid', 'hand', 'parabolic_cylinder', ...
-%           'wolverine', 'exponential', 'chair'};
-% Try with only "flatter" surfaces.
 shapes = {'chair', 'parabolic_cylinder', 'wolverine', 'trough', ...
     'paraboloid', 'hand', 'exponential', 'hannah2'};
 

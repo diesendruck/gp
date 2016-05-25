@@ -14,11 +14,11 @@ ls_factor = 0.5;
 eps1 = 1e-4;              
 eps2 = 1e-4;
 verbose = 1;
-platform = 'mac';
+platform = 'mac';       % Choose appropriate platform.
 shape = 'exponential';
 
 % Import data.                           
-filename = sprintf('data/shively_%s_samples.csv', shape);
+filename = sprintf('data/50data_samples_%s.csv', shape);
 xydat = importdata(filename);
 x_nsy = xydat(:, [1:2]);
 y_samples = xydat(:, [3:size(xydat, 2)]);

@@ -24,7 +24,7 @@ do_plot = 1;                % Whether to make plots, versus just results by emai
 if 1
     num_posteriors = 20;    % Number of posterior mcmc samples to generate.
     desired = 2;            % Number of posterior mcmc samples to use.
-    num_global_iters = 1;   % Number of MSEs to produce per shape.
+    num_global_iters = 3;   % Number of MSEs to produce per shape.
 end
 
 % Full run.

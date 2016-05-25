@@ -18,7 +18,7 @@ function [x_nsy, x_nsy_jit, y_nsy, y_nsy_jit] = make_noisy_convex(n, d, ...
 %   y_nsy_jit: Same as y_nsy, but for jittered inputs.
 
 % Toggle plotting. Set to 0 when running full test in gp_compare_mses.m.
-do_plot = 1;
+do_plot = 0;
 
 % Setup storage for y values and function values. Given data_grid_gran, can
 % find number of output points: e.g. grid gran of 5 means 5x5 or 25 points.

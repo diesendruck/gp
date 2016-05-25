@@ -7,13 +7,15 @@ do_plot = 1;
 do_grid = 1;
 data_grid_gran = 10;
 mesh_gran = data_grid_gran*2;
+num_posteriors = 2000;   % For run_gpmc, number of posteriors to fetch.
+desired = 50;           % For run_gpmc, number of posteriors to use.
 eps1 = 1e-4;              
 eps2 = 1e-4;
 verbose = 1;
 
 % Import data.
 shape = 'exponential';                           % (1) THESE TWO LINES MUST AGREE!
-filename = 'data/sample_exponential_data.mat';   % (2) [this data comes from 
+filename = 'data/shively_exponential_samples.dat';   % (2) [this data comes from 
 xydat = importdata(filename);
 x_nsy = xydat(:, [1:2]);
 y_samples = xydat(:, [3:size(xydat, 2)]);
@@ -165,7 +167,7 @@ end
 % Save results to file.
 results = [store_rmses_gp store_rmses_gp_mono store_rmses_kern ...
            store_rmses_kern_mono];
-save(sprintf('data/shively_%s_samples.mat', shape), 'results');
+save(sprintf('data/shively_%s_gp(mono)kern(mono)_rmses.dat', shape), 'results');
 
 
     

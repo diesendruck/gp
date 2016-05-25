@@ -1,5 +1,5 @@
-function [mse_gp, mse_gp_conv, mse_kern, mse_kern_conv, mse_sen, ...
-    mse_cap, mse_mbcr, gp_proj_time_elapsed, mbcr_time_elapsed] = ...
+function [rmse_gp, rmse_gp_conv, rmse_kern, rmse_kern_conv, rmse_sen, ...
+    rmse_cap, rmse_mbcr, gp_proj_time_elapsed, mbcr_time_elapsed] = ...
         gp_compare_mses_shape(tol_thres, eps1, eps2, ...
             iter, n, ls_factor, mesh_gran, num_posteriors, desired, d, ...
             shape, fid, mbcr_burn, mbcr_tot, do_grid, data_grid_gran, ...
@@ -95,8 +95,8 @@ y_kern_conv = project_to_convex(length(xt), d, xt, y_kern(:), eps1, eps2);
 % Evaluate mcmc and proj estimates on test points.
 y_kern_test = griddata(xt(:, 1), xt(:, 2), y_kern(:), t1, t2);
 y_kern_conv_test = griddata(xt(:, 1), xt(:, 2), y_kern_conv, t1, t2);
-mse_kern = 1/length(tt) * norm(y_kern_test(:) - ytruth_on_test)^2;
-mse_kern_conv = 1/length(tt) * norm(y_kern_conv_test(:) - ytruth_on_test)^2;
+rmse_kern = sqrt(1/length(tt) * norm(y_kern_test(:) - ytruth_on_test)^2);
+rmse_kern_conv = sqrt(1/length(tt) * norm(y_kern_conv_test(:) - ytruth_on_test)^2);
 
 
 % Compute mses on mesh xt.
@@ -132,7 +132,7 @@ if do_plot
     subplot(3, 3, 2);
     mesh(xt1, xt2, y_kern); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('Kernel (MSE = %s)', num2str(mse_kern, '%0.3f')));
+    title(sprintf('Kernel (RMSE = %s)', num2str(rmse_kern, '%0.3f')));
     % Standardize z-axis.
     zlim(zl);
 
@@ -140,7 +140,7 @@ if do_plot
     yq_conv = griddata(xt(:, 1), xt(:, 2), y_kern_conv, xt1, xt2);
     mesh(xt1, xt2, yq_conv); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('Kernel Proj (MSE = %s)', num2str(mse_kern_conv, '%0.3f')));
+    title(sprintf('Kernel Proj (RMSE = %s)', num2str(rmse_kern_conv, '%0.3f')));
     % Standardize z-axis.
     zlim(zl);
 end
@@ -183,8 +183,8 @@ avg_convs = mean(convs, 2);
 % Evaluate mcmc and proj estimates on test points.
 y_mcmc_test = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, t1, t2);
 y_conv_test = griddata(xt(:, 1), xt(:, 2), avg_convs, t1, t2);
-mse_gp = 1/length(tt) * norm(y_mcmc_test(:) - ytruth_on_test)^2;
-mse_gp_conv = 1/length(tt) * norm(y_conv_test(:) - ytruth_on_test)^2;
+rmse_gp = sqrt(1/length(tt) * norm(y_mcmc_test(:) - ytruth_on_test)^2);
+rmse_gp_conv = sqrt(1/length(tt) * norm(y_conv_test(:) - ytruth_on_test)^2);
 
 if do_plot
     % Plot avg MCMC over original data.
@@ -192,7 +192,7 @@ if do_plot
     yq_mcmc = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, xt1, xt2);
     mesh(xt1, xt2, yq_mcmc); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('Avg GP (MSE = %s)', num2str(mse_gp, '%0.3f')));
+    title(sprintf('Avg GP (RMSE = %s)', num2str(rmse_gp, '%0.3f')));
     % Standardize z-axis.
     zlim(zl);
 
@@ -201,7 +201,7 @@ if do_plot
     yq_conv = griddata(xt(:, 1), xt(:, 2), avg_convs, xt1, xt2);
     mesh(xt1, xt2, yq_conv); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('Avg GP Proj (MSE = %s)', num2str(mse_gp_conv, '%0.3f')));
+    title(sprintf('Avg GP Proj (RMSE = %s)', num2str(rmse_gp_conv, '%0.3f')));
     % Standardize z-axis.
     zlim(zl);
 end
@@ -212,7 +212,7 @@ gp_proj_time_elapsed = toc(gp_conv_start_time);
 %% COMPUTE SEN ESTIMATE AND ITS MSE.
 if do_grid
     y_sen_test = project_to_convex(length(tt), d, tt, y_nsy_nojit, eps1, eps2);
-    mse_sen = 1/length(tt) * norm(y_sen_test(:) - ytruth_on_test)^2;
+    rmse_sen = sqrt(1/length(tt) * norm(y_sen_test(:) - ytruth_on_test)^2);
 
     if do_plot
         % Plot avg MCMC over original data.
@@ -222,12 +222,12 @@ if do_grid
         plot3(x_nsy_nojit(:, 1), x_nsy_nojit(:, 2), y_sen_test, 'b.', ...
             'MarkerSize', 20);
         grid on;
-        title(sprintf('Sen (MSE = %s)', num2str(mse_sen, '%0.3f')));
+        title(sprintf('Sen (RMSE = %s)', num2str(rmse_sen, '%0.3f')));
         % Standardize z-axis.
         zlim(zl);
     end
 else
-    mse_sen = 1e10;
+    rmse_sen = 1e10;
     if verbose
         fprintf('Skipped Sen, putting placeholder value for MSE.\n');
     end
@@ -241,7 +241,7 @@ y_cap = convexEval(alpha, beta, xt);
 
 % Evaluate CAP estimate on test points.
 y_cap_test = griddata(xt(:, 1), xt(:, 2), y_cap, t1, t2);
-mse_cap = 1/length(tt) * norm(y_cap_test(:) - ytruth_on_test)^2;
+rmse_cap = sqrt(1/length(tt) * norm(y_cap_test(:) - ytruth_on_test)^2);
 
 % Plot CAP estimate over original data.
 if do_plot
@@ -249,7 +249,7 @@ if do_plot
     yq_cap = griddata(xt(:, 1), xt(:, 2), y_cap, xt1, xt2);
     mesh(xt1, xt2, yq_cap); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('CAP (MSE = %s)', num2str(mse_cap, '%0.3f')));
+    title(sprintf('CAP (RMSE = %s)', num2str(rmse_cap, '%0.3f')));
     % Standardize z-axis.
     zlim(zl);
 end
@@ -269,7 +269,7 @@ end
 
 % Evaluate MBCR estimate on test points.
 y_mbcr_test = griddata(xt(:, 1), xt(:, 2), y_mbcr, t1, t2);
-mse_mbcr = 1/length(tt) * norm(y_mbcr_test(:) - ytruth_on_test)^2;
+rmse_mbcr = sqrt(1/length(tt) * norm(y_mbcr_test(:) - ytruth_on_test)^2);
 
 % Plot MBCR estimate over original data.
 if do_plot
@@ -277,7 +277,7 @@ if do_plot
     yq_mbcr = griddata(xt(:, 1), xt(:, 2), y_mbcr, xt1, xt2);
     mesh(xt1, xt2, yq_mbcr); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('MBCR (MSE = %s)', num2str(mse_mbcr, '%0.3f')));
+    title(sprintf('MBCR (RMSE = %s)', num2str(rmse_mbcr, '%0.3f')));
     % Standardize z-axis.
     zlim(zl);
 end
@@ -289,8 +289,8 @@ mbcr_time_elapsed = toc(mbcr_start_time);
 % Add text on plot to say which method did best (lowest MSE).
 if do_plot
     ax = subplot(3, 3, 4);
-    [~, index] = min([mse_gp mse_gp_conv mse_kern mse_kern_conv ...
-                      mse_sen mse_cap mse_mbcr]);
+    [~, index] = min([rmse_gp rmse_gp_conv rmse_kern rmse_kern_conv ...
+                      rmse_sen rmse_cap rmse_mbcr]);
     methods = {'mse_gp' 'mse_gp_proj' 'mse_kern' 'mse_kern_proj' ...
                'mse_sen' 'mse_cap' 'mse_mbcr'};
     min_str = strrep(char(methods(index)), '_', '\_');
@@ -308,13 +308,13 @@ end
 
 %% SAVE FILE DATA AND FIGURE.
 fprintf(fid, '%s,%s,%s,%s,%s,%s,%s,%s\n', shape, ...
-        num2str(mse_gp, '%0.7f'), ...
-        num2str(mse_gp_conv, '%0.7f'), ...
-        num2str(mse_kern, '%0.7f'), ...
-        num2str(mse_kern_conv, '%0.7f'), ...
-        num2str(mse_sen, '%0.7f'), ...
-        num2str(mse_cap, '%0.7f'),...
-        num2str(mse_mbcr, '%0.7f')); 
+        num2str(rmse_gp, '%0.7f'), ...
+        num2str(rmse_gp_conv, '%0.7f'), ...
+        num2str(rmse_kern, '%0.7f'), ...
+        num2str(rmse_kern_conv, '%0.7f'), ...
+        num2str(rmse_sen, '%0.7f'), ...
+        num2str(rmse_cap, '%0.7f'),...
+        num2str(rmse_mbcr, '%0.7f')); 
 
 if verbose
     savefig(f, 'emailed.fig');

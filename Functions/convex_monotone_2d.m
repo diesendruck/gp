@@ -23,11 +23,11 @@ eps = 1e-6;
 
 % Set up initial surface.
 dim = sqrt(length(x_nsy));
-x1 = reshape(x_nsy(:, 1), dim, dim)';
-x2 = reshape(x_nsy(:, 2), dim, dim)';
+x1 = reshape(x_nsy(:, 1), dim, dim);
+x2 = reshape(x_nsy(:, 2), dim, dim);
 xt = [x1(:) x2(:)];
 ytruth = compute_truth_from_xt(xt, shape);
-f_init = reshape(y_nsy, dim, dim)';
+f_init = reshape(y_nsy, dim, dim);
 
 % Show original surface.
 if do_plot

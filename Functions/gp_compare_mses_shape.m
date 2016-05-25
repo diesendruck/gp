@@ -291,8 +291,8 @@ if do_plot
     ax = subplot(3, 3, 4);
     [~, index] = min([rmse_gp rmse_gp_conv rmse_kern rmse_kern_conv ...
                       rmse_sen rmse_cap rmse_mbcr]);
-    methods = {'mse_gp' 'mse_gp_proj' 'mse_kern' 'mse_kern_proj' ...
-               'mse_sen' 'mse_cap' 'mse_mbcr'};
+    methods = {'rmse_gp' 'rmse_gp_conv' 'rmse_kern' 'rmse_kern_conv' ...
+               'rmse_sen' 'rmse_cap' 'rmse_mbcr'};
     min_str = strrep(char(methods(index)), '_', '\_');
     text(0, 0.5, 'Min MSE Method:', 'FontSize', 14);
     text(0, 0.3, min_str, 'FontSize', 14);

@@ -313,8 +313,8 @@ for i = 1:num_global_iters;
             ax = subplot(2, 5, 6);
             [~, index] = min([rmse_gp rmse_gp_conv rmse_gp_mono rmse_gp_cm ...
                               rmse_kern rmse_kern_conv rmse_kern_mono rmse_kern_cm]);
-            methods = {'mse_gp' 'mse_gp_conv' 'mse_gp_mono' 'mse_gp_cm' ...
-                       'mse_kern' 'mse_kern_conv' 'mse_kern_mono' 'mse_kern_cm'};
+            methods = {'rmse_gp' 'rmse_gp_conv' 'rmse_gp_mono' 'rmse_gp_cm' ...
+                       'rmse_kern' 'rmse_kern_conv' 'rmse_kern_mono' 'rmse_kern_cm'};
             min_str = strrep(char(methods(index)), '_', '\_');
             text(0, 0.5, 'Min MSE Method:', 'FontSize', 14);
             text(0, 0.3, min_str, 'FontSize', 14);

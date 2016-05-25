@@ -35,15 +35,15 @@ data_grid_gran = 10;        % Number of points per dimension. 10 means 10x10 for
 ls_factor = 0.5;           % Lengthscale factor (proportion of x-range).
 mesh_gran = 20;            % Number of ticks on mesh for plotting.
 
-if 0
-    num_posteriors = 50;      % Number of posterior mcmc samples to generate.
+if 1
+    num_posteriors = 20;      % Number of posterior mcmc samples to generate.
     desired = 2;              % Number of posterior mcmc samples to use.
     mbcr_burn = 1;            % Number of burn-in for MBCR estimate.
     mbcr_tot = 2;             % Number of total samples for MBCR estimate.
     num_global_iters = 1;      % Number of MSEs to produce per shape.
 end
 
-if 1
+if 0
     num_posteriors = 500;      % Number of posterior mcmc samples to generate.
     desired = 20;              % Number of posterior mcmc samples to use.
     mbcr_burn = 500;            % Number of burn-in for MBCR estimate.

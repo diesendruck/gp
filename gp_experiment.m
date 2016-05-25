@@ -1,105 +1,91 @@
-% This version was partially authored by Maurice Diesendruck.
+% This version was authored by Maurice Diesendruck.
 
-% Adapted from Demo_example.m, a part of:
+% Adapted from 
+% (1) Demo_example.m
 % Mazumder, R., Choudhury, A., Iyengar, G. and Sen, B. (2015).
 %   A Computational Framework for Multivariate Convex Regression and its Variants.
 %   Available at: http://www.stat.columbia.edu/~bodhi/Bodhi/Publications.html
+%
+% (2) ExampleCAP.m, noisyConvexMin.m
+% Hannah, L., and Dunson, D. (2011). Bayesian nonparametric multivariate 
+%   convex regression. Available at:
+%   https://github.com/laurenahannah/convex-function,
+%   https://github.com/laurenahannah/mbcr
 
-tic
+start_time = tic
+platform = 'mac';
+%platform = 'linux';
 
-%% IMPORT GPSTUFF AND SET PATHS.
-if 0  % Mac version.
-    cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/GPstuff-4.6/
-    matlab_install
-    cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/Programs/
-    run_mex_commands();
-    cd ~/Google' Drive'/0-LIZHEN' RESEARCH'/gp/
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/')
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Programs')
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Functions')
-    addpath('~/Google Drive/0-LIZHEN RESEARCH/gp/Smoothing')
-end
+% Import GPstuff, set paths, and setup email params.
+setup_directories_and_email(platform);
 
-if 0  % Linux version.
-    cd ~/Documents/gp/GPstuff-4.6/
-    matlab_install
-    cd ~/Documents/gp/Programs/
-    run_mex_commands();
-    cd ~/Documents/gp/
-    addpath('~/Documents/gp/')
-    addpath('~/Documents/gp/Programs')
-    addpath('~/Documents/gp/Functions')
-    addpath('~/Documents/gp/Smoothing')
-end
 
 %% SET CONSTANTS.
 format long;
 tol_thres = 0;
-eps1 = 10^-5;          % These 2 epsilons are used for convergence of the
-eps2 = 10^-5;          %   convex projection algorithm.
-iter = 0;              % Counter for iterations.
-n = 40;                % Data sample size.
-d = 2;                  % Dimension of data points.
-ls_factor = 0.01;      % Lengthscale factor (proportion of x-range).
-mesh_gran = 20;        % Number of ticks on mesh for plotting.
-num_posteriors = 1020; % Number of posterior mcmc samples to generate.
-desired = 100;         % Number of posterior mcmc samples to use.
-num_global_iters = 20; % Number of MSEs to produce per shape.
-surface = 'mcmc';    % Surface to fit points, before projection. 
-                       % Choose 'kernel', 'map', or 'mcmc'.
+eps1 = 10^-5;              % These 2 epsilons are used for convergence of the
+eps2 = 10^-5;              %   convex projection algorithm.
+iter = 0;                  % Counter for iterations.
 
-%% SETUP EMAIL PARAMS.
-myaddress = 'eltegog@gmail.com';
-myp = 'T0g.eltegog';
-setpref('Internet','E_mail',myaddress);
-setpref('Internet','SMTP_Server','smtp.gmail.com');
-setpref('Internet','SMTP_Username',myaddress);
-setpref('Internet','SMTP_Password',myp);
-props = java.lang.System.getProperties;
-props.setProperty('mail.smtp.auth','true');
-props.setProperty('mail.smtp.socketFactory.class', ...
-    'javax.net.ssl.SSLSocketFactory');
-props.setProperty('mail.smtp.socketFactory.port','465');
+ls_factor = 0.5;           % Lengthscale factor (proportion of x-range).
+mesh_gran = 20;            % Number of ticks on mesh for plotting.
+
+if 1
+    num_posteriors = 20;      % Number of posterior mcmc samples to generate.
+    desired = 2;              % Number of posterior mcmc samples to use.
+    mbcr_burn = 1;            % Number of burn-in for MBCR estimate.
+    mbcr_tot = 2;             % Number of total samples for MBCR estimate.
+end
+
+if 0
+    num_posteriors = 500;      % Number of posterior mcmc samples to generate.
+    desired = 20;              % Number of posterior mcmc samples to use.
+    mbcr_burn = 500;            % Number of burn-in for MBCR estimate.
+    mbcr_tot = 1000;             % Number of total samples for MBCR estimate.
+end
+
 
 %% SAVE MSE RESULTS TO FILE.
 fid = fopen('Results_2d/mses.csv', 'wt');
-% Set up for one global run.
-% fprintf(fid, 'avg_mcmc_mse,avg_proj_mse,relative_change\n');
-% Set up for multiple global runs on three shapes.
-fprintf(fid, 'surface_type,data_shape,surface_mse,proj_mse,relative_change\n');
+fprintf(fid, 'data_shape,gp,gp_conv,kern,kern_conv,sen,cap,mbcr\n');
 
 
 %% CONDUCT EXPERIMENT ON EACH SHAPE.
 % List of shapes to run.
-% shapes = {'trough', 'paraboloid', 'hand', 'parabolic_cylinder', ...
-%           'wolverine', 'exponential', 'chair'};
-% Try with only "flatter" surfaces.
-shapes = {'hand', 'parabolic_cylinder', 'wolverine'};
+shapes = {'chair', 'parabolic_cylinder', 'wolverine', 'trough', ...
+    'paraboloid', 'hand', 'exponential', 'hannah2'};
+shapes = {'chair', 'parabolic_cylinder'};
 
 % Run experiment for each shape.
-for ii = 1:num_global_iters
-    for shape = shapes
-        [~, ~, ~, surf_mse, proj_mse, relative_change] = ...
-            gp_experiment_run_shape(tol_thres, eps1, eps2, iter, n, ...
-                ls_factor, mesh_gran, num_posteriors, desired, d, ...
-                shape{1}, fid, surface);
-        sendmail('momod@utexas.edu', strcat('UPDATE: ', surface), ...
-            sprintf(strcat('Global iter: %s\nData shape: %s\n', ...
-                           'Fitted surface: %s\nSurf_mse: %s\n', ... 
-                           'Proj_mse: %s\nRelative change: %s'), ...
-                    num2str(ii), shape{1}, surface, ...
-                    num2str(surf_mse, '%0.7f'), ...
-                    num2str(proj_mse, '%0.7f'), ...
-                    num2str(relative_change, '%0.7f')));
-    end
+for shape = shapes
+    shape_start_time = tic;
+    shape = char(shape);
+    
+    [gp, gp_proj, kern, kern_proj, sen, cap, mbcr, ...
+     gp_conv_time_elapsed, mbcr_time_elapsed] = ...
+        gp_experiment_run_shape(tol_thres, eps1, eps2, n, ls_factor, ...
+            mesh_gran, num_posteriors, desired, shape, fid, ...
+            mbcr_burn, mbcr_tot, platform);
+
+    shape_time_elapsed = toc(shape_start_time);
+    total_time_elapsed = toc(start_time);
 end
 
+
+%% CLOSE AND SEND RESULTS FILE.
 fclose(fid);
    
-sendmail('momod@utexas.edu', strcat('RESULTS: ', surface), '', ...
-    {'/home/momod/Documents/gp/Results_2d/mses.csv'});
+if strcmp(platform, 'mac')
+    sendmail('momod@utexas.edu', 'RESULTS mac: MSE Comparisons', ...
+        sprintf('Total time: %s', num2str(total_time_elapsed, '%0.2f')),...
+        {'/Users/mauricediesendruck/Google Drive/0-LIZHEN RESEARCH/gp/Results_2d/mses.csv'});
+elseif strcmp(platform, 'linux')
+    sendmail('momod@utexas.edu', 'RESULTS linux: MSE Comparisons', ...
+        sprintf('Total time: %s', num2str(total_time_elapsed, '%0.2f')),...
+        {'/home/momod/Documents/gp/Results_2d/mses.csv'});
+end
 
-toc
+end_time = toc(start_time)
 
 
 

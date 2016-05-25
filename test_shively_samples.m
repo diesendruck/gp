@@ -8,13 +8,15 @@ do_plot = 1;
 do_grid = 1;
 data_grid_gran = 10;
 mesh_gran = data_grid_gran*2;
-num_posteriors = 2000;   % For run_gpmc, number of posteriors to fetch.
-desired = 50;           % For run_gpmc, number of posteriors to use.
+num_posteriors = 20;   % For run_gpmc, number of posteriors to fetch.
+desired = 2;           % For run_gpmc, number of posteriors to use.
 ls_factor = 0.5;
 eps1 = 1e-4;              
 eps2 = 1e-4;
 verbose = 1;
 platform = 'mac';       % Choose appropriate platform.
+
+% Choose shape. This script runs for one shape.
 shape = 'exponential';
 
 % Import data.                           

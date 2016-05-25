@@ -14,7 +14,7 @@
 
 start_time = tic
 platform = 'mac';
-platform = 'linux';
+%platform = 'linux';
 
 % Import GPstuff, set paths, and setup email params.
 setup_directories_and_email(platform);
@@ -62,9 +62,9 @@ for shape = shapes
     
     [gp, gp_proj, kern, kern_proj, sen, cap, mbcr, ...
      gp_conv_time_elapsed, mbcr_time_elapsed] = ...
-        gp_experiment_run_shape(tol_thres, eps1, eps2, n, ls_factor, ...
+        gp_experiment_run_shape(tol_thres, eps1, eps2, ls_factor, ...
             mesh_gran, num_posteriors, desired, shape, fid, ...
-            mbcr_burn, mbcr_tot, platform);
+            mbcr_burn, mbcr_tot, platform, short_run);
 
     shape_time_elapsed = toc(shape_start_time);
     total_time_elapsed = toc(start_time);

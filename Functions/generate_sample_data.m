@@ -25,5 +25,4 @@ for i = 1:n_samples-1
     results(:, 3+i) = y_nsy_i;
 end
 
-save(sprintf('data/shively_%s_samples.dat', shape), 'results');
-
+csvwrite(sprintf('data/shively_%s_samples.csv', shape), results);

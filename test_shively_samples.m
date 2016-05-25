@@ -1,6 +1,7 @@
 % Test kernel, kernel projection, and Sen methods on sample data sets.
 
 % Constants.
+start_time = tic;
 n_data = 100;  % Number of data points.
 d = 2;
 do_plot = 1;
@@ -9,14 +10,15 @@ data_grid_gran = 10;
 mesh_gran = data_grid_gran*2;
 num_posteriors = 2000;   % For run_gpmc, number of posteriors to fetch.
 desired = 50;           % For run_gpmc, number of posteriors to use.
+ls_factor = 0.5;
 eps1 = 1e-4;              
 eps2 = 1e-4;
 verbose = 1;
 platform = 'mac';
+shape = 'exponential';
 
-% Import data.
-shape = 'exponential';                           % (1) THESE TWO LINES MUST AGREE!
-filename = 'data/shively_exponential_samples.dat';   % (2) [this data comes from 
+% Import data.                           
+filename = sprintf('data/shively_%s_samples.csv', shape);
 xydat = importdata(filename);
 x_nsy = xydat(:, [1:2]);
 y_samples = xydat(:, [3:size(xydat, 2)]);
@@ -166,11 +168,27 @@ for i = 1:num_samples
     
 end
 
+toc(start_time);
+
 % Save results to file.
 results = [store_rmses_gp store_rmses_gp_mono store_rmses_kern ...
            store_rmses_kern_mono];
-save(sprintf('data/shively_%s_gp(mono)kern(mono)_rmses.dat', shape), 'results');
+csvwrite(sprintf('data/shively_%s_gp(mono)kern(mono)_rmses.csv', shape), results);
 
+if strcmp(platform, 'mac')
+    sendmail('momod@utexas.edu', ...
+        sprintf('RESULTS mac: shively_%s_rmses', shape), ...
+        sprintf('Total time: %s', num2str(toc(start_time), '%0.2f')), ...
+        {sprintf(strcat('/Users/mauricediesendruck/Google Drive/', ...
+                        '0-LIZHEN RESEARCH/gp/data/', ...
+                        'shively_%s_gp(mono)kern(mono)_rmses.csv'), shape)});       
+elseif strcmp(platform, 'linux')
+    sendmail('momod@utexas.edu', ...
+        sprintf('RESULTS linux: shively_%s_rmses', shape), ...
+        sprintf('Total time: %s', num2str(toc(start_time), '%0.2f')), ...
+        {sprintf(strcat('/home/momod/Documents/gp/data/', ...
+                        'shively_%s_gp(mono)kern(mono)_rmses.csv'), shape)});
+end
 
     
     

@@ -8,8 +8,8 @@ do_plot = 1;
 do_grid = 1;
 data_grid_gran = 10;
 mesh_gran = data_grid_gran*2;
-num_posteriors = 20;   % For run_gpmc, number of posteriors to fetch.
-desired = 2;           % For run_gpmc, number of posteriors to use.
+num_posteriors = 2000;   % For run_gpmc, number of posteriors to fetch.
+desired = 50;           % For run_gpmc, number of posteriors to use.
 ls_factor = 0.5;
 eps1 = 1e-4;              
 eps2 = 1e-4;
@@ -24,7 +24,6 @@ filename = sprintf('data/50data_samples_%s.csv', shape);
 xydat = importdata(filename);
 x_nsy = xydat(:, [1:2]);
 y_samples = xydat(:, [3:size(xydat, 2)]);
-y_samples = xydat(:, [3:4]);
 num_samples = size(y_samples, 2);
 
 % Setup directories and email.

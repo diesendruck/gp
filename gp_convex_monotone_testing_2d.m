@@ -12,7 +12,7 @@ iter = 0;                   % Counter for iterations.
 n = 100;                    % Data sample size. Only relevant if do_grid=0.
 d = 2;                      % Dimension of data points. 
 do_grid = 1;                % Indicator for whether to generate random data, or grid data.
-data_grid_gran = 10;        % Number of points per dimension. 10 means 10x10 for d=2.
+data_grid_gran = 5;        % Number of points per dimension. 10 means 10x10 for d=2.
 dim = data_grid_gran;
 mesh_gran = 2*dim;          % Number of ticks on mesh for plotting.
 ls_factor = 0.5;            % Lengthscale factor (proportion of x-range).
@@ -22,7 +22,7 @@ do_plot = 1;                % Whether to make plots, versus just results by emai
 
 % Short run.
 if 1
-    num_posteriors = 50;    % Number of posterior mcmc samples to generate.
+    num_posteriors = 20;    % Number of posterior mcmc samples to generate.
     desired = 2;            % Number of posterior mcmc samples to use.
     num_global_iters = 1;   % Number of MSEs to produce per shape.
 end
@@ -31,14 +31,14 @@ end
 if 0
     num_posteriors = 2000;  % Number of posterior mcmc samples to generate.
     desired = 50;           % Number of posterior mcmc samples to use.
-    num_global_iters = 5;   % Number of MSEs to produce per shape.
+    num_global_iters = 10;   % Number of MSEs to produce per shape.
 end
 
 % Choose platform 'mac' or 'linux'.
 platform = 'mac';
 
 % Choose 2D shapes.
-shapes = {'cm1', 'cm2', 'cm3', 'cm4', 'exponential'};
+shapes = {'cm1', 'cm2', 'exponential'};
 
 
 %% EMAIL PARAMS
@@ -128,8 +128,8 @@ for i = 1:num_global_iters;
         % Evaluate mcmc and proj estimates on test points.
         y_gp_test = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, t1, t2);
         y_gp_conv_test = griddata(xt(:, 1), xt(:, 2), avg_convs, t1, t2);
-        mse_gp = 1/length(tt) * norm(y_gp_test(:) - ytruth_on_test)^2;
-        mse_gp_conv = 1/length(tt) * norm(y_gp_conv_test(:) - ytruth_on_test)^2;
+        rmse_gp = sqrt(1/length(tt) * norm(y_gp_test(:) - ytruth_on_test)^2);
+        rmse_gp_conv = sqrt(1/length(tt) * norm(y_gp_conv_test(:) - ytruth_on_test)^2);
 
         if do_plot
             % Plot avg MCMC over original data.
@@ -137,9 +137,7 @@ for i = 1:num_global_iters;
             yq_mcmc = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, xt1, xt2);
             surf(xt1, xt2, yq_mcmc); hold on;
             plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
-            title(sprintf('AvgGP (MSE = %s)', num2str(mse_gp, '%0.3f')));
-
-            % Set z-axis limits to match original plot.
+            title(sprintf('AvgGP (RMSE = %s)', num2str(rmse_gp, '%0.3f')));
             zlim(zl);
 
             % Plot avg convex proj over original data.
@@ -147,9 +145,7 @@ for i = 1:num_global_iters;
             yq_conv = griddata(xt(:, 1), xt(:, 2), avg_convs, xt1, xt2);
             surf(xt1, xt2, yq_conv); hold on;
             plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
-            title(sprintf('AvgGP Convex (MSE = %s)', num2str(mse_gp_conv, '%0.3f')));
-
-            % Set z-axis limits to match original plot.
+            title(sprintf('AvgGP Convex (RMSE = %s)', num2str(rmse_gp_conv, '%0.3f')));
             zlim(zl);
         end
 
@@ -165,18 +161,16 @@ for i = 1:num_global_iters;
         % Do monotone projection of Avg GP, on full mesh "xt".
         %f = monotone_2d(x_nsy, y_mcmc_test);
         %f_mono = griddata(tt(:, 1), tt(:, 2), f(:), xt1, xt2);
-        [y_gp_mono, gp_m_iter] = monotone_2d(xt, reshape(avg_mcmcs, mesh_gran, mesh_gran));
-
+        [y_gp_mono, gp_m_iter] = monotone_2d(xt, avg_mcmcs, shape);
+        
         % Compute MSE only over test points.
         y_gp_mono_test = griddata(xt(:, 1), xt(:, 2), y_gp_mono(:), t1, t2);
-        mse_gp_mono = 1/length(tt) * norm(y_gp_mono_test(:) - ytruth_on_test)^2;
+        rmse_gp_mono = sqrt(1/length(tt) * norm(y_gp_mono_test(:) - ytruth_on_test)^2);
 
         subplot(2, 5, 4);
         surf(xt1, xt2, y_gp_mono); hold on;
         plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
-        title(sprintf('AvgGP Monotone (MSE = %s)', num2str(mse_gp_mono, '%0.3f')));
-
-        % Set z-axis limits to match original plot.
+        title(sprintf('AvgGP Monotone (RMSE = %s)', num2str(rmse_gp_mono, '%0.3f')));
         zlim(zl);
 
         % Report results of subroutine.
@@ -192,18 +186,16 @@ for i = 1:num_global_iters;
         % Do convex monotone projection of Avg GP, on full mesh "xt".
         %f = convex_monotone_2d(x_nsy, y_mcmc_test);
         %f_cm = griddata(tt(:, 1), tt(:, 2), f(:), xt1, xt2);
-        [y_gp_cm, gp_cm_iter] = convex_monotone_2d(xt, reshape(avg_mcmcs, mesh_gran, mesh_gran));
+        [y_gp_cm, gp_cm_iter] = convex_monotone_2d(xt, avg_mcmcs, shape);
 
         % Compute MSE only over test points.
         y_gp_cm_test = griddata(xt(:, 1), xt(:, 2), y_gp_cm(:), t1, t2);
-        mse_gp_cm = 1/length(tt) * norm(y_gp_cm_test(:) - ytruth_on_test)^2;
+        rmse_gp_cm = sqrt(1/length(tt) * norm(y_gp_cm_test(:) - ytruth_on_test)^2);
 
         subplot(2, 5, 5);
         surf(xt1, xt2, y_gp_cm); hold on;
         plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
-        title(sprintf('AvgGP Conv+Mono (MSE = %s)', num2str(mse_gp_cm, '%0.3f')));
-
-        % Set z-axis limits to match original plot.
+        title(sprintf('AvgGP Conv+Mono (RMSE = %s)', num2str(rmse_gp_cm, '%0.3f')));
         zlim(zl);
 
         % Report time of subroutine.
@@ -239,8 +231,8 @@ for i = 1:num_global_iters;
         y_kern_conv_test = griddata(xt(:, 1), xt(:, 2), y_kern_conv(:), t1, t2);
 
         % Compute mses on test data.
-        mse_kern = 1/length(tt) * norm(y_kern_test(:) - ytruth_on_test)^2;
-        mse_kern_conv = 1/length(tt) * norm(y_kern_conv_test(:) - ytruth_on_test)^2;
+        rmse_kern = sqrt(1/length(tt) * norm(y_kern_test(:) - ytruth_on_test)^2);
+        rmse_kern_conv = sqrt(1/length(tt) * norm(y_kern_conv_test(:) - ytruth_on_test)^2);
 
 
         % Plot kernel regression and convex projection over original data.
@@ -249,7 +241,7 @@ for i = 1:num_global_iters;
             yq_kern = griddata(xt(:, 1), xt(:, 2), y_kern(:), xt1, xt2);
             surf(xt1, xt2, yq_kern); hold on;
             plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
-            title(sprintf('Kernel (MSE = %s)', num2str(mse_kern, '%0.3f')));
+            title(sprintf('Kernel (RMSE = %s)', num2str(rmse_kern, '%0.3f')));
             % Standardize z-axis.
             zlim(zl);
 
@@ -257,7 +249,7 @@ for i = 1:num_global_iters;
             yq_kern_conv = griddata(xt(:, 1), xt(:, 2), y_kern_conv(:), xt1, xt2);
             surf(xt1, xt2, yq_kern_conv); hold on;
             plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
-            title(sprintf('Kernel Convex (MSE = %s)', num2str(mse_kern_conv, '%0.3f')));
+            title(sprintf('Kernel Convex (RMSE = %s)', num2str(rmse_kern_conv, '%0.3f')));
             % Standardize z-axis.
             zlim(zl);
         end
@@ -272,18 +264,16 @@ for i = 1:num_global_iters;
         kern_m_time = tic;
 
         % Do monotone projection of kernel regression, on full mesh "xt".
-        [y_kern_mono, kern_m_iter] = monotone_2d(xt, y_kern);
+        [y_kern_mono, kern_m_iter] = monotone_2d(xt, y_kern, shape);
 
         % Compute MSE only over test points.
         y_kern_mono_test = griddata(xt(:, 1), xt(:, 2), y_kern_mono(:), t1, t2);
-        mse_kern_mono = 1/length(tt) * norm(y_kern_mono_test(:) - ytruth_on_test)^2;
+        rmse_kern_mono = sqrt(1/length(tt) * norm(y_kern_mono_test(:) - ytruth_on_test)^2);
 
         subplot(2, 5, 9);
         surf(xt1, xt2, y_kern_mono); hold on;
         plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
-        title(sprintf('Kernel Monotone (MSE = %s)', num2str(mse_kern_mono, '%0.3f')));
-
-        % Set z-axis limits to match original plot.
+        title(sprintf('Kernel Monotone (RMSE = %s)', num2str(rmse_kern_mono, '%0.3f')));
         zlim(zl);
 
         % Report time of subroutine.
@@ -299,18 +289,16 @@ for i = 1:num_global_iters;
         % Do convex monotone projection of Avg GP, on full mesh "xt".
         %f = convex_monotone_2d(x_nsy, y_mcmc_test);
         %f_cm = griddata(tt(:, 1), tt(:, 2), f(:), xt1, xt2);
-        [y_kern_cm, kern_cm_iter] = convex_monotone_2d(xt, y_kern);
+        [y_kern_cm, kern_cm_iter] = convex_monotone_2d(xt, y_kern, shape);
 
         % Compute MSE only over test points.
         y_kern_cm_test = griddata(xt(:, 1), xt(:, 2), y_kern_cm(:), t1, t2);
-        mse_kern_cm = 1/length(tt) * norm(y_kern_cm_test(:) - ytruth_on_test)^2;
+        rmse_kern_cm = sqrt(1/length(tt) * norm(y_kern_cm_test(:) - ytruth_on_test)^2);
 
         subplot(2, 5, 10);
         surf(xt1, xt2, y_kern_cm); hold on;
         plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
-        title(sprintf('Kernel Conv+Mono (MSE = %s)', num2str(mse_kern_cm, '%0.3f')));
-
-        % Set z-axis limits to match original plot.
+        title(sprintf('Kernel Conv+Mono (RMSE = %s)', num2str(rmse_kern_cm, '%0.3f')));
         zlim(zl);
 
         % Report time of subroutine.
@@ -323,8 +311,8 @@ for i = 1:num_global_iters;
         % Add text on plot to say which method did best (lowest MSE).
         if do_plot
             ax = subplot(2, 5, 6);
-            [~, index] = min([mse_gp mse_gp_conv mse_gp_mono mse_gp_cm ...
-                              mse_kern mse_kern_conv mse_kern_mono mse_kern_cm]);
+            [~, index] = min([rmse_gp rmse_gp_conv rmse_gp_mono rmse_gp_cm ...
+                              rmse_kern rmse_kern_conv rmse_kern_mono rmse_kern_cm]);
             methods = {'mse_gp' 'mse_gp_conv' 'mse_gp_mono' 'mse_gp_cm' ...
                        'mse_kern' 'mse_kern_conv' 'mse_kern_mono' 'mse_kern_cm'};
             min_str = strrep(char(methods(index)), '_', '\_');
@@ -337,14 +325,14 @@ for i = 1:num_global_iters;
 
         %% SAVE FILE DATA AND FIGURE.
         fprintf(fid, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n', shape, ...
-            num2str(mse_gp, '%0.7f'), ...
-            num2str(mse_gp_conv, '%0.7f'), ...
-            num2str(mse_gp_mono, '%0.7f'), ...
-            num2str(mse_gp_cm, '%0.7f'), ...
-            num2str(mse_kern, '%0.7f'), ...
-            num2str(mse_kern_conv, '%0.7f'), ...
-            num2str(mse_kern_mono, '%0.7f'), ...
-            num2str(mse_kern_cm, '%0.7f')); 
+            num2str(rmse_gp, '%0.7f'), ...
+            num2str(rmse_gp_conv, '%0.7f'), ...
+            num2str(rmse_gp_mono, '%0.7f'), ...
+            num2str(rmse_gp_cm, '%0.7f'), ...
+            num2str(rmse_kern, '%0.7f'), ...
+            num2str(rmse_kern_conv, '%0.7f'), ...
+            num2str(rmse_kern_mono, '%0.7f'), ...
+            num2str(rmse_kern_cm, '%0.7f')); 
 
     end
 end

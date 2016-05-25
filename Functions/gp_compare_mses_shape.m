@@ -1,4 +1,4 @@
-function [mse_gp, mse_gp_proj, mse_kern, mse_kern_proj, mse_sen, ...
+function [mse_gp, mse_gp_conv, mse_kern, mse_kern_conv, mse_sen, ...
     mse_cap, mse_mbcr, gp_proj_time_elapsed, mbcr_time_elapsed] = ...
         gp_compare_mses_shape(tol_thres, eps1, eps2, ...
             iter, n, ls_factor, mesh_gran, num_posteriors, desired, d, ...
@@ -90,13 +90,13 @@ for ii = 1:size(xt1, 1)
 end
 
 % Project to convex.
-y_kern_proj = project_to_convex(length(xt), d, xt, y_kern(:), eps1, eps2);
+y_kern_conv = project_to_convex(length(xt), d, xt, y_kern(:), eps1, eps2);
 
 % Evaluate mcmc and proj estimates on test points.
 y_kern_test = griddata(xt(:, 1), xt(:, 2), y_kern(:), t1, t2);
-y_kern_proj_test = griddata(xt(:, 1), xt(:, 2), y_kern_proj, t1, t2);
+y_kern_conv_test = griddata(xt(:, 1), xt(:, 2), y_kern_conv, t1, t2);
 mse_kern = 1/length(tt) * norm(y_kern_test(:) - ytruth_on_test)^2;
-mse_kern_proj = 1/length(tt) * norm(y_kern_proj_test(:) - ytruth_on_test)^2;
+mse_kern_conv = 1/length(tt) * norm(y_kern_conv_test(:) - ytruth_on_test)^2;
 
 
 % Compute mses on mesh xt.
@@ -137,10 +137,10 @@ if do_plot
     zlim(zl);
 
     subplot(3, 3, 3);
-    yq_proj = griddata(xt(:, 1), xt(:, 2), y_kern_proj, xt1, xt2);
-    mesh(xt1, xt2, yq_proj); hold on;
+    yq_conv = griddata(xt(:, 1), xt(:, 2), y_kern_conv, xt1, xt2);
+    mesh(xt1, xt2, yq_conv); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('Kernel Proj (MSE = %s)', num2str(mse_kern_proj, '%0.3f')));
+    title(sprintf('Kernel Proj (MSE = %s)', num2str(mse_kern_conv, '%0.3f')));
     % Standardize z-axis.
     zlim(zl);
 end
@@ -148,7 +148,7 @@ end
 
 %% COMPUTE AVERAGE FROM SAMPLES OF GP POSTERIOR MCMC, AVERAGE OF 
 %% PROJECTIONS OF EACH, AND MSES OF RESPECTIVE AVERAGES.
-gp_proj_start_time = tic;
+gp_conv_start_time = tic;
 
 % Get samples from GP posterior MCMC, project each to convex, and store.
 [xt1, xt2, xt, Eft_s, posterior_sample_count] = run_gpmc(x_nsy, ...
@@ -157,7 +157,7 @@ n_gp = length(xt);
 
 n_entries = min(desired, posterior_sample_count); 
 mcmcs = zeros(n_gp, n_entries);
-projs = zeros(n_gp, n_entries);
+convs = zeros(n_gp, n_entries);
 
 for index = 1:n_entries
     if verbose
@@ -169,12 +169,12 @@ for index = 1:n_entries
     mcmcs(:, index) = y_smp;
     % Get convex projection of sample, and store it as a column in projs.
     y_smp_convex = project_to_convex(n_gp, d, xt, y_smp, eps1, eps2);
-    projs(:, index) = y_smp_convex;
+    convs(:, index) = y_smp_convex;
 end
 
 % Compute averages over mcmc and convex projections, respectively.
 avg_mcmcs = mean(mcmcs, 2);  % Row means.
-avg_projs = mean(projs, 2);
+avg_convs = mean(convs, 2);
 
 % Compute MSE between truth and each average.
 %mse_gp = 1/n_gp * norm(avg_mcmcs - ytruth_on_grid)^2;
@@ -182,9 +182,9 @@ avg_projs = mean(projs, 2);
 
 % Evaluate mcmc and proj estimates on test points.
 y_mcmc_test = griddata(xt(:, 1), xt(:, 2), avg_mcmcs, t1, t2);
-y_proj_test = griddata(xt(:, 1), xt(:, 2), avg_projs, t1, t2);
+y_conv_test = griddata(xt(:, 1), xt(:, 2), avg_convs, t1, t2);
 mse_gp = 1/length(tt) * norm(y_mcmc_test(:) - ytruth_on_test)^2;
-mse_gp_proj = 1/length(tt) * norm(y_proj_test(:) - ytruth_on_test)^2;
+mse_gp_conv = 1/length(tt) * norm(y_conv_test(:) - ytruth_on_test)^2;
 
 if do_plot
     % Plot avg MCMC over original data.
@@ -198,15 +198,15 @@ if do_plot
 
     % Plot avg proj over original data.
     subplot(3, 3, 6); 
-    yq_proj = griddata(xt(:, 1), xt(:, 2), avg_projs, xt1, xt2);
-    mesh(xt1, xt2, yq_proj); hold on;
+    yq_conv = griddata(xt(:, 1), xt(:, 2), avg_convs, xt1, xt2);
+    mesh(xt1, xt2, yq_conv); hold on;
     plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 10);
-    title(sprintf('Avg GP Proj (MSE = %s)', num2str(mse_gp_proj, '%0.3f')));
+    title(sprintf('Avg GP Proj (MSE = %s)', num2str(mse_gp_conv, '%0.3f')));
     % Standardize z-axis.
     zlim(zl);
 end
 
-gp_proj_time_elapsed = toc(gp_proj_start_time);
+gp_proj_time_elapsed = toc(gp_conv_start_time);
 
 
 %% COMPUTE SEN ESTIMATE AND ITS MSE.
@@ -289,7 +289,7 @@ mbcr_time_elapsed = toc(mbcr_start_time);
 % Add text on plot to say which method did best (lowest MSE).
 if do_plot
     ax = subplot(3, 3, 4);
-    [~, index] = min([mse_gp mse_gp_proj mse_kern mse_kern_proj ...
+    [~, index] = min([mse_gp mse_gp_conv mse_kern mse_kern_conv ...
                       mse_sen mse_cap mse_mbcr]);
     methods = {'mse_gp' 'mse_gp_proj' 'mse_kern' 'mse_kern_proj' ...
                'mse_sen' 'mse_cap' 'mse_mbcr'};
@@ -309,9 +309,9 @@ end
 %% SAVE FILE DATA AND FIGURE.
 fprintf(fid, '%s,%s,%s,%s,%s,%s,%s,%s\n', shape, ...
         num2str(mse_gp, '%0.7f'), ...
-        num2str(mse_gp_proj, '%0.7f'), ...
+        num2str(mse_gp_conv, '%0.7f'), ...
         num2str(mse_kern, '%0.7f'), ...
-        num2str(mse_kern_proj, '%0.7f'), ...
+        num2str(mse_kern_conv, '%0.7f'), ...
         num2str(mse_sen, '%0.7f'), ...
         num2str(mse_cap, '%0.7f'),...
         num2str(mse_mbcr, '%0.7f')); 

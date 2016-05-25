@@ -1,9 +1,10 @@
-function [y_cm, iter] = convex_monotone_2d(x_nsy, y_nsy)
+function [y_cm, iter] = convex_monotone_2d(x_nsy, y_nsy, shape)
 % Projects 2D data to convex monotone (cm).
 %
 % Args:
 %   x_nsy: Matrix (nx2) of data input values.
 %   y_nsy: Matrix (nx1) of noisy response values.
+%   shape: String, e.g. "cm1" or "hand".
 %
 % Returns:
 %   y_cm: Matrix (sqrt(n)xsqrt(n)) of convex monotone response variable.
@@ -25,7 +26,7 @@ dim = sqrt(length(x_nsy));
 x1 = reshape(x_nsy(:, 1), dim, dim)';
 x2 = reshape(x_nsy(:, 2), dim, dim)';
 xt = [x1(:) x2(:)];
-ytruth = compute_truth_from_xt(xt, 'cm1');
+ytruth = compute_truth_from_xt(xt, shape);
 f_init = reshape(y_nsy, dim, dim)';
 
 % Show original surface.

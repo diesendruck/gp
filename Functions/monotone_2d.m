@@ -1,9 +1,10 @@
-function [f, iter] = monotone_2d(x_nsy, y_nsy)
+function [f, iter] = monotone_2d(x_nsy, y_nsy, shape)
 % Project vector to monotone space.
 %
 % Args:
 %   x_nsy: Matrix (nx2) of data input values.
 %   y_nsy: Matrix (nx1) of noisy response values.
+%   shape: String, e.g. "cm1" or "exponential"
 %
 % Returns:
 %   f: Matrix (sqrt(n)xsqrt(n)) of the monotone response variable.
@@ -19,16 +20,16 @@ eps = 1e-6;
 
 % Set up initial surface.
 dim = sqrt(length(x_nsy));
-x1 = reshape(x_nsy(:, 1), dim, dim)';
-x2 = reshape(x_nsy(:, 2), dim, dim)';
+x1 = reshape(x_nsy(:, 1), dim, dim);
+x2 = reshape(x_nsy(:, 2), dim, dim);
 xt = [x1(:) x2(:)];
-ytruth = compute_truth_from_xt(xt, 'cm1');
-f_init = reshape(y_nsy, dim, dim)';
+ytruth = compute_truth_from_xt(xt, shape);
+f_init = reshape(y_nsy, dim, dim);
 
 % Show original surface.
 if do_plot
     figure; surf(x1, x2, f_init); hold on; 
-    p3(x_nsy, ytruth);d
+    p3(x_nsy, ytruth);
 end
 
 % First monotone row projection, and its residual.
@@ -59,7 +60,8 @@ while (iter < max_iter)
     latest_f_row = f_row(:, :, max(size(f_row, 3)));
     latest_f_col = f_col(:, :, max(size(f_col, 3)));
     if 1/numel(f_init) * norm(latest_f_row - latest_f_col)^2 < eps
-        disp(sprintf('(Monotone 2D) Converged at iter %s', num2str(iter)))
+        disp(sprintf('(%s Monotone 2D) Converged at iter %s', shape, ...
+                     num2str(iter)))
         break
     end
     

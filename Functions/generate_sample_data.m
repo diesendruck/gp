@@ -1,4 +1,6 @@
 % Produces (x1, x2) grid, and associated y-output samples.
+% Files stored in gp/data/ with the format: 
+% 50data_samples_[shape name].csv
 
 % Constants.
 n = 100;
@@ -8,7 +10,6 @@ data_grid_gran = 10;
 n_samples = 50;
 shapes = {'chair', 'parabolic_cylinder', 'wolverine', 'trough', ...
     'paraboloid', 'hand', 'exponential', 'hannah2'};
-shape = 'exponential';  % CHOOSE DESIRED SHAPE.
 
 for shape = shapes
     shape = shape{1};

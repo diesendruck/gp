@@ -21,6 +21,9 @@ x_nsy = xydat(:, [1:2]);
 y_samples = xydat(:, [3:size(xydat, 2)]);
 num_samples = size(y_samples, 2);
 
+% Setup directories and email.
+setup_directories_and_email()
+
 % Set up storage variable for each method, reporting RMSEs.
 store_rmses_kern = zeros(num_samples, 1);
 store_rmses_kern_mono = zeros(num_samples, 1);
@@ -46,8 +49,6 @@ ytruth_on_test = compute_truth_from_xt(tt, shape);
 %% DO GLOBAL RUNS
 % For each set of y outputs, produce the RMSEs for kernel, monotone
 % projection of kernel, GP, and monotone projection of GP.
-fid_log = fopen('Results_2d/logs/cm_mses_logs.csv', 'wt');
-fprintf(fid_log, 'event,value\n');
 
 for i = 1:num_samples
     % Get y sample for this iteration.

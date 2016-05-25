@@ -14,7 +14,7 @@
 
 start_time = tic
 platform = 'mac';
-%platform = 'linux';
+platform = 'linux';
 
 % Import GPstuff, set paths, and setup email params.
 setup_directories_and_email(platform);
@@ -29,15 +29,15 @@ iter = 0;                  % Counter for iterations.
 
 ls_factor = 0.5;           % Lengthscale factor (proportion of x-range).
 mesh_gran = 20;            % Number of ticks on mesh for plotting.
+short_run = 1;
 
-if 1
+if short_run
     num_posteriors = 20;      % Number of posterior mcmc samples to generate.
     desired = 2;              % Number of posterior mcmc samples to use.
     mbcr_burn = 1;            % Number of burn-in for MBCR estimate.
     mbcr_tot = 2;             % Number of total samples for MBCR estimate.
-end
 
-if 0
+else
     num_posteriors = 500;      % Number of posterior mcmc samples to generate.
     desired = 20;              % Number of posterior mcmc samples to use.
     mbcr_burn = 500;            % Number of burn-in for MBCR estimate.
@@ -46,7 +46,7 @@ end
 
 
 %% SAVE MSE RESULTS TO FILE.
-fid = fopen('Results_2d/mses.csv', 'wt');
+fid = fopen('Results_2d/rmses.csv', 'wt');
 fprintf(fid, 'data_shape,gp,gp_conv,kern,kern_conv,sen,cap,mbcr\n');
 
 
@@ -54,7 +54,6 @@ fprintf(fid, 'data_shape,gp,gp_conv,kern,kern_conv,sen,cap,mbcr\n');
 % List of shapes to run.
 shapes = {'chair', 'parabolic_cylinder', 'wolverine', 'trough', ...
     'paraboloid', 'hand', 'exponential', 'hannah2'};
-shapes = {'chair', 'parabolic_cylinder'};
 
 % Run experiment for each shape.
 for shape = shapes
@@ -76,13 +75,13 @@ end
 fclose(fid);
    
 if strcmp(platform, 'mac')
-    sendmail('momod@utexas.edu', 'RESULTS mac: MSE Comparisons', ...
+    sendmail('momod@utexas.edu', 'RESULTS mac: RMSE Comparisons', ...
         sprintf('Total time: %s', num2str(total_time_elapsed, '%0.2f')),...
-        {'/Users/mauricediesendruck/Google Drive/0-LIZHEN RESEARCH/gp/Results_2d/mses.csv'});
+        {'/Users/mauricediesendruck/Google Drive/0-LIZHEN RESEARCH/gp/Results_2d/rmses.csv'});
 elseif strcmp(platform, 'linux')
-    sendmail('momod@utexas.edu', 'RESULTS linux: MSE Comparisons', ...
+    sendmail('momod@utexas.edu', 'RESULTS linux: RMSE Comparisons', ...
         sprintf('Total time: %s', num2str(total_time_elapsed, '%0.2f')),...
-        {'/home/momod/Documents/gp/Results_2d/mses.csv'});
+        {'/home/momod/Documents/gp/Results_2d/rmses.csv'});
 end
 
 end_time = toc(start_time)

@@ -2,7 +2,7 @@ function [rmse_gp, rmse_gp_conv, rmse_kern, rmse_kern_conv, rmse_sen, ...
     rmse_cap, rmse_mbcr, gp_conv_time_elapsed, mbcr_time_elapsed] = ...
         gp_experiment_run_shape(tol_thres, eps1, eps2, n, ls_factor, ...
             mesh_gran, num_posteriors, desired, shape, fid, ...
-            mbcr_burn, mbcr_tot, platform)
+            mbcr_burn, mbcr_tot, platform, short_run)
 % Run gp experiment* for a particular shape.
 %
 % *One experiment draws many samples from the Gaussian Process posterior,
@@ -24,6 +24,7 @@ function [rmse_gp, rmse_gp_conv, rmse_kern, rmse_kern_conv, rmse_sen, ...
 %   mbcr_burn: Number of burn-in for MBCR estimate.
 %   mbcr_tot: Number of total samples for MBCR estimate.
 %   platform: Name 'mac' or 'linux', used for filepath in sendmail.
+%   short_run: Binary indicator of whether to do a shorter test run.
 %
 % Returns:
 %   mse_gp: MSE of average of desired number of GP posteriors.
@@ -47,7 +48,7 @@ y_samples = xydat(:, [3:size(xydat, 2)]);
 num_samples = size(y_samples, 2);
 
 % Do run for only a few datasets.
-if 1
+if short_run
     y_samples = xydat(:, [3:4]);
     num_samples = size(y_samples, 2);
 end

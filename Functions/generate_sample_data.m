@@ -10,6 +10,7 @@ data_grid_gran = 10;
 n_samples = 50;
 shapes = {'chair', 'parabolic_cylinder', 'wolverine', 'trough', ...
     'paraboloid', 'hand', 'exponential', 'hannah2'};
+shapes = {'cm1', 'cm2', 'cm3', 'cm4'};
 
 for shape = shapes
     shape = shape{1};

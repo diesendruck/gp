@@ -1,3 +1,4 @@
+% THIS SCRIPT DOES CONVEX PROJECTION OF MULTIPLE REGRESSION METHODS.
 % This version was authored by Maurice Diesendruck.
 
 % Adapted from 

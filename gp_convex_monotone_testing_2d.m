@@ -1,4 +1,4 @@
-% Convex and Monotone Projections of Gaussian Processes.
+% THIS SCRIPT DOES CONVEX AND MONOTONE PROJECTION OF GP AND KERNEL REGRESSION.
 
 
 %% CONSTANTS
@@ -19,19 +19,16 @@ ls_factor = 0.5;            % Lengthscale factor (proportion of x-range).
 
 verbose = 1;                % Whether to print things to console.
 do_plot = 1;                % Whether to make plots, versus just results by email.
+short_run = 1;
 
 % Short run.
-if 1
-    num_posteriors = 20;    % Number of posterior mcmc samples to generate.
-    desired = 2;            % Number of posterior mcmc samples to use.
-    num_global_iters = 3;   % Number of MSEs to produce per shape.
-end
+if short_run
+    num_posteriors = 2000;    % Number of posterior mcmc samples to generate.
+    desired = 50;            % Number of posterior mcmc samples to use.
 
-% Full run.
-if 0
-    num_posteriors = 2000;  % Number of posterior mcmc samples to generate.
-    desired = 50;           % Number of posterior mcmc samples to use.
-    num_global_iters = 10;   % Number of MSEs to produce per shape.
+else
+    num_posteriors = 2000;  
+    desired = 50;           
 end
 
 % Choose platform 'mac' or 'linux'.
@@ -42,24 +39,40 @@ shapes = {'cm1', 'cm2', 'exponential'};
 
 
 %% EMAIL PARAMS
-setup_directories_and_email(platform);
+%setup_directories_and_email(platform);
 
 
 %% SET UP FILE FOR RESULTS
-fid = fopen('Results_2d/cm_mses.csv', 'wt');
+fid = fopen('Results_2d/cm_rmses.csv', 'w+');
 fprintf(fid, 'data_shape,gp,gp_conv,gp_mono,gp_cm,kern,kern_conv,kern_mono,kern_cm\n');
 
-fid_log = fopen('Results_2d/logs/cm_mses_logs.csv', 'wt');
+fid_log = fopen('Results_2d/logs/cm_rmses_logs.csv', 'w+');
 fprintf(fid_log, 'event,value\n');
 
 
 %% GLOBAL RUN
-for i = 1:num_global_iters;
-    for shape = shapes
-        shape = shape{1};
-        [x_nsy, ~, y_nsy, ~] = make_noisy_convex(n, d, shape, do_grid, ...
-            data_grid_gran);
 
+for shape = shapes
+    shape = char(shape);
+    
+    %% FETCH SIMULATED RAW DATA (CONVEX + NOISE).
+    data_filename = sprintf('data/50data_samples_%s.csv', shape);
+    xydat = importdata(data_filename);
+    x_nsy = xydat(:, [1:2]);
+    d = 2;
+    y_samples = xydat(:, [3:size(xydat, 2)]);
+    num_samples = size(y_samples, 2);
+
+    % Do run for only a few datasets.
+    if short_run
+        num_samples = 10;
+        y_samples = xydat(:, [3:3+num_samples-1]);
+    end
+
+    % For a given shape, do the test on each data sample.
+    for i = 1:num_samples
+        % Get y sample for this iteration.
+        y_nsy = y_samples(:, i);
 
         %% ORIGINAL CONVEX MONOTONE DATA
         % Get associated data about noisy data set.
@@ -87,7 +100,7 @@ for i = 1:num_global_iters;
             subplot(2, 5, 1);
             surf(xt1, xt2, yq_conv); hold on;
             plot3(x_nsy(:, 1), x_nsy(:, 2), y_nsy, 'r.', 'MarkerSize', 20);
-            title('True Convex');
+            title(sprintf('True Convex: %s', shape));
 
             % Store original z-axis limits.
             zl = zlim;
@@ -150,8 +163,8 @@ for i = 1:num_global_iters;
         end
 
         % Report time of subroutine.
-        fprintf('(AvgGP and AvgGP Convex) Time: %d\n', toc(gp_c_time))
-        fprintf(fid_log, '%s,%s\n', 'gp_c_time', num2str(toc(gp_c_time), '%0.2f'));
+        fprintf(fid_log, '%s,%s,%s\n', 'gp_c_time', num2str(toc(gp_c_time), '%0.2f'), shape);
+        fprintf('(AvgGP and AvgGP Convex) Time: %d\n', toc(gp_c_time), shape)
 
 
         %% MONOTONE PROJECTION OF AVG GP.
@@ -162,7 +175,7 @@ for i = 1:num_global_iters;
         %f = monotone_2d(x_nsy, y_mcmc_test);
         %f_mono = griddata(tt(:, 1), tt(:, 2), f(:), xt1, xt2);
         [y_gp_mono, gp_m_iter] = monotone_2d(xt, avg_mcmcs, shape);
-        
+
         % Compute MSE only over test points.
         y_gp_mono_test = griddata(xt(:, 1), xt(:, 2), y_gp_mono(:), t1, t2);
         rmse_gp_mono = sqrt(1/length(tt) * norm(y_gp_mono_test(:) - ytruth_on_test)^2);
@@ -175,8 +188,8 @@ for i = 1:num_global_iters;
 
         % Report results of subroutine.
         fprintf('(AvgGP Monotone 2D) Time: %d\n', toc(gp_m_time))
-        fprintf(fid_log, '%s,%s\n', 'gp_m_time', num2str(toc(gp_m_time), '%0.2f'));
-        fprintf(fid_log, '%s,%s\n', 'gp_m_iter', num2str(gp_m_iter));
+        fprintf(fid_log, '%s,%s,%s\n', 'gp_m_time', num2str(toc(gp_m_time), '%0.2f'), shape);
+        fprintf(fid_log, '%s,%s,%s\n', 'gp_m_iter', num2str(gp_m_iter), shape);
 
 
         %% CONVEX MONOTONE PROJECTION OF AVG GP.
@@ -200,8 +213,8 @@ for i = 1:num_global_iters;
 
         % Report time of subroutine.
         fprintf('(AvgGP Convex Monotone 2D) Time: %d\n', toc(gp_cm_time))
-        fprintf(fid_log, '%s,%s\n', 'gp_cm_time', num2str(toc(gp_cm_time), '%0.2f'));
-        fprintf(fid_log, '%s,%s\n', 'gp_cm_iter', num2str(gp_cm_iter));
+        fprintf(fid_log, '%s,%s,%s\n', 'gp_cm_time', num2str(toc(gp_cm_time), '%0.2f'), shape);
+        fprintf(fid_log, '%s,%s,%s\n', 'gp_cm_iter', num2str(gp_cm_iter), shape);
 
 
         %% KERNEL REGRESSION, ITS CONVEX PROJECTION, AND MSES.
@@ -255,8 +268,8 @@ for i = 1:num_global_iters;
         end
 
         % Report time of subroutine.
-        fprintf('(Kernel and Kernel Convex 2D) Time: %d\n', toc(kern_c_time))
-        fprintf(fid_log, '%s,%s\n', 'kern_c_time', num2str(toc(kern_c_time), '%0.2f'));
+        fprintf(fid_log, '%s,%s,%s\n', 'kern_c_time', num2str(toc(kern_c_time), '%0.2f'), shape);
+        fprintf('(Kernel and Kernel Convex 2D) Time: %d\n', toc(kern_c_time), shape)
 
 
         %% MONOTONE PROJECTION OF KERNEL REGRESSION.
@@ -278,8 +291,8 @@ for i = 1:num_global_iters;
 
         % Report time of subroutine.
         fprintf('(Kernel Monotone 2D) Time: %d\n', toc(kern_m_time))
-        fprintf(fid_log, '%s,%s\n', 'kern_m_time', num2str(toc(kern_m_time), '%0.2f'));
-        fprintf(fid_log, '%s,%s\n', 'kern_m_iter', num2str(kern_m_iter));
+        fprintf(fid_log, '%s,%s,%s\n', 'kern_m_time', num2str(toc(kern_m_time), '%0.2f'), shape);
+        fprintf(fid_log, '%s,%s,%s\n', 'kern_m_iter', num2str(kern_m_iter), shape);
 
 
         %% CONVEX MONOTONE PROJECTION OF KERNEL REGRESSION.
@@ -303,8 +316,8 @@ for i = 1:num_global_iters;
 
         % Report time of subroutine.
         fprintf('(Kernel Convex Monotone 2D) Time: %d\n', toc(kern_cm_time))
-        fprintf(fid_log, '%s,%s\n', 'kern_cm_time', num2str(toc(kern_cm_time), '%0.2f'));
-        fprintf(fid_log, '%s,%s\n', 'kern_cm_iter', num2str(kern_cm_iter));
+        fprintf(fid_log, '%s,%s,%s\n', 'kern_cm_time', num2str(toc(kern_cm_time), '%0.2f'), shape);
+        fprintf(fid_log, '%s,%s,%s\n', 'kern_cm_iter', num2str(kern_cm_iter), shape);
 
 
         %% ADD SUMMARY TEXT TO PLOT.
@@ -335,31 +348,29 @@ for i = 1:num_global_iters;
             num2str(rmse_kern_cm, '%0.7f')); 
 
     end
+
 end
 
-
 %% LOG TOTAL TIME
-fprintf(fid_log, '%s,%s\n', 'total_time', num2str(toc(start_time), '%0.2f'));
+fprintf(fid_log, '%s,%s,%s\n', 'total_time', num2str(toc(start_time), '%0.2f'), shape, shape);
 
 
 %% CLOSE AND SEND RESULTS FILE.
 fclose(fid);
 fclose(fid_log);
-   
+
 if strcmp(platform, 'mac')
     sendmail('momod@utexas.edu', 'RESULTS mac: CM_MSE', ...
-        sprintf('Total time: %s', num2str(toc(start_time), '%0.2f')), ...
-        {'/Users/mauricediesendruck/Google Drive/0-LIZHEN RESEARCH/gp/Results_2d/cm_mses.csv', ...
-         '/Users/mauricediesendruck/Google Drive/0-LIZHEN RESEARCH/gp/Results_2d/logs/cm_mses_logs.csv'});
+        sprintf('Total time: %s', num2str(toc(start_time), '%0.2f'), shape), ...
+        {'/Users/mauricediesendruck/Google Drive/0-LIZHEN RESEARCH/gp/Results_2d/cm_rmses.csv', ...
+         '/Users/mauricediesendruck/Google Drive/0-LIZHEN RESEARCH/gp/Results_2d/logs/cm_rmses_logs.csv'});
 elseif strcmp(platform, 'linux')
     sendmail('momod@utexas.edu', 'RESULTS linux: CM_MSE', ...
-        sprintf('Total time: %s', num2str(toc(start_time), '%0.2f')), ...
-        {'/home/momod/Documents/gp/Results_2d/cm_mses.csv', ...
-         '/home/momod/Documents/gp/Results_2d/logs/cm_mses_logs.csv'});
+        sprintf('Total time: %s', num2str(toc(start_time), '%0.2f'), shape), ...
+        {'/home/momod/Documents/gp/Results_2d/cm_rmses.csv', ...
+         '/home/momod/Documents/gp/Results_2d/logs/cm_rmses_logs.csv'});
 end
 
-
-%%
 toc(start_time)
 
 

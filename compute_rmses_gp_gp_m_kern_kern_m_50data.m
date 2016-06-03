@@ -20,7 +20,7 @@ platform = 'mac';       % Choose appropriate platform.
 shape = 'exponential';
 
 % Import data.                           
-filename = sprintf('data/50data_samples_%s.csv', shape);
+filename = sprintf('data/50data_samples_%s_sig6.csv', shape);
 xydat = importdata(filename);
 x_nsy = xydat(:, [1:2]);
 y_samples = xydat(:, [3:size(xydat, 2)]);
@@ -175,7 +175,7 @@ toc(start_time);
 % Save results to file.
 results = [store_rmses_gp store_rmses_gp_mono store_rmses_kern ...
            store_rmses_kern_mono];
-csvwrite(sprintf('data/rmses_gp_gp_m_kern_kern_m_50data_%s.csv', shape), results);
+csvwrite(sprintf('data/rmses_gp_gp_m_kern_kern_m_50data_%s_sig6.csv', shape), results);
 
 if strcmp(platform, 'mac')
     sendmail('momod@utexas.edu', ...
@@ -183,13 +183,13 @@ if strcmp(platform, 'mac')
         sprintf('Total time: %s', num2str(toc(start_time), '%0.2f')), ...
         {strcat('/Users/mauricediesendruck/Google Drive/', ...
                 '0-LIZHEN RESEARCH/gp/data/', ...
-                sprintf('rmses_gp_gp_m_kern_kern_m_50data_%s.csv', shape))});       
+                sprintf('rmses_gp_gp_m_kern_kern_m_50data_%s_sig6.csv', shape))});       
 elseif strcmp(platform, 'linux')
     sendmail('momod@utexas.edu', ...
         sprintf('RESULTS linux: shively_%s_rmses', shape), ...
         sprintf('Total time: %s', num2str(toc(start_time), '%0.2f')), ...
         {strcat('/home/momod/Documents/gp/data/', ...
-                sprintf('rmses_gp_gp_m_kern_kern_m_50data_%s.csv', shape))});
+                sprintf('rmses_gp_gp_m_kern_kern_m_50data_%s_sig6.csv', shape))});
 end
 
     

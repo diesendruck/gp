@@ -47,7 +47,7 @@ fid = fopen('Results_2d/cm_rmses.csv', 'w+');
 fprintf(fid, 'data_shape,gp,gp_conv,gp_mono,gp_cm,kern,kern_conv,kern_mono,kern_cm\n');
 
 fid_log = fopen('Results_2d/logs/cm_rmses_logs.csv', 'w+');
-fprintf(fid_log, 'event,value\n');
+fprintf(fid_log, 'event,value,shape\n');
 
 
 %% GLOBAL RUN

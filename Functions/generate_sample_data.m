@@ -8,9 +8,11 @@ d = 2;
 do_grid = 1;
 data_grid_gran = 10;
 n_samples = 50;
+
 shapes = {'chair', 'parabolic_cylinder', 'wolverine', 'trough', ...
     'paraboloid', 'hand', 'exponential', 'hannah2'};
 shapes = {'cm1', 'cm2', 'cm3', 'cm4'};
+shapes = {'exponential'};
 
 for shape = shapes
     shape = shape{1};
@@ -31,6 +33,6 @@ for shape = shapes
         results(:, 3+i) = y_nsy_i;
     end
 
-    csvwrite(sprintf('data/50data_samples_%s.csv', shape), results);
+    csvwrite(sprintf('../data/50data_samples_%s.csv', shape), results);
     
 end
